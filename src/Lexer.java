@@ -11,8 +11,16 @@ public class Lexer {
      * I Hate.
      */
     static {
+        /**
+         * For any tokens which consist of multiple characters,
+         * which themselves are *also* tokens (such as +=), be sure that the
+         * regular expressions for the larger tokens appear *before* the rules
+         * for smaller ones. Note here how += appears before the regex for +.
+         */
+        patterns.put(Pattern.compile("^\\+="), TokenType.TK_PLUSEQ);
         patterns.put(Pattern.compile("^\\+"), TokenType.TK_PLUS);
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
+        patterns.put(Pattern.compile("^\\="), TokenType.TK_EQUAL);
         patterns.put(Pattern.compile("^;"), TokenType.TK_SEMICOLON);
         patterns.put(Pattern.compile("^(int)"), TokenType.TK_TYPE);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
