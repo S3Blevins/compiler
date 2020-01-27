@@ -14,8 +14,16 @@ public class Lexer {
     static {
         //TODO: braces, brackets, parenthesis, additional types, additional keywords, and special operators
 
+        /**
+         * For any tokens which consist of multiple characters,
+         * which themselves are *also* tokens (such as +=), be sure that the
+         * regular expressions for the larger tokens appear *before* the rules
+         * for smaller ones. Note here how += appears before the regex for +.
+         */
+        patterns.put(Pattern.compile("^\\+="), TokenType.TK_PLUSEQ);
         patterns.put(Pattern.compile("^\\+"), TokenType.TK_PLUS);
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
+        patterns.put(Pattern.compile("^\\="), TokenType.TK_EQUAL);
         patterns.put(Pattern.compile("^;"), TokenType.TK_SEMICOLON);
         patterns.put(Pattern.compile("^(int)|(char)|(void)"), TokenType.TK_TYPE);
         patterns.put(Pattern.compile("^(main)|(return)"), TokenType.TK_KEYWORDS);
@@ -33,7 +41,7 @@ public class Lexer {
 
         for(String line : lines) {
             while(line.length() > 0) {
-                // end is a position marker
+
                 int end = 0;
                 // move the end marker past white-space
                 while(Character.isWhitespace(line.charAt(end))) end++;
