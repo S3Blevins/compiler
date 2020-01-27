@@ -6,6 +6,5 @@ public class Token {
         public String toString() {
 
             return str + tokenType.toString();
-
         }
 }

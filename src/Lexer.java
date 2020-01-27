@@ -47,7 +47,7 @@ public class Lexer {
                     if(m.find()) {
 
                         Token tk = new Token();
-                        tk.str = line.substring(m.start(), m.end()) + " --> ";
+                        tk.str = line.substring(m.start(), m.end());
                         tk.tokenType = e.getValue();
                         tokens.add(tk);
 
