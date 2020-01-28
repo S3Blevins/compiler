@@ -56,6 +56,10 @@ public class Compiler {
                     System.out.println(token);
                 }
 
+                System.out.println("\nReconstructed");
+                for (Token token : tokens)
+                    System.out.print(token.str);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -65,6 +69,7 @@ public class Compiler {
             System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
             System.out.println("Please use the argument '-h' for help.");
         }
+
     }
 
     static void helpString() {
