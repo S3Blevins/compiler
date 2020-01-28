@@ -21,8 +21,14 @@ public class Lexer {
          * for smaller ones. Note here how += appears before the regex for +.
          */
         patterns.put(Pattern.compile("^\\+="), TokenType.TK_PLUSEQ);
+        patterns.put(Pattern.compile("^\\-="), TokenType.TK_MINUSEQ);
+        patterns.put(Pattern.compile("^\\*="), TokenType.TK_STAREQ);
+        patterns.put(Pattern.compile("^\\/="), TokenType.TK_SLASHEQ);
+        patterns.put(Pattern.compile("^=="), TokenType.TK_EQEQUAL);
         patterns.put(Pattern.compile("^\\+"), TokenType.TK_PLUS);
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
+        patterns.put(Pattern.compile("^\\*"), TokenType.TK_STAR);
+        patterns.put(Pattern.compile("^/"), TokenType.TK_SLASH);
         patterns.put(Pattern.compile("^[=]"), TokenType.TK_EQUALS);
         patterns.put(Pattern.compile("^;"), TokenType.TK_SEMICOLON);
         patterns.put(Pattern.compile("^:"), TokenType.TK_COLON);

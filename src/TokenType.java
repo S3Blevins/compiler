@@ -1,7 +1,13 @@
 public enum TokenType {
         TK_PLUSEQ,
+        TK_MINUSEQ,
+        TK_STAREQ,
+        TK_SLASHEQ,
+        TK_EQEQUAL,
         TK_PLUS,
         TK_MINUS,
+        TK_STAR,
+        TK_SLASH,
         TK_SEMICOLON,
         TK_COLON,
         TK_QMARK,
