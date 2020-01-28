@@ -1,30 +1,46 @@
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 public class LexerTest {
 
     @Test
     public void testLexar() {
 
-        ArrayList<Token> expected = new ArrayList<>();
-        expected.add(new Token());
-        expected.add(new Token());
-        expected.add(new Token());
-
-        expected.get(0).str = "int";
-        expected.get(0).tokenType = TokenType.TK_TYPE;
-
-        expected.get(1).str = "x";
-        expected.get(1).tokenType = TokenType.TK_IDENTIFIER;
-
-        expected.get(2).str = ";";
-        expected.get(2).tokenType = TokenType.TK_SEMICOLON;
+        String expected = "[(int, TK_TYPE)," +
+                " ( , TK_SPACE)," +
+                " (x, TK_IDENTIFIER)," +
+                " (;, TK_SEMICOLON)]";
 
         String[] lines = {"int x;"};
 
         /* To String because some objects have trailing space which fails even if both are equal. */
-        Assert.assertEquals(expected.toString(), new Lexer().tokenize(lines).toString());
+        Assert.assertEquals(expected, new Lexer().tokenize(lines).toString());
+    }
+
+    @Test
+    public void testComplex() {
+
+        String expected = "[(int, TK_TYPE)," +
+                " ( , TK_SPACE)," +
+                " (foobar1, TK_IDENTIFIER)," +
+                " ( , TK_SPACE)," +
+                " (=, TK_EQUALS)," +
+                " ( , TK_SPACE)," +
+                " (1680, TK_NUMBER)," +
+                " ( , TK_SPACE)," +
+                " (+, TK_PLUS)," +
+                " ( , TK_SPACE)," +
+                " (200, TK_NUMBER)," +
+                " ( , TK_SPACE)," +
+                " (-, TK_MINUS)," +
+                " ( , TK_SPACE)," +
+                " (12, TK_NUMBER)," +
+                " (;, TK_SEMICOLON)]";
+
+        String[] lines = {"int foobar1 = 1680 + 200 - 12;"};
+
+        /* To String because some objects have trailing space which fails even if both are equal. */
+        Assert.assertEquals(expected, new Lexer().tokenize(lines).toString());
+
     }
 }
