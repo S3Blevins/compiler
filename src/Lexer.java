@@ -25,11 +25,13 @@ public class Lexer {
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
         patterns.put(Pattern.compile("^[=]"), TokenType.TK_EQUALS);
         patterns.put(Pattern.compile("^;"), TokenType.TK_SEMICOLON);
+        patterns.put(Pattern.compile("^:"), TokenType.TK_COLON);
+        patterns.put(Pattern.compile("^\\?"), TokenType.TK_QMARK);
+        patterns.put(Pattern.compile("^!"), TokenType.TK_BANG);
         patterns.put(Pattern.compile("^(int)|(char)|(void)"), TokenType.TK_TYPE);
-        patterns.put(Pattern.compile("^(main)|(return)"), TokenType.TK_KEYWORDS);
+        patterns.put(Pattern.compile("^(if)|(return)|(while)"), TokenType.TK_KEYWORDS);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
-        patterns.put(Pattern.compile("^[0-9]+"), TokenType.TK_NUMBER);
-        patterns.put(Pattern.compile("^\\s"),TokenType.TK_SPACE);
+        patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
     }
 
@@ -87,7 +89,7 @@ public class Lexer {
                     }
 
                     /* If counter reaches the size of the regex map size, it isn't a supported token. */
-                    if (counter == patterns.size()){
+                    if (counter > patterns.size()){
                         // Error and exit if there is an unrecognized token. Print location of failure.
                         System.err.println("error: unrecognized token! -- > " + line);
                         System.out.println("'Token' at position " +

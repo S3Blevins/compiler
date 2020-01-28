@@ -3,10 +3,12 @@ public enum TokenType {
         TK_PLUS,
         TK_MINUS,
         TK_SEMICOLON,
+        TK_COLON,
+        TK_QMARK,
+        TK_BANG,
         TK_KEYWORDS,
         TK_TYPE,
         TK_IDENTIFIER,
         TK_NUMBER,
         TK_EQUALS,
-        TK_SPACE
 }
