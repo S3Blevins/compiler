@@ -14,6 +14,8 @@ public enum TokenType {
         TK_COLON,
         TK_QMARK,
         TK_BANG,
+        TK_DOT,
+        TK_COMMA,
         TK_KEYWORDS,
         TK_TYPE,
         TK_IDENTIFIER,

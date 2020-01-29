@@ -36,11 +36,13 @@ public class Lexer {
         patterns.put(Pattern.compile("^!"), TokenType.TK_BANG);
         patterns.put(Pattern.compile("^\\)"), TokenType.TK_RPAREN);
         patterns.put(Pattern.compile("^\\("), TokenType.TK_LPAREN);
+        patterns.put(Pattern.compile("^\\."), TokenType.TK_DOT);
+        patterns.put(Pattern.compile("^,"), TokenType.TK_COMMA);
         // we reserve the right to remove and alter these lists
-        patterns.put(Pattern.compile("^(int)|(char)|(void)|(double)|(float)|(long)|(short)"), TokenType.TK_TYPE);
-        patterns.put(Pattern.compile("^(if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
+        patterns.put(Pattern.compile("^((int)|(char)|(void)|(double)|(float)|(long)|(short))[^A-Za-z0-9_]"), TokenType.TK_TYPE);
+        patterns.put(Pattern.compile("^((if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
                 "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
-                "(volatile)"), TokenType.TK_KEYWORDS);
+                "(volatile))"), TokenType.TK_KEYWORDS);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
         patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
