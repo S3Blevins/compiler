@@ -21,9 +21,9 @@ public class Lexer {
          * for smaller ones. Note here how += appears before the regex for +.
          */
         patterns.put(Pattern.compile("^\\+="), TokenType.TK_PLUSEQ);
-        patterns.put(Pattern.compile("^\\-="), TokenType.TK_MINUSEQ);
+        patterns.put(Pattern.compile("^-="), TokenType.TK_MINUSEQ);
         patterns.put(Pattern.compile("^\\*="), TokenType.TK_STAREQ);
-        patterns.put(Pattern.compile("^\\/="), TokenType.TK_SLASHEQ);
+        patterns.put(Pattern.compile("^/="), TokenType.TK_SLASHEQ);
         patterns.put(Pattern.compile("^=="), TokenType.TK_EQEQUAL);
         patterns.put(Pattern.compile("^\\+"), TokenType.TK_PLUS);
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
@@ -34,8 +34,13 @@ public class Lexer {
         patterns.put(Pattern.compile("^:"), TokenType.TK_COLON);
         patterns.put(Pattern.compile("^\\?"), TokenType.TK_QMARK);
         patterns.put(Pattern.compile("^!"), TokenType.TK_BANG);
-        patterns.put(Pattern.compile("^(int)|(char)|(void)"), TokenType.TK_TYPE);
-        patterns.put(Pattern.compile("^(if)|(return)|(while)"), TokenType.TK_KEYWORDS);
+        patterns.put(Pattern.compile("^\\)"), TokenType.TK_RPAREN);
+        patterns.put(Pattern.compile("^\\("), TokenType.TK_LPAREN);
+        // we reserve the right to remove and alter these lists
+        patterns.put(Pattern.compile("^(int)|(char)|(void)|(double)|(float)|(long)|(short)"), TokenType.TK_TYPE);
+        patterns.put(Pattern.compile("^(if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
+                "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
+                "(volatile)"), TokenType.TK_KEYWORDS);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
         patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
@@ -67,11 +72,20 @@ public class Lexer {
                     end += 2;
 
                     while(line.charAt(end) != '*' && line.charAt(end + 1) != '/') end++;
+
+                    end += 2;
+
+                    if(end == line.length()) {
+                        break;
+                    }
                 }
+
+                System.out.println("end = " + end);
 
                 // Shorten string to eliminate whitespace and comments up to this point
                 if(end != 0) {
                     line = line.substring(end);
+                    System.out.println("line = " + line);
                 }
 
                 int counter = 1;
@@ -87,6 +101,7 @@ public class Lexer {
                         // if sequence found, add to list of tokens, and shorten the string again
                         Token tk = new Token();
                         tk.str = line.substring(m.start(), m.end());
+                        System.out.println("token = " + tk.str);
                         tk.tokenType = e.getValue();
                         tokens.add(tk);
 

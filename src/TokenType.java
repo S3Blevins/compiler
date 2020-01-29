@@ -4,6 +4,8 @@ public enum TokenType {
         TK_STAREQ,
         TK_SLASHEQ,
         TK_EQEQUAL,
+        TK_RPAREN,
+        TK_LPAREN,
         TK_PLUS,
         TK_MINUS,
         TK_STAR,
@@ -16,5 +18,5 @@ public enum TokenType {
         TK_TYPE,
         TK_IDENTIFIER,
         TK_NUMBER,
-        TK_EQUALS,
+        TK_EQUALS
 }

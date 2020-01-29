@@ -39,16 +39,8 @@ public class Compiler {
                 // convert to string array as required by String[]
                 String[] lines = fileLines.toArray(new String[0]);
 
-                // Since tokenize is a static method, and Lexer is written as a static
-                // class, you probably shouldn't make an instance of it.
-                // If you want to make an instance we should probably modify Lexer
-                // to be a singleton. Right now this produces a warning on call to
-                // lexer.tokenize()
-                Lexer lexer = new Lexer();
-
-
                 // tokenize the contents of the file
-                ArrayList<Token> tokens = lexer.tokenize(lines);
+                ArrayList<Token> tokens = Lexer.tokenize(lines);
 
                 // print out tokens
                 System.out.println("\nTokens");
@@ -58,7 +50,10 @@ public class Compiler {
 
                 System.out.println("\nReconstructed");
                 for (Token token : tokens)
-                    System.out.print(token.str);
+                    if(token.tokenType == TokenType.TK_SEMICOLON)
+                        System.out.println(token.str + "\n");
+                    else
+                        System.out.print(token.str + " ");
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
