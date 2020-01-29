@@ -14,7 +14,7 @@ public class Lexer {
     static {
         //TODO: braces, brackets, parenthesis, additional types, additional keywords, and special operators
 
-        /**
+        /*
          * For any tokens which consist of multiple characters,
          * which themselves are *also* tokens (such as +=), be sure that the
          * regular expressions for the larger tokens appear *before* the rules
@@ -102,12 +102,29 @@ public class Lexer {
                     if(m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
                         Token tk = new Token();
-                        tk.str = line.substring(m.start(), m.end());
-                        System.out.println("token = " + tk.str);
                         tk.tokenType = e.getValue();
+
+                        /*
+                         * Keyword and type regexes consume an extra character
+                         * since we need to make sure its not an identifier...
+                         *
+                         * We account for that here.
+                         */
+                        if(tk.tokenType == TokenType.TK_KEYWORDS ||
+                                tk.tokenType == TokenType.TK_TYPE) {
+
+                            tk.str = line.substring(m.start(), m.end() - 1);
+                            line = line.substring(m.end() - 1);
+                        }
+                        else {
+
+                            tk.str = line.substring(m.start(), m.end());
+                            line = line.substring(m.end());
+                        }
+
+                        System.out.println("token = " + tk.str);
                         tokens.add(tk);
 
-                        line = line.substring(m.end());
                         counter = 1;
                     }
 
