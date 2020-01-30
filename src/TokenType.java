@@ -22,5 +22,9 @@ public enum TokenType {
         TK_TYPE,
         TK_IDENTIFIER,
         TK_NUMBER,
-        TK_EQUALS
+        TK_EQUALS,
+        TK_LESS,
+        TK_GREATER,
+        TK_LESSEQ,
+        TK_GREATEREQ
 }
