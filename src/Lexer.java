@@ -132,6 +132,23 @@ public class Lexer {
                         tokens.add(tk);
 
                         counter = 1;
+
+                        /*
+                         * If we encounter a valid token we break the inner
+                         * loop, and return to the outer one. At this point
+                         * the line has been shortened, so we look at the next
+                         * non-whitespace (or comment) characters, to see
+                         * if they form a valid token.
+                         * We have to break here, because if we don't, some
+                         * sequences of tokens may give unexpected results.
+                         * i.e., int int
+                         * would yield: type, identifier
+                         * when it should yield: type, type
+                         *
+                         * This sequence of tokens is of course invalid,
+                         * but it isn't the job of the lexer to know that.
+                         */
+                        break;
                     }
 
                     /* If counter reaches the size of the regex map size, it isn't a supported token. */
