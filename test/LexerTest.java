@@ -39,6 +39,40 @@ public class LexerTest {
     }
 
     @Test
+    public void testSimpleForLoop() {
+
+        String[] lines = {"int a = 0;\nfor (int i = 0; i < 10; i += 1) {a += 1;}"};
+        TokenType[] tokensTypes = {
+                TokenType.TK_TYPE, TokenType.TK_IDENTIFIER, TokenType.TK_EQUALS, TokenType.TK_NUMBER, TokenType.TK_SEMICOLON,
+                TokenType.TK_KEYWORDS, TokenType.TK_LPAREN, TokenType.TK_TYPE, TokenType.TK_IDENTIFIER, TokenType.TK_EQUALS,
+                TokenType.TK_NUMBER, TokenType.TK_SEMICOLON, TokenType.TK_IDENTIFIER, TokenType.TK_LESS, TokenType.TK_NUMBER,
+                TokenType.TK_SEMICOLON, TokenType.TK_IDENTIFIER, TokenType.TK_PLUSEQ, TokenType.TK_NUMBER, TokenType.TK_RPAREN,
+                TokenType.TK_LBRACE, TokenType.TK_IDENTIFIER, TokenType.TK_PLUSEQ, TokenType.TK_NUMBER, TokenType.TK_SEMICOLON,
+                TokenType.TK_RBRACE};
+        String[] strs = {"int", "a", "=", "0", ";",
+                        "for", "(", "int", "i", "=", "0", ";",
+                        "i", "<", "10", ";",
+                        "i", "+=", "1", ")",
+                        "{", "a", "+=", "1", ";", "}"};
+        ArrayList<Token> expected = new ArrayList<>();
+
+        for (int i = 0; i < strs.length; i++) {
+            expected.add(new Token(strs[i], tokensTypes[i]));
+        }
+
+        Assert.assertEquals(expected.toString(), Lexer.tokenize(lines).toString());
+    }
+
+    @Test
+    public void shouldIgnoreCommentAndReturnNothing() {
+        String[] lines = {"/* THIS IS A COMMENT AND SHOULD BE IGNORED. */"};
+
+        ArrayList<String> expected = new ArrayList<>(){{add("");}};
+
+        Assert.assertEquals(expected.toString(), Lexer.tokenize(lines).toString());
+    }
+
+    @Test
     public void shouldTokenizeParenthesis() {
 
         String[] lines = {"int parens(int a, int b);"};
@@ -100,9 +134,12 @@ public class LexerTest {
         String[] strs = lines[0].split(" ");
         TokenType[] tokenTypes = new TokenType[strs.length];
 
-        for (int i = 0; i < strs.length; i++) {
+        for (int i = 0; i < strs.length - 1; i++) {
             tokenTypes[i] = TokenType.TK_TYPE;
         }
+
+        /* Same reason as in 'shouldTokenizeEveryKeyword() */
+        tokenTypes[strs.length - 1] = TokenType.TK_IDENTIFIER;
 
         ArrayList<Token> expected = new ArrayList<>();
 
@@ -119,9 +156,12 @@ public class LexerTest {
         String[] strs = lines[0].trim().split(" ");
         TokenType[] tokenTypes = new TokenType[strs.length];
 
-        for (int i = 0; i < strs.length; i++) {
+        for (int i = 0; i < strs.length - 1; i++) {
             tokenTypes[i] = TokenType.TK_KEYWORDS;
         }
+
+        /* This is technically false but there is never an instance where keywords will be besides each other. */
+        tokenTypes[strs.length - 1] = TokenType.TK_IDENTIFIER;
 
         ArrayList<Token> expected = new ArrayList<>();
 
@@ -132,19 +172,24 @@ public class LexerTest {
         Assert.assertEquals(expected.toString(), Lexer.tokenize(lines).toString());
     }
 
-    //if return while" +
-    //                "typedef union unsigned volatile
-
     @Test
     public void shouldTokenizeEveryNumber() {
 
-        String[] lines = {"0123456789089876543221 12 333 3 4235 23532535252 4643634 0000 00 0000 23432 42435625235141"};
+        String[] lines = {"0123456789089876543221 12 333 3 4235 23532535252 4643634 123498765 12345 23432 42435625235141"};
 
-        String[] strs = lines[0].split(" ");
+        String[] strs = lines[0].trim().split(" ");
+        TokenType[] tokenTypes = new TokenType[strs.length];
 
+        for (int i = 0; i < strs.length; i++) {
+            tokenTypes[i] = TokenType.TK_NUMBER;
+        }
 
+        ArrayList<Token> expected = new ArrayList<>();
+
+        for (int i = 0; i < tokenTypes.length; i++) {
+            expected.add(new Token(strs[i], tokenTypes[i]));
+        }
+
+        Assert.assertEquals(expected.toString(), Lexer.tokenize(lines).toString());
     }
-
-
-
 }
