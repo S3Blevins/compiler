@@ -75,7 +75,7 @@ public class Lexer {
                 // Move the end marker past white-space
                 while(Character.isWhitespace(line.charAt(end))) end++;
 
-                // Checking for comments within /* and */ to ignore
+                // Checking for comments within '/*' and '*/' to ignore
                 if(line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
                     end += 2;
 
@@ -86,6 +86,11 @@ public class Lexer {
                     if(end == line.length()) {
                         break;
                     }
+                }
+
+                // Checking for inline comments after '//'. If encountered, go to next line
+                if(line.charAt(end) == '/' && line.charAt(end + 1) == '/' ) {
+                    break;
                 }
 
                 System.out.println("end = " + end);
