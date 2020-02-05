@@ -8,6 +8,8 @@ public enum TokenType {
         TK_LPAREN("("),
         TK_RBRACE("}"),
         TK_LBRACE("{"),
+        TK_RBRACKET("]"),
+        TK_LBRACKET("["),
         TK_PLUS("+"),
         TK_MINUS("-"),
         TK_STAR("*"),
