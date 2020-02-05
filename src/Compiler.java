@@ -7,7 +7,6 @@ public class Compiler {
 
     //TODO: add string class, and clean up argument logic
 
-
     public static void main(String[] args) {
 
         if(0 < args.length) {

@@ -43,6 +43,8 @@ public class Lexer {
         patterns.put(Pattern.compile("^>"), TokenType.TK_GREATER);
         patterns.put(Pattern.compile("^\\."), TokenType.TK_DOT);
         patterns.put(Pattern.compile("^,"), TokenType.TK_COMMA);
+        patterns.put(Pattern.compile("^\\["), TokenType.TK_LBRACKET);
+        patterns.put(Pattern.compile("^]"), TokenType.TK_RBRACKET);
         // we reserve the right to remove and alter these lists
         patterns.put(Pattern.compile("^((int)|(char)|(void)|(double)|(float)|(long)|(short))[^A-Za-z0-9_]"), TokenType.TK_TYPE);
         patterns.put(Pattern.compile("^((if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
