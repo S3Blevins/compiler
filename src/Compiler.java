@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 
 import static java.lang.System.exit;
@@ -42,11 +41,16 @@ public class Compiler {
                 // tokenize the contents of the file
                 ArrayList<Token> tokens = Lexer.tokenize(lines);
 
-                // print out tokens
+                // initialize writer to write tokens out to a file
+                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
+
+                // print & write out tokens
                 System.out.println("\nTokens");
                 for (Token token : tokens) {
                     System.out.println(token);
+                    writer.write(token.toString() + "\n");
                 }
+                writer.close();
 
                 System.out.println("\nReconstructed");
                 for (Token token : tokens)
@@ -55,7 +59,7 @@ public class Compiler {
                     else
                         System.out.print(token.str + " ");
 
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 

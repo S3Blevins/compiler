@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import static java.lang.System.exit;
-import static java.lang.System.setOut;
 
 public class Lexer {
 
