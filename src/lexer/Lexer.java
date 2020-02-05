@@ -1,3 +1,5 @@
+package lexer;
+
 import java.util.regex.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -161,7 +163,7 @@ public class Lexer {
                     if (counter > patterns.size()){
                         // Error and exit if there is an unrecognized token. Print location of failure.
                         System.err.println("error: unrecognized token! -- > " + line);
-                        System.out.println("'Token' at position " +
+                        System.out.println("'lexer.Token' at position " +
                                 (originalLine.indexOf(line.charAt(0)) + 1) +
                                 " on line " + fileLine);
                         exit(0);

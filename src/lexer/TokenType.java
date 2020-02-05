@@ -1,3 +1,5 @@
+package lexer;
+
 public enum TokenType {
         TK_PLUSEQ("+="),
         TK_MINUSEQ("-="),
