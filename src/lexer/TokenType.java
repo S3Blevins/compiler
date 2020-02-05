@@ -22,6 +22,7 @@ public enum TokenType {
         TK_BANG("!"),
         TK_DOT("."),
         TK_COMMA(","),
+        TK_DQUOTE("STRING"),
         TK_KEYWORDS("KEYWORD"),
         TK_TYPE("TYPE"),
         TK_IDENTIFIER("IDENTIFIER"),
