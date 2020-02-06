@@ -1,5 +1,7 @@
 import org.apache.commons.cli.*;
 
+import java.io.File;
+
 public class jxc {
 
     //TODO add functionality to t, to, p, po command line options
@@ -17,6 +19,7 @@ public class jxc {
         commandArgs.addOption("h", "help", false , "Displays help options.");
         commandArgs.addOption("p", "parsetree", false, "Displays parse tree to command line.");
         commandArgs.addOption("po", "parsetreeout", false, "Prints parse tree to output to a file.");
+        commandArgs.addOption("f","file,", true, "file to read in from");
 
         //parse command line options
         CommandLine line = null;
@@ -32,6 +35,10 @@ public class jxc {
             formatter.printHelp( "ant", commandArgs );
         }
 
+        if(line.hasOption("f")){
+            File file = new File(line.getOptionValue("f"));
+        }
+
         //parse tree options
         if(line.hasOption("p")){
             //display parse tree to command line
@@ -44,6 +51,7 @@ public class jxc {
         //token options
         if(line.hasOption("t")){
             //displays tokens to command line
+
         }
 
         if (line.hasOption("to")) {
