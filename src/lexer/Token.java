@@ -2,8 +2,8 @@ package lexer;
 
 public class Token {
 
-        String str;
-        TokenType tokenType;
+        public String str;
+        public TokenType tokenType;
 
         public String toString() {
 
