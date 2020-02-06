@@ -26,7 +26,7 @@ public class jxc {
         commandArgs.addOption("to", "tokenout", false , "Displays tokens to command line and output file");
         commandArgs.addOption("h", "help", false , "Displays help options.");
         commandArgs.addOption("p", "parsetree", false, "Displays parse tree to command line.");
-        commandArgs.addOption("po", "parsetreeout", false, "Prints parse tree to output to a file.");
+        commandArgs.addOption("po", "parsetreeout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f","file,", true, "File to read in from");
 
         //parse command line options
@@ -41,13 +41,6 @@ public class jxc {
         if(line.hasOption("h")){
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp( "ant", commandArgs );
-        }
-
-        //get file name
-        if(line.hasOption("f")){
-        }else {
-            System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
-            System.out.println("Please use the argument '-h' for help.");
         }
 
         //parse tree options
@@ -67,41 +60,47 @@ public class jxc {
             //displays token to command line and outputs to a file
         }
 
-        try{
-            File file = new File(line.getOptionValue("f"));
-            Scanner readScanner = new Scanner(file);
-            ArrayList<String> fileLines = new ArrayList<String>();
+        //get file name
+        if(line.hasOption("f")){
+            try{
+                File file = new File(line.getOptionValue("f"));
+                Scanner readScanner = new Scanner(file);
+                ArrayList<String> fileLines = new ArrayList<String>();
 
-            while(readScanner.hasNextLine()) {
-                fileLines.add(readScanner.nextLine().trim());
+                while(readScanner.hasNextLine()) {
+                    fileLines.add(readScanner.nextLine().trim());
+                }
+
+                // convert to string array as required by String[]
+                String[] lines = fileLines.toArray(new String[0]);
+
+                // tokenize the contents of the file
+                ArrayList<Token> tokens = Lexer.tokenize(lines);
+
+                // initialize writer to write tokens out to a file
+                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
+
+                // print & write out tokens
+                System.out.println("\nTokens");
+                for (Token token : tokens) {
+                    System.out.println(token);
+                    writer.write(token.toString() + "\n");
+                }
+                writer.close();
+
+                System.out.println("\nReconstructed");
+                for (Token token : tokens)
+                    if(token.tokenType == TokenType.TK_SEMICOLON)
+                        System.out.println(token.str + "\n");
+                    else
+                        System.out.print(token.str + " ");
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            // convert to string array as required by String[]
-            String[] lines = fileLines.toArray(new String[0]);
-
-            // tokenize the contents of the file
-            ArrayList<Token> tokens = Lexer.tokenize(lines);
-
-            // initialize writer to write tokens out to a file
-            BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
-
-            // print & write out tokens
-            System.out.println("\nTokens");
-            for (Token token : tokens) {
-                System.out.println(token);
-                writer.write(token.toString() + "\n");
-            }
-            writer.close();
-
-            System.out.println("\nReconstructed");
-            for (Token token : tokens)
-                if(token.tokenType == TokenType.TK_SEMICOLON)
-                    System.out.println(token.str + "\n");
-                else
-                    System.out.print(token.str + " ");
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        }else {
+            System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
+            System.out.println("Please use the argument '-h' for help.");
         }
     }
 }

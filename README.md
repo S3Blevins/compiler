@@ -41,7 +41,11 @@ Our current iteration of the program supports the following arguments in additio
 *Argument*  | *Description*
 --- | :---
 **-h** | provides a helpful description on the usage of the program
-**-t** | provides a tokens present in the .c file fed into the compiler
+**-t** | provides tokens present in the .c file fed into the compiler
+**-to** | prints tokens present in the .c file fed into the compiler to output file and command line
+**-p** | provides parse tree used 
+**-po** | prints parse tree used to an output file
+**-f** | input .c file to read from and tokenise 
 
 **NOTE:** The argument **-t** is on by default
 
