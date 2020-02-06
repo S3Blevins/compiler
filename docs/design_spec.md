@@ -3,8 +3,8 @@ The team chose Java as the language of choice for our compiler. The main reasoni
 
 ### Documentation Table of Contents:
 * [Program Overview and Usage](../README.md)
-* [Design Discussion, Limitations, and Tradeoffs](docs/design_spec.md)  (here)
-* [Language Specifications](docs/language_spec.md)
+* [Design Discussion, Limitations, and Tradeoffs](design_spec.md)  (here)
+* [Language Specifications](language_spec.md)
 
 ## Front-End
 ### Stage 0: Command Line Interface
