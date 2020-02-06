@@ -38,5 +38,5 @@ Again, although a token may be supported this ***DOES NOT*** mean that we will f
 
 ### Documentation Table of Contents:
 * [Program Overview and Usage](../README.md)
-* [Design Discussion, Limitations, and Tradeoffs](docs/design_spec.md)
-* [Language Specifications](docs/language_spec.md) (here)
+* [Design Discussion, Limitations, and Tradeoffs](design_spec.md)
+* [Language Specifications](language_spec.md) (here)
