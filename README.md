@@ -12,11 +12,11 @@ This document will serve as a constantly updated instructional document for runn
 
 We are currently working on implementing a fully featured parser with a "pretty-printed" syntax tree based on the [C- grammar](http://marvin.cs.uidaho.edu/Teaching/CS445/c-Grammar.pdf).
 
-### Documentation Table of Contents:
+### Documentation Navigation:
 * [Compilation and Usage](#compilation-and-usage)
 * [Program Overview](#program-overview)
-* [Design Discussion, Limitations, and Tradeoffs](docs/design_spec.md)
-* [Language Specifications](docs/language_spec.md)
+* [Design Discussion, Limitations, and Tradeoffs (design_spec.md)](docs/design_spec.md)
+* [Language Specifications (language_spec.md)](docs/language_spec.md)
 
 ---
 # Compilation and Usage
