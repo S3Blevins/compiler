@@ -9,6 +9,28 @@ import parser.Expression;
 
 public class Parser {
 
+        static enum Precedence {
+
+                NONE,
+                ASSIGNMENT,
+                OR,
+                AND,
+                EQUALITY,
+                COMPARISON,
+                TERM,
+                FACTOR,
+                UNARY,
+                CALL,
+                PRIMARY
+        }
+
+        static class ParseRule {
+
+                public abstract void ParseInfix();
+                public abstract void ParsePrefix();
+                public Precedence precedence;
+        }
+
         static Token previous;
         static Token current;
         static ArrayList<Token> tokens;
