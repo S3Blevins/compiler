@@ -9,8 +9,11 @@ import parser.Expression;
 
 public class Parser {
 
-        static enum Precedence {
+        public static Token previous;
+        public static Token current;
+        public static ArrayList<Token> tokens;
 
+        enum Precedence {
                 NONE,
                 ASSIGNMENT,
                 OR,
@@ -47,19 +50,6 @@ public class Parser {
                 public abstract void ParseInfix();
                 public abstract void ParsePrefix();
                 public Precedence precedence;
-        }
-
-        static Token previous;
-        static Token current;
-        static ArrayList<Token> tokens;
-
-        public static Expression parse(ArrayList<Token> tokens) {
-
-                Parser.tokens = tokens;
-                Parser.current = tokens.remove(0);
-                Parser.previous = Parser.current;
-                
-                return null;
         }
 }
 
