@@ -57,12 +57,12 @@ public class Parser {
 
                 public static abstract class Nud {
 
-                        abstract ASTNode exec();
+                        abstract Expression exec();
                 }
 
                 public static abstract class Led {
 
-                        abstract Expression exec(ASTNode left);
+                        abstract Expression exec(Expression left);
                 }
 
                 public ParseRule(Nud nud, Led led, Precedence precedence) {
@@ -89,8 +89,27 @@ public class Parser {
                                         return new Expression.Group(expr);
                                 }
                         }, new ParseRule.Led() {
-                                Expression exec(ASTNode left) {
+                                /*
+                                 * TODO: Handle function calls
+                                 */
+                                Expression exec(Expression left) {
                                         return null;
+                                }
+                        }, Precedence.CALL));
+
+                rules.put(TokenType.TK_MINUS, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Unary();
+                                }
+                        }, new ParseRule.Led() {
+                                /*
+                                 * TODO: Handle function calls
+                                 */
+                                Expression exec(Expression left) {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Binary(left);
                                 }
                         }, Precedence.CALL));
         }
@@ -103,6 +122,31 @@ public class Parser {
                 }
 
                 return Parser.instance;
+        }
+
+        Expression.Number Number() {
+
+                return null;
+        }
+
+        Expression.Unary Unary() {
+
+                Token operator = this.previous;
+                Expression expr = this.Expression();
+                this.previous = this.tokens.remove(0);
+
+                return new Expression.Unary(expr, operator);
+        }
+
+        Expression.Binary Binary(Expression left) {
+
+                Token operator = this.previous;
+
+                ParseRule rule = this.rules.get(operator.tokenType);
+                int precedence = rule.precedence.ordinal() + 1;
+                Expression expr = ParsePrecedence(Precedence.values()[precedence]);
+
+                return new Expression.Binary(left, operator, expr);
         }
 
         Expression ParsePrecedence(Precedence prec) {

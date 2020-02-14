@@ -43,4 +43,13 @@ public abstract class Expression extends ASTNode {
                 final Expression expr;
         }
 
+        public static class Number extends Expression {
+
+                public Number(int value) {
+
+                        this.value = value;
+                }
+
+                final int value;
+        }
 }
