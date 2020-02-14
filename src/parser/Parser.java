@@ -62,7 +62,7 @@ public class Parser {
 
                 public static abstract class Led {
 
-                        abstract ASTNode exec(ASTNode left);
+                        abstract Expression exec(ASTNode left);
                 }
 
                 public ParseRule(Nud nud, Led led, Precedence precedence) {
@@ -82,11 +82,14 @@ public class Parser {
                 rules = new HashMap<TokenType, ParseRule>();
                 rules.put(TokenType.TK_LPAREN, new ParseRule(
                         new ParseRule.Nud() {
-                                ASTNode exec() {
-                                        return null;
+                                Expression exec() {
+                                        Parser parser = Parser.Instance();
+                                        Expression expr = parser.Expression();
+                                        parser.previous = parser.tokens.remove(0);
+                                        return new Expression.Group(expr);
                                 }
                         }, new ParseRule.Led() {
-                                ASTNode exec(ASTNode left) {
+                                Expression exec(ASTNode left) {
                                         return null;
                                 }
                         }, Precedence.CALL));
@@ -102,7 +105,51 @@ public class Parser {
                 return Parser.instance;
         }
 
-        ASTNode program() {
+        Expression ParsePrecedence(Precedence prec) {
+
+                Expression left = null;
+
+                ParseRule rule = rules.get(previous.tokenType);
+                if(rule.nud == null) {
+
+                        /*
+                         * If this happens, we were expecting
+                         * to encounter an expression.
+                         * Raise an exception / handle the error
+                         */
+                        return null;
+                }
+
+                /*
+                 * I'm relatively certain that this loop is set up correctly
+                 * as the implementation of compareTo subtracts the other
+                 * operand from the calling object. We are looking for
+                 * while(prec <= rules.get(...).precedence)
+                 */
+                while(prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
+
+                        previous = tokens.remove(0);
+                        left = rules.get(previous.tokenType).led.exec(left);
+                }
+
+                return left;
+        }
+
+        Expression Expression() {
+
+                return ParsePrecedence(Precedence.ASSIGNMENT);
+        }
+
+        AStatement Statement() {
+                return null;
+        }
+
+        ASTNode Declaration() {
+
+                return null;
+        }
+
+        ASTNode Program() {
 
                 return null;
         }
@@ -111,7 +158,7 @@ public class Parser {
 
                 tokens = tokens;
 
-                return program();
+                return Program();
         }
 }
 

@@ -4,6 +4,10 @@ public class Token {
 
         public String str;
         public TokenType tokenType;
+        /*
+         * TODO: Consider adding line/column information here
+         * so that we can include line/column info in parse errors
+         */
 
         public String toString() {
 

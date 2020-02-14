@@ -35,13 +35,11 @@ public abstract class Expression extends ASTNode {
 
         public static class Group extends Expression {
 
-                public Group(Expression expr, Token op) {
+                public Group(Expression expr) {
 
-                        this.op = op;
                         this.expr = expr;
                 }
 
-                final Token op;
                 final Expression expr;
         }
 

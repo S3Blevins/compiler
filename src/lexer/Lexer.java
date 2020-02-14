@@ -173,6 +173,15 @@ public class Lexer {
             }
             fileLine++; // Next line; ; meaning line was successfully tokenized.
         }
+
+        /*
+         * Added EOF token to make detecting end of file easier in parser
+         */
+        Token eof = new Token();
+        eof.tokenType = TokenType.TK_EOF;
+        eof.str = "";
+        tokens.add(eof);
+
         return tokens;
     }
 }
