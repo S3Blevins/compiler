@@ -3,9 +3,11 @@ package parser;
 import lexer.Token;
 import lexer.TokenType;
 
-public abstract class Expression {
+import parser.ASTNode;
 
-        static class Binary extends Expression {
+public abstract class Expression extends ASTNode {
+
+        public static class Binary extends Expression {
 
                 public Binary(Expression left, Token op, Expression right) {
 
@@ -19,7 +21,7 @@ public abstract class Expression {
                 final Expression right;
         }
 
-        static class Unary extends Expression {
+        public static class Unary extends Expression {
 
                 public Unary(Expression expr, Token op) {
 
@@ -31,7 +33,7 @@ public abstract class Expression {
                 final Expression expr;
         }
 
-        static class Group extends Expression {
+        public static class Group extends Expression {
 
                 public Group(Expression expr, Token op) {
 
