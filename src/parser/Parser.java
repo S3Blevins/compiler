@@ -1,13 +1,12 @@
 package parser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import lexer.Token;
 import lexer.TokenType;
 
-import parser.ASTNode;
-import parser.Expression;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static java.lang.System.exit;
 
 public class Parser {
 
@@ -47,19 +46,24 @@ public class Parser {
                 PRIMARY
         }
 
-        /*
-         * I think this will work better than having to have
-         * a subclass of ParseRule for every token. Instead
-         * we have delegates objects to handle it for us.
-         * Maybe not beautiful, but maybe more manageable?
+        /**
+         * ParseRule follows the functionality of a Pratt Parser
+         *
+         * A Null Denotation (Nud) is a token that does not care about the tokens to the left
+         *      Typically variables, literals, and prefix operators
+         *
+         * A Left Denotation (Led) is a token where the left token is relevant
+         *      Typically infix and suffix operators
          */
         static class ParseRule {
 
+                // NULL Denotation
                 public static abstract class Nud {
 
                         abstract Expression exec();
                 }
 
+                // Left Denotation
                 public static abstract class Led {
 
                         abstract Expression exec(Expression left);
@@ -78,8 +82,9 @@ public class Parser {
         }
 
         private Parser() {
-
+                // initialize rule table
                 rules = new HashMap<TokenType, ParseRule>();
+
                 rules.put(TokenType.TK_LPAREN, new ParseRule(
                         new ParseRule.Nud() {
                                 Expression exec() {
@@ -89,9 +94,6 @@ public class Parser {
                                         return new Expression.Group(expr);
                                 }
                         }, new ParseRule.Led() {
-                                /*
-                                 * TODO: Handle function calls
-                                 */
                                 Expression exec(Expression left) {
                                         return null;
                                 }
@@ -104,20 +106,16 @@ public class Parser {
                                         return parser.Unary();
                                 }
                         }, new ParseRule.Led() {
-                                /*
-                                 * TODO: Handle function calls
-                                 */
                                 Expression exec(Expression left) {
                                         Parser parser = Parser.Instance();
                                         return parser.Binary(left);
                                 }
-                        }, Precedence.CALL));
+                        }, Precedence.TERM));
         }
 
+        // singleton pattern only has one instance of the object
         public static Parser Instance() {
-
                 if(Parser.instance == null) {
-
                         Parser.instance = new Parser();
                 }
 
@@ -125,12 +123,10 @@ public class Parser {
         }
 
         Expression.Number Number() {
-
                 return null;
         }
 
         Expression.Unary Unary() {
-
                 Token operator = this.previous;
                 Expression expr = this.Expression();
                 this.previous = this.tokens.remove(0);
@@ -139,7 +135,6 @@ public class Parser {
         }
 
         Expression.Binary Binary(Expression left) {
-
                 Token operator = this.previous;
 
                 ParseRule rule = this.rules.get(operator.tokenType);
@@ -150,7 +145,6 @@ public class Parser {
         }
 
         Expression ParsePrecedence(Precedence prec) {
-
                 Expression left = null;
 
                 ParseRule rule = rules.get(previous.tokenType);
@@ -180,27 +174,96 @@ public class Parser {
         }
 
         Expression Expression() {
-
-                return ParsePrecedence(Precedence.ASSIGNMENT);
+                Parser.Instance();
+                return null; //ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
-        AStatement Statement() {
-                return null;
+        ASTNode Statement() {
+
+
+
+
+                return Expression();
         }
 
+        /**
+         * Check for either a variable declaration or a function declaration
+         * @return
+         */
         ASTNode Declaration() {
+                Token typeSpec;
+                Token decID;
 
-                return null;
+                // check for error
+                if(tokens.get(0).tokenType != TokenType.TK_TYPE && tokens.get(1).tokenType != TokenType.TK_IDENTIFIER) {
+                        System.err.println("Invalid Declaration!");
+                        exit(1);
+                }
+
+                // remove the specified element, and store it into the attributes
+                typeSpec = tokens.remove(0);
+                decID = tokens.remove(0);
+
+                previous = tokens.remove(0);
+
+                // check to see if a parenthesis exists (means a function declaration)
+                if(previous.tokenType == TokenType.TK_LPAREN) {
+                        Declaration.paramList parList = new Declaration.paramList();
+
+                        while(tokens.get(0).tokenType != TokenType.TK_RPAREN) {
+                                if(parList.size() > 255) {
+                                        System.err.println("Too many parameters in list!");
+                                        exit(1);
+                                }
+
+                                Token type = tokens.remove(0);
+
+                                if(type.tokenType != TokenType.TK_TYPE && tokens.get(0).tokenType != TokenType.TK_IDENTIFIER) {
+                                        System.err.println("Invalid parameter!");
+                                        exit(1);
+                                }
+
+                                Token paramID = tokens.remove(0);
+
+                                // create a parameter, and add it to the list
+                                Declaration.paramList.Param parameter = new Declaration.paramList.Param(type, paramID);
+                                parList.addParam(parameter);
+
+                                // check to see if next token is a comma, if it is, then continue the loop.
+                                if(tokens.remove(0).tokenType != TokenType.TK_COMMA) {
+                                        break;
+                                }
+                        }
+
+                        // remove the right parenthesis
+                        tokens.remove(0);
+
+                        AStatement funDecStmnt = (AStatement) Statement();
+
+                        return new Declaration.funDeclaration(typeSpec, decID, parList, funDecStmnt);
+                }
+
+                return new Declaration.varDeclaration(typeSpec, decID);
         }
 
+        /**
+         * Program calls upon Declaration(), looking for declarations until the token list is empty
+         * @return ASTNode containing the head to the Abstract Syntax
+         */
         ASTNode Program() {
+                // initialize a new list of declarations
+                Program ASThead = new Program();
 
-                return null;
+                // run until tokens list is empty
+                while(!tokens.isEmpty()) {
+                        ASThead.addDeclaration((Declaration) Declaration());
+                }
+
+                return ASThead;
         }
 
         public ASTNode Parse(ArrayList<Token> tokens) {
-
-                tokens = tokens;
+                this.tokens = tokens;
 
                 return Program();
         }

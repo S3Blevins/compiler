@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import parser.Parser;
+
 public class jxc {
 
     //TODO add functionality to t, to, p, po command line options
@@ -90,14 +92,15 @@ public class jxc {
 
                 System.out.println("\nReconstructed");
                 for (Token token : tokens)
-                    if(token.tokenType == TokenType.TK_SEMICOLON)
-                        System.out.println(token.str + "\n");
-                    else
                         System.out.print(token.str + " ");
+                System.out.println();
+
+                Parser.Instance().Parse(tokens);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }else {
             System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
             System.out.println("Please use the argument '-h' for help.");
