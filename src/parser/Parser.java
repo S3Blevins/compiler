@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
 
 public class Parser {
 
@@ -175,16 +176,101 @@ public class Parser {
         }
 
         Expression Expression() {
-                Parser.Instance();
-                return null; //ParsePrecedence(Precedence.ASSIGNMENT);
+                System.out.println("Expression()");
+                Expression expr = null;
+
+                if(tokens.get(0).tokenType == TokenType.TK_NUMBER) {
+                        expr = new Expression.Number(Integer.parseInt(tokens.get(0).str));
+
+                        // remove number
+                        tokens.remove(0);
+                }
+
+                return expr;
         }
 
         ASTNode Statement() {
+                System.out.println("Statement()");
 
+                previous = tokens.get(0);
+                AStatement statement = null;
 
+                if(previous.tokenType == TokenType.TK_LBRACE) {
+                        // compound/block statement
+                        statement = new AStatement.Block();
 
+                        while(tokens.get(0).tokenType != TokenType.TK_RBRACE) {
+                                previous = tokens.remove(0);
 
-                return Expression();
+                                // has to either be a statement or a declaration
+                                if(previous.tokenType == TokenType.TK_TYPE) {
+                                        ((AStatement.Block) statement).addDeclaration((Declaration) Declaration());
+                                } else {
+                                        ((AStatement.Block) statement).addStatement((AStatement) Statement());
+                                }
+                        }
+
+                        // removes right brace
+                        tokens.remove(0);
+
+                } else if(previous.tokenType == TokenType.TK_KEYWORDS) {
+                        String keywordIndicator = previous.str.toLowerCase();
+
+                        switch(keywordIndicator) {
+                                case "if":
+                                        // selection statement
+                                        //TODO: further implementation
+                                        statement = new AStatement.Selection();
+                                        break;
+                                case "while":
+                                        // iteration statement
+                                        //TODO: further implementation
+                                        Expression condition = Expression();
+                                        AStatement.Block body = (AStatement.Block) Statement();
+
+                                        statement = new AStatement.Iteration(condition, body);
+
+                                        break;
+                                case "return":
+                                        // return statement
+                                        statement = new AStatement.Return();
+
+                                        // remove return
+                                        tokens.remove(0);
+
+                                        // in the event that the next token after the return is not a semicolon,
+                                        // then it is an expression
+                                        if(tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
+                                                ((AStatement.Return) statement).setExpression(Expression());
+                                        }
+
+                                        // remove semicolon
+                                        tokens.remove(0);
+                                        break;
+                                case "break":
+                                        // break statement is empty
+                                        statement = new AStatement.Break();
+                                        break;
+                                default:
+                                        System.out.println("Somethin's wrong and Imma head out...");
+                                        exit(1);
+                        }
+
+                } else {
+                        // expression statement
+
+                        // if the next token is not a semicolon, then it is an expression
+                        if(previous.tokenType != TokenType.TK_SEMICOLON) {
+                                //TODO: implement
+
+                                //statement = Expression();
+                        }
+
+                        // remove remaining semicolon
+                        tokens.remove(0);
+                }
+
+                return statement;
         }
 
         /**
@@ -192,6 +278,7 @@ public class Parser {
          * @return
          */
         ASTNode Declaration() {
+                System.out.println("Declaration()");
                 Token typeSpec;
                 Token decID;
 
@@ -240,14 +327,13 @@ public class Parser {
                         tokens.remove(0);
 
                         AStatement funDecStmnt = (AStatement) Statement();
-
                         return new Declaration.funDeclaration(typeSpec, decID, parList, funDecStmnt);
                 }
 
                 // Made it to this point, must be a variable declaration
                 // Loop through tokens until we see a semi colon. This is to handle
                 // the case where we have multiple variables defined on the same line.
-                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
+                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration(typeSpec);
 
                 // Add the first varID str as the first variable.
                 varDeclaration.varDecList.variables.add(decID);
@@ -257,6 +343,7 @@ public class Parser {
 
                         // Get next varID
                         previous = tokens.remove(0);
+
                         System.out.println("previous = " + previous);
 
                         // This condition handles this --> // [int column], row, index;
@@ -300,22 +387,28 @@ public class Parser {
          * Program calls upon Declaration(), looking for declarations until the token list is empty
          * @return ASTNode containing the head to the Abstract Syntax
          */
-        ASTNode Program() {
+        ASTNode Program(String fileName) {
                 // initialize a new list of declarations
                 Program ASThead = new Program();
 
                 // run until tokens list is empty
                 while(!tokens.isEmpty()) {
+                        System.out.println("tokens = " + tokens);
+                        System.out.println("Program()");
                         ASThead.addDeclaration((Declaration) Declaration());
                 }
+
+                ASThead.printNode(fileName, 0);
 
                 return ASThead;
         }
 
-        public ASTNode Parse(ArrayList<Token> tokens) {
+        public ASTNode Parse(ArrayList<Token> tokens, String fileName) {
                 this.tokens = tokens;
 
-                return Program();
+
+
+                return Program(fileName);
         }
 }
 
