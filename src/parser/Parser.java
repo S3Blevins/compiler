@@ -120,22 +120,35 @@ public class Parser {
                                         return null;
                                 }
                         }, new ParseRule.Led() {
-                        Expression exec(Expression left) {
-                                Parser parser = Parser.Instance();
-                                return parser.Binary(left);
-                        }
-                }, Precedence.TERM));
+                                Expression exec(Expression left) {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Binary(left);
+                                }
+
+                        }, Precedence.TERM));
 
                 rules.put(TokenType.TK_NUMBER, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Number();
+                                }
+                        }, new ParseRule.Led() {
+                                Expression exec(Expression left) {
+                                        return null;
+                                }
+                        }, Precedence.PRIMARY));
+
+                rules.put(TokenType.TK_KEYWORDS, new ParseRule(
                         new ParseRule.Nud() {
                                 Expression exec() {
                                         return null;
                                 }
                         }, new ParseRule.Led() {
-                        Expression exec(Expression left) {
-                                return null;
-                        }
-                }, Precedence.PRIMARY));
+                                Expression exec(Expression left) {
+                                        return null;
+                                }
+                        }, Precedence.PRIMARY));
         }
 
         // singleton pattern only has one instance of the object
@@ -148,7 +161,10 @@ public class Parser {
         }
 
         Expression.Number Number() {
-                return null;
+                Expression expr = this.Expression();
+                this.previous = this.tokens.remove(0);
+
+                return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
         }
 
         Expression.Unary Unary() {
@@ -214,7 +230,7 @@ public class Parser {
 
                 return expr;
 
-                // return ParsePrecedence(Precedence.ASSIGNMENT);
+                //return ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
         ASTNode Statement() {
