@@ -1,6 +1,8 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.regex.Pattern;
 
 import lexer.Token;
 import lexer.TokenType;
@@ -14,15 +16,26 @@ public abstract class AStatement extends ASTNode {
         // TODO: selection statement
         // iteration statement
         // return statement
-
+        // break statement
 
         public static class Block extends AStatement {
 
-                public Block(ArrayList<AStatement> statements) {
-                        this.statements = statements;
+                public Block() {
+                        this.statements = new ArrayList<AStatement>();
+                        this.declarations = new ArrayList<Declaration>();
+                }
+
+                public void addStatement(AStatement statement) {
+                        this.statements.add(statement);
+                }
+
+                public void addDeclaration(Declaration declaration) {
+                        this.declarations.add(declaration);
                 }
 
                 ArrayList<AStatement> statements;
+                ArrayList<Declaration> declarations;
+
         }
 
         public static class Iteration extends AStatement {
@@ -36,16 +49,38 @@ public abstract class AStatement extends ASTNode {
                 Block body;
         }
 
+        public static class Selection extends AStatement {
+
+                public Selection() {
+                        this.ifElse = new LinkedHashMap<>();
+                }
+
+                // set of condition and body
+                public LinkedHashMap<Expression, Block> ifElse;
+        }
+
         public static class Return extends AStatement {
 
-                // NOTE: expr may be null
-                public Return(Token returnString, Expression expr) {
-                        this.returnString = returnString;
+                // expression is set when
+                public Return() {
+                        this.token = new Token("return", TokenType.TK_KEYWORDS);
+                        this.expr = null;
+                }
+
+                public void setExpression(Expression expr) {
                         this.expr = expr;
                 }
 
-                Token returnString;
+                Token token;
                 Expression expr;
+        }
+
+        public static class Break extends AStatement {
+
+                public Break() {
+                        this.token = new Token("break", TokenType.TK_KEYWORDS);
+                }
+                Token token;
         }
 
         public static class Statement {
@@ -58,9 +93,6 @@ public abstract class AStatement extends ASTNode {
         }
 
         //TODO: override print method specific to statement node
-        public void printNode(){
-
-        }
 
 }
 
