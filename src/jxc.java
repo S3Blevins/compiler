@@ -39,33 +39,14 @@ public class jxc {
             System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
         }
 
-        //displays helpful information
-        if(line.hasOption("h")){
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "ant", commandArgs );
-        }
-
-        //parse tree options
-        if(line.hasOption("p")){
-            //display parse tree to command line
-        }
-        if(line.hasOption("po")){
-            //prints parse tree to output file
-        }
-
-        //token options
-        if(line.hasOption("t")){
-            //displays tokens to command line
-
-        }
-        if (line.hasOption("to")) {
-            //displays token to command line and outputs to a file
-        }
+        StringBuilder str = new StringBuilder();
+        ArrayList<Token> tokens = null;
+        File file = null;
 
         //get file name
         if(line.hasOption("f")){
             try{
-                File file = new File(line.getOptionValue("f"));
+                file = new File(line.getOptionValue("f"));
                 Scanner readScanner = new Scanner(file);
                 ArrayList<String> fileLines = new ArrayList<String>();
 
@@ -77,33 +58,59 @@ public class jxc {
                 String[] lines = fileLines.toArray(new String[0]);
 
                 // tokenize the contents of the file
-                ArrayList<Token> tokens = Lexer.tokenize(lines);
-
-                // initialize writer to write tokens out to a file
-                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
+                tokens = Lexer.tokenize(lines);
 
                 // print & write out tokens
-                System.out.println("\nTokens");
+                str.append("\nTOKENS:\n");
                 for (Token token : tokens) {
-                    System.out.println(token);
-                    writer.write(token.toString() + "\n");
+                    str.append(token + "\n");
                 }
-                writer.close();
-
-                System.out.println("\nReconstructed");
-                for (Token token : tokens)
-                        System.out.print(token.str + " ");
-                System.out.println();
-
-                Parser.Instance().Parse(tokens, file.getName());
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        }else {
+        } else {
             System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
             System.out.println("Please use the argument '-h' for help.");
         }
+
+        //displays helpful information
+        if(line.hasOption("h")){
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp( "ant", commandArgs );
+        }
+
+        //token options
+        if(line.hasOption("t")){
+            //displays tokens to command line
+            System.out.println(str);
+
+            System.out.println("RECONSTRUCTED:");
+            for (Token token : tokens)
+                System.out.print(token.str + " ");
+            System.out.println();
+        }
+        if (line.hasOption("to")) {
+            //displays token to command line and outputs to a file
+            // initialize writer to write tokens out to a file
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
+                writer.write(str.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //parse tree options
+        if(line.hasOption("p")){
+            //display parse tree to command line
+            System.out.println("\nPARSER:");
+            Parser.Instance().Parse(tokens, file.getName());
+        }
+        if(line.hasOption("po")){
+            //prints parse tree to output file
+        }
+
     }
 }

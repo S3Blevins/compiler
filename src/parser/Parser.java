@@ -176,7 +176,7 @@ public class Parser {
         }
 
         Expression Expression() {
-                System.out.println("Expression()");
+                //System.out.println("Expression()");
                 Expression expr = null;
 
                 if(tokens.get(0).tokenType == TokenType.TK_NUMBER) {
@@ -190,7 +190,7 @@ public class Parser {
         }
 
         ASTNode Statement() {
-                System.out.println("Statement()");
+                //System.out.println("Statement()");
 
                 previous = tokens.get(0);
                 AStatement statement = null;
@@ -278,7 +278,7 @@ public class Parser {
          * @return
          */
         ASTNode Declaration() {
-                System.out.println("Declaration()");
+                //System.out.println("Declaration()");
                 Token typeSpec;
                 Token decID;
 
@@ -393,8 +393,8 @@ public class Parser {
 
                 // run until tokens list is empty
                 while(!tokens.isEmpty()) {
-                        System.out.println("tokens = " + tokens);
-                        System.out.println("Program()");
+                        //System.out.println("tokens = " + tokens);
+                        //System.out.println("Program()");
                         ASThead.addDeclaration((Declaration) Declaration());
                 }
 

@@ -97,12 +97,12 @@ public class Lexer {
                     break;
                 }
 
-                System.out.println("end = " + end);
+                //System.out.println("end = " + end);
 
                 // Shorten string to eliminate whitespace and comments up to this point
                 if(end != 0) {
                     line = line.substring(end);
-                    System.out.println("line = " + line);
+                    //System.out.println("line = " + line);
                 }
 
                 int counter = 1;
@@ -137,7 +137,7 @@ public class Lexer {
                             line = line.substring(m.end());
                         }
 
-                        System.out.println("token = " + tk.str);
+                        //System.out.println("token = " + tk.str);
                         tokens.add(tk);
 
                         counter = 1;
