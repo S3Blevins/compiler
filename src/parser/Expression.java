@@ -47,8 +47,6 @@ public abstract class Expression extends ASTNode {
         }
 
         //TODO: override print method specific to expression node
-        public void printNode(){
 
-        }
 
 }
