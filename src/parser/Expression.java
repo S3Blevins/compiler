@@ -1,6 +1,7 @@
 package parser;
 
 import lexer.Token;
+import lexer.TokenType;
 
 public abstract class Expression extends ASTNode {
 
@@ -39,11 +40,11 @@ public abstract class Expression extends ASTNode {
 
         public static class Number extends Expression {
 
-                public Number(int value) {
-                        this.value = value;
+                public Number(Integer value) {
+                        this.value = new Token(value.toString(), TokenType.TK_NUMBER);
                 }
 
-                final int value;
+                Token value;
         }
 
         //TODO: override print method specific to expression node

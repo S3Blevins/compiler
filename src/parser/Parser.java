@@ -113,6 +113,29 @@ public class Parser {
                                         return parser.Binary(left);
                                 }
                         }, Precedence.TERM));
+
+                rules.put(TokenType.TK_PLUS, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+                }, Precedence.TERM));
+
+                rules.put(TokenType.TK_NUMBER, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                return null;
+                        }
+                }, Precedence.PRIMARY));
         }
 
         // singleton pattern only has one instance of the object
@@ -177,8 +200,11 @@ public class Parser {
 
         Expression Expression() {
                 //System.out.println("Expression()");
+
                 Expression expr = null;
 
+                // This is temporary implementation of expression until it is combined with the
+                // precedence parsing above
                 if(tokens.get(0).tokenType == TokenType.TK_NUMBER) {
                         expr = new Expression.Number(Integer.parseInt(tokens.get(0).str));
 
@@ -187,6 +213,8 @@ public class Parser {
                 }
 
                 return expr;
+
+                // return ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
         ASTNode Statement() {
