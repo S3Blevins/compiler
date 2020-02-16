@@ -1,15 +1,18 @@
 package parser;
 
 import lexer.Token;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public abstract class Declaration extends ASTNode{
 
     public static class varDeclaration extends Declaration {
 
-        // (1) When varDeclaration gets init, itll call varDecList.
-        public varDeclaration() {
-            varDecList = new varDecList();
+        // (1) When varDeclaration gets init, it will call varDecList.
+        public varDeclaration(Token typeSpecifier) {
+            this.varDecList = new varDecList();
+            this.typeSpecifier = typeSpecifier;
         }
 
         // (2) once called, varDecList will  init an arraylist for the variables.
@@ -22,13 +25,19 @@ public abstract class Declaration extends ASTNode{
                 this.variables = new ArrayList<>();
             }
 
+            public void addVarDec(Token varID) {
+                this.variables.add(varID);
+            }
+
             // TODO: Implement this piece of the rabbit hole.
             public static class varDecInitialize {
 
             }
+
         }
 
         varDecList varDecList; // The list of variables declared.
+        Token typeSpecifier;
     }
 
     public static class funDeclaration extends Declaration {
@@ -46,7 +55,7 @@ public abstract class Declaration extends ASTNode{
         AStatement statement;
     }
 
-    public static class paramList {
+    public static class paramList extends Declaration{
 
         public paramList() {
             this.parameterList = new ArrayList<Param>();
@@ -74,7 +83,6 @@ public abstract class Declaration extends ASTNode{
     }
 
     //TODO: override print method specific to declaration node
-    public void printNode(){
+    // prints the entire tree, node-by-node pretty print
 
-    }
 }
