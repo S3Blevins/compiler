@@ -268,9 +268,9 @@ public class Grammar {
     /* Garrett */
     public static Expression parseExpression(ArrayList<Token> tokens) {
 
-        Parser.tokens = tokens;
-        Parser.current = tokens.remove(0);
-        Parser.previous = Parser.current;
+        //Parser.tokens = tokens;
+        //Parser.current = tokens.remove(0);
+        //Parser.previous = Parser.current;
 
         return null;
     }
