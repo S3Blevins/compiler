@@ -34,7 +34,7 @@ Currently our project is set up to be easily imported directly into the IntelliJ
 
 Our plan is for every week for the duration of the project, a running build will be available for download in the `bin` directory for ease of use.
 
-[See here for a list of dependencies included in our build.](dependencies-and-attributions)
+[See here for a list of dependencies included in our build.](#dependencies-and-attributions)
 
 ### Usage
 Currently our compiler is only completely working in the scanner phase so functionality is limited. You can run the program as `java compiler <test>.c` with <test> being replaced with the name of your `.c` file.
