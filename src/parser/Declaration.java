@@ -7,13 +7,28 @@ public abstract class Declaration extends ASTNode{
 
     public static class varDeclaration extends Declaration {
 
-        public varDeclaration(Token typeSpecifier, Token varID) {
-            this.typeSpecifier = typeSpecifier;
-            this.varID = varID;
+        // (1) When varDeclaration gets init, itll call varDecList.
+        public varDeclaration() {
+            varDecList = new varDecList();
         }
 
-        Token typeSpecifier;
-        Token varID;
+        // (2) once called, varDecList will  init an arraylist for the variables.
+        public static class varDecList {
+
+            // (3) This is holding all the variables (tokens) on single line (i.e int i, j, k ,....)
+            ArrayList<Token> variables;
+
+            public varDecList() {
+                this.variables = new ArrayList<>();
+            }
+
+            // TODO: Implement this piece of the rabbit hole.
+            public static class varDecInitialize {
+
+            }
+        }
+
+        varDecList varDecList; // The list of variables declared.
     }
 
     public static class funDeclaration extends Declaration {
@@ -56,7 +71,6 @@ public abstract class Declaration extends ASTNode{
             Token type;
             Token paramID;
         }
-
     }
 
     //TODO: override print method specific to declaration node
