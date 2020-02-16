@@ -1,14 +1,19 @@
 # [Spring 2020] CSE423 Compiler Project
+
+## JxC
+### J - Java  
+### x - Unknown due to our unknown knowledge of how to build a functioning C  compiler.   
+### C - (C)ompiler   
+
 ### Summary
-This document will serve as a constantly updated instructional document for running the compiler project with a description of the contents of our repo.
+This project is intended for the Spring 2020 semester of CSE423 at New Mexico Institute of Mining and Technology. This document will serve as a constantly updated instructional document for running the compiler project with a description of the contents of our repo.
 ##### Team members (in alphabetical order):
 * Garrett Bates (gbbofh)
 * Sterling Blevins (S3Blevins)
 * Damon Estrada (damon-estrada)
 * Jacob Santillanes (Ulteelectrom)
 
-
-##### Working Progress: `Stage 2 (Parser)`
+##### Working Progress: `Stage 1 (Parser) of 3`
 
 We are currently working on implementing a fully featured parser with a "pretty-printed" syntax tree based on the [C- grammar](http://marvin.cs.uidaho.edu/Teaching/CS445/c-Grammar.pdf).
 
@@ -38,14 +43,14 @@ Since the project is being done in Java, we are currently hand-rolling command l
 
 Our current iteration of the program supports the following arguments in addition to the `.c` file being read in.
 
-*Argument*  | *Description*
---- | :---
-**-h** | provides a helpful description on the usage of the program
-**-t** | provides tokens present in the .c file fed into the compiler
-**-to** | prints tokens present in the .c file fed into the compiler to output file and command line
-**-p** | provides parse tree used 
-**-po** | prints parse tree used to an output file
-**-f** | input .c file to read from and tokenise 
+*Argument* | *Long Output* | *Description*
+--- | --- | :---
+**-h** | -help | provides a helpful description on the usage of the program
+**-t** | -token | provides tokens present in the .c file fed into the compiler
+**-to** | -tokenout | prints tokens present in the .c file fed into the compiler to output file and command line
+**-p** | -parsetree | provides parse tree used 
+**-po** | -parsetreeout | prints parse tree used to an output file
+**-f** | -file | input .c file to read from and tokenise 
 
 **NOTE:** The argument **-t** is on by default
 
@@ -89,9 +94,26 @@ Below is a table containing tokens supported by the lexer/scanner component of t
 **TK_LESSEQ** |<=
 **TK_GREATEREQ** | >=
 
+### The JxC Grammar (as of 2/16/2020) 
+**NOTE:** All terminals are denoted in lowercase and bold words or characters.  
+
+*# Grammar*  | *Production Rules*
+--- | :---:
+*1. program* | *declaration*
+*2. declaration* | *aStatement* / *varDeclaration*
+*3. aStatement* | --- 
+*4. varDeclaration* | *typeSpecifier* *varDecList* / *varDecInit*
+*5. varDecList* | *varDecList*, *varDecInit* / *varDecInit*
+*6. varDecInit* | *varDecId* / *varDecId* **=** *expression*
+*7. varDecId* | **ID** / **ID** [**NUMCONSTANT**]
+*8. typeSpecifier* | **int**
+
 ##### Comment Support:
 Comments are supported in both their multi-line `/*...*/` and single line `//...` implementation.
 
 ## Dependencies and Attributions
 
 * [*Appache Commons CLI Library*](http://commons.apache.org/proper/commons-cli/) - Used in cli-interface branch (not fully implemented)
+
+* [*JUnit4*](https://junit.org/junit4/) - Used to write repeatable unit test for methods to ensure code base changes do not introduce new bugs.
+
