@@ -2,8 +2,6 @@ package parser;
 
 import java.util.ArrayList;
 
-import static java.lang.System.exit;
-
 /**
  *
  */
@@ -25,9 +23,17 @@ public class Program extends ASTNode {
         this.declarationList.add(dec);
     }
 
-
     //TODO: override print method specific to program node
-    public void printNode(){
+    public void printNode(String progName, int depth) {
+        System.out.println("program <" +  progName + ">");
 
+        for(int i = 0; i < declarationList.size(); i++) {
+            if(i == declarationList.size() - 1) {
+                System.out.print(" `--");
+            } else {
+                System.out.print(" |--");
+            }
+            declarationList.get(i).printNode(depth + 1);
+        }
     }
 }
