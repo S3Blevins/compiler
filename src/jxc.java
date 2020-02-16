@@ -95,7 +95,7 @@ public class jxc {
                         System.out.print(token.str + " ");
                 System.out.println();
 
-                Parser.Instance().Parse(tokens);
+                Parser.Instance().Parse(tokens, file.getName());
 
             } catch (IOException e) {
                 e.printStackTrace();

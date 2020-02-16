@@ -1,21 +1,57 @@
 package parser;
 
+import lexer.Token;
+
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 
 public abstract class ASTNode {
 
-    public void printNode(){
+    // prints the entire tree, node-by-node pretty print
+    // This was hard to figure out how to generalize...
+    public void printNode(int depth) {
+
+        // current class variation of the ASTNode
+        Class currentNode = this.getClass();
+
+        // print the name of the node, and attributes if relevant
+        System.out.print(currentNode.getSimpleName());
+        this.printAttributes();
+
+        // get all attributes of the class
         Field[] fields = this.getClass().getDeclaredFields();
 
-        // iterate through object attributes
-        for(Field field: fields) {
+        // iterate through object attributes, recursively printing if the attribute is another node
+        for(int i = 0; i < fields.length; i++) {
             try {
-                // if the attribute is a production rule object
-                // recursively go further, otherwise print out the terminal
-                if(field.get(this) instanceof ASTNode) {
-                    ((ASTNode) field.get(this)).printNode();
-                } else {
-                    System.out.println(field.get(this));
+                // if the attribute to the parent object is another node, do some indentation work, and print
+                if(fields[i].get(this) instanceof ASTNode) {
+                    System.out.print("   ".repeat(depth));
+
+                    if(i == fields.length - 1) {
+                        System.out.print(" `--");
+                    } else {
+                        System.out.print(" |--");
+                    }
+                    ((ASTNode) fields[i].get(this)).printNode(depth + 1);
+                } else if(fields[i].get(this) instanceof ArrayList<?>) {
+                    // in the event that the parent object can have an infinite number of child nodes,
+                    // iterate through the node list
+                    ArrayList<ASTNode> nodeList = (ArrayList<ASTNode>) fields[i].get(this);
+
+                    for(int j = 0; j < nodeList.size(); j++) {
+                        System.out.print("   ".repeat(depth));
+
+                        if(i == fields.length - 1) {
+                            System.out.print(" `--");
+                        } else {
+                            System.out.print(" |--");
+                        }
+
+                        // don't indent this time
+                        nodeList.get(j).printNode(depth);
+                    }
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -23,7 +59,38 @@ public abstract class ASTNode {
         }
     }
 
-    //TODO: create wrapper function for printNode()
+    public void printAttributes() {
+        // print the attributes within <> if applicable
+        System.out.print(" <");
+
+        // get all attributes
+        Field[] fields = this.getClass().getDeclaredFields();
+
+        // iterate through object attributes, but only look at tokens if possible
+        for(int i = 0; i < fields.length; i++) {
+
+            try {
+                // if a token, it is a terminal in the grammar
+                if(fields[i].get(this) instanceof Token) {
+                    // only add a space within the brackets if not the first terminal
+                    if(i != 0) {
+                        System.out.print(" ");
+                    }
+                    System.out.print(((Token) fields[i].get(this)).str);
+                } else {
+                    // break if there happen to be many attributes which are not tokens-
+                    // attributes are ordered with terminals first (in theory)
+                    break;
+                }
+
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println(">");
+    }
 
 }
 
