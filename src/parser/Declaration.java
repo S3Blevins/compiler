@@ -10,34 +10,43 @@ public abstract class Declaration extends ASTNode{
     public static class varDeclaration extends Declaration {
 
         // (1) When varDeclaration gets init, it will call varDecList.
-        public varDeclaration(Token typeSpecifier) {
-            this.varDecList = new varDecList();
+        public varDeclaration(Token typeSpecifier, Token firstVar) {
+            this.variables = new varDecList(typeSpecifier, firstVar);
             this.typeSpecifier = typeSpecifier;
         }
 
-        // (2) once called, varDecList will  init an arraylist for the variables.
-        public static class varDecList {
+        Token typeSpecifier;
+        varDecList variables; // The list of variables declared.
+    }
 
-            // (3) This is holding all the variables (tokens) on single line (i.e int i, j, k ,....)
-            ArrayList<Token> variables;
+    // (2) once called, varDecList will  init an arraylist for the variables.
+    public static class varDecList extends Declaration {
 
-            public varDecList() {
-                this.variables = new ArrayList<>();
-            }
+        // (3) This is holding all the variables (tokens) on single line (i.e int i, j, k ,....)
+        ArrayList<Variable> varDecList;
 
-            public void addVarDec(Token varID) {
-                this.variables.add(varID);
-            }
-
-            // TODO: Implement this piece of the rabbit hole.
-            public static class varDecInitialize {
-
-            }
-
+        public varDecList(Token type, Token firstVar) {
+            this.varDecList = new ArrayList<>(){{add(new Variable(type, firstVar));}};
         }
 
-        varDecList varDecList; // The list of variables declared.
-        Token typeSpecifier;
+        public void addVarDec(Variable variable) {
+            this.varDecList.add(variable);
+        }
+
+        public static class Variable {
+            public Variable(Token type, Token varID) {
+                this.type = type;
+                this.varID = varID;
+            }
+
+            Token type;
+            Token varID;
+        }
+
+        // TODO: Implement this piece of the rabbit hole.
+        public static class varDecInitialize {
+
+        }
     }
 
     public static class funDeclaration extends Declaration {
@@ -55,13 +64,13 @@ public abstract class Declaration extends ASTNode{
         AStatement statement;
     }
 
-    public static class paramList extends Declaration{
+    public static class paramList extends Declaration {
+
+        ArrayList<Param> parameterList;
 
         public paramList() {
             this.parameterList = new ArrayList<Param>();
         }
-
-        ArrayList<Param> parameterList;
 
         public void addParam(Param parameter) {
             this.parameterList.add(parameter);
