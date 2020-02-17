@@ -40,17 +40,26 @@ public abstract class ASTNode {
                     // iterate through the node list
                     ArrayList<ASTNode> nodeList = (ArrayList<ASTNode>) fields[i].get(this);
 
-                    for(int j = 0; j < nodeList.size(); j++) {
-                        System.out.print("   ".repeat(depth));
+                    // Add a check to see if we are dealing with a variable.
+                    ArrayList<Declaration.varDecList.Variable> variables =
+                            (ArrayList<Declaration.varDecList.Variable>) fields[i].get(this);
 
-                        if(i == fields.length - 1) {
-                            System.out.print(" `--");
-                        } else {
-                            System.out.print(" |--");
+                    if (variables.get(0) != null) {
+                        // we have a variable
+                    } else {
+                        // Not a variable
+                        for (int j = 0; j < nodeList.size(); j++) {
+                            System.out.print("   ".repeat(depth));
+
+                            if (i == fields.length - 1) {
+                                System.out.print(" `--");
+                            } else {
+                                System.out.print(" |--");
+                            }
+
+                            // don't indent this time
+                            nodeList.get(j).printNode(depth);
                         }
-
-                        // don't indent this time
-                        nodeList.get(j).printNode(depth);
                     }
                 }
             } catch (IllegalAccessException e) {
@@ -66,12 +75,27 @@ public abstract class ASTNode {
         // get all attributes
         Field[] fields = this.getClass().getDeclaredFields();
 
+        //System.out.print(fields[0].getName());
+
         // iterate through object attributes, but only look at tokens if possible
         for(int i = 0; i < fields.length; i++) {
 
             try {
-                // if a token, it is a terminal in the grammar
-                if(fields[i].get(this) instanceof Token) {
+                if (fields[i].getName().equals("varDecList")) {
+
+                    ArrayList<Declaration.varDecList.Variable> vars =
+                            (ArrayList<Declaration.varDecList.Variable>) fields[i].get(this);
+
+                    // Print the variables from the varDecList
+                    for (int ii = 0; ii < vars.size(); ii++) {
+                        if (ii + 1 == vars.size())
+                            System.out.print(vars.get(ii).varID.str);
+                        else
+                            System.out.print(vars.get(ii).varID.str + ", ");
+                    }
+
+                } else if(fields[i].get(this) instanceof Token) {
+                    // if a token, it is a terminal in the grammar
                     // only add a space within the brackets if not the first terminal
                     if(i != 0) {
                         System.out.print(" ");
@@ -86,7 +110,6 @@ public abstract class ASTNode {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
-
         }
 
         System.out.println(">");
