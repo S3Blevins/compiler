@@ -97,6 +97,7 @@ public class jxc {
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
                 writer.write(str.toString());
+                writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
