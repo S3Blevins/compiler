@@ -21,16 +21,9 @@ We are currently working on implementing a fully featured parser with a "pretty-
 
 ---
 # Compilation and Usage
-
-### Compilation of the Project
 ##### Compatible with Java JDK 8+
-Currently our project is set up to be easily imported directly into the IntelliJ IDE with the `src` and `lib` folders being designated as sources. Just build the project through the menu.
-
 Our plan is for each milestone in the project, a running build will be available for download in the `build` directory.
 
-[See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)
-
-### Usage
 Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/JxC_2_16_2020/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
   <code>
     java -jar JxC_2_16_2020.jar -f "FILE.c" -p -t
@@ -39,6 +32,8 @@ Please make sure your `.c` files are in the same directory or else you'll need t
 <code>
   java -jar JxC_2_16_2020.jar -f ~/Desktop/test1.c -p -t
 </code>
+
+[See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)  
 
 Our current iteration of the program supports the following arguments in addition to the `.c` file being read in.
 
