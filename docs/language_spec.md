@@ -114,11 +114,11 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >params &rightarrow; paramList | **ε**
 
->paramList &rightarrow; paramlist;paramTypeList | paramTypeList
+>paramList &rightarrow; paramlist **;** paramTypeList | paramTypeList
 
 >paramTypeList &rightarrow; typeSpecifier paramIdList
 
->paramIdList &rightarrow; paramIdList**,** paramId | paramId
+>paramIdList &rightarrow; paramIdList **,** paramId | paramId
 
 >paramId &rightarrow; **ID** | **ID** [constant]
 
@@ -127,7 +127,7 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >statement &rightarrow; expressionStatement | blockStatement | returnStatement
 
->expressionStatement &rightarrow; expression**;** | **;**
+>expressionStatement &rightarrow; expression **;** | **;**
 
 >blockStatement &rightarrow; **{** localDeclarations statementList **}**
 
@@ -139,7 +139,7 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >iterationStatement &rightarrow; **while** expression **do** statement
 
->returnStatement &rightarrow; **return**; | **return** expression**;**
+>returnStatement &rightarrow; **return**; | **return** expression **;**
 
 >breakStatement &rightarrow; **break;**
 
@@ -160,6 +160,6 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >args &rightarrow; argList | **ε**
 
->argList &rightarrow; argList, expression | expression
+>argList &rightarrow; argList **,** expression | expression
 
 >constant &rightarrow; **NUMCONST**
