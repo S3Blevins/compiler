@@ -27,8 +27,8 @@ public class jxc {
         commandArgs.addOption("t", "token", false , "Display tokens to command line");
         commandArgs.addOption("to", "tokenout", false , "Displays tokens to command line and output file");
         commandArgs.addOption("h", "help", false , "Displays help options.");
-        commandArgs.addOption("p", "parsetree", false, "Displays parse tree to command line.");
-        commandArgs.addOption("po", "parsetreeout", false, "Prints parse tree to output file.");
+        commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
+        commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f","file,", true, "File to read in from");
 
         //parse command line options
