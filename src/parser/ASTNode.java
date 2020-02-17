@@ -44,10 +44,6 @@ public abstract class ASTNode {
                     ArrayList<Declaration.varDecList.Variable> variables =
                             (ArrayList<Declaration.varDecList.Variable>) fields[i].get(this);
 
-                    if (variables.get(0) != null) {
-                        // we have a variable
-                    } else {
-                        // Not a variable
                         for (int j = 0; j < nodeList.size(); j++) {
                             System.out.print("   ".repeat(depth));
 
@@ -59,7 +55,6 @@ public abstract class ASTNode {
 
                             // don't indent this time
                             nodeList.get(j).printNode(depth);
-                        }
                     }
                 }
             } catch (IllegalAccessException e) {
