@@ -377,10 +377,8 @@ public class Parser {
                 // Made it to this point, must be a variable declaration
                 // Loop through tokens until we see a semi colon. This is to handle
                 // the case where we have multiple variables defined on the same line.
-                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration(typeSpec);
-
-                // Add the first varID str as the first variable.
-                varDeclaration.varDecList.variables.add(decID);
+                // Add the first varID as the first variable.
+                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration(typeSpec, decID);
 
                 // Previous holds the last comma at this point
                 while (previous.tokenType != TokenType.TK_SEMICOLON) {
@@ -388,15 +386,12 @@ public class Parser {
                         // Get next varID
                         previous = tokens.remove(0);
 
-                        System.out.println("previous = " + previous);
-
                         // This condition handles this --> // [int column], row, index;
                         if (previous.tokenType == TokenType.TK_IDENTIFIER) {
                                 // We should get the next varID here with the same type.
-                                varDeclaration.varDecList.variables.add(previous);
+                                varDeclaration.variables.addVarDec(new Declaration.varDecList.Variable(typeSpec, previous));
                         } else if (previous.tokenType == TokenType.TK_EQUALS) {
                                 // This condition handles this --> [int column] = 0, row = 0, index = 0;
-
                         } else {
                                 System.err.println("Declaration(): There was a type or TOKEN that does not follow the grammar.");
                                 System.exit(1);
@@ -404,25 +399,21 @@ public class Parser {
 
                         // Remove next token, will break out if semi-colon
                         previous = tokens.remove(0);
-
                 }
 
-                System.out.println("tokens = " + tokens);
-
-                // Testing if this is working as intended.
+                /* Testing if this is working as intended.
                 System.out.print("\nSame line variables\nint ");
-                for (int i = 0; i < varDeclaration.varDecList.variables.size(); i++) {
+                for (int i = 0; i < varDeclaration.variables.varDecList.size(); i++) {
 
-                        System.out.print(varDeclaration.varDecList.variables.get(i).str);
+                        System.out.print(varDeclaration.variables.varDecList.get(i).varID.str);
 
-                        if (i + 1 == varDeclaration.varDecList.variables.size()) {
+                        if (i + 1 == varDeclaration.variables.varDecList.size()) {
                                 System.out.println(";");
                                 break;
                         } else
                                 System.out.print(", ");
                 }
-
-                System.out.println("");
+                 */
 
                 return varDeclaration;
         }
