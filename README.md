@@ -46,6 +46,8 @@ Our current iteration of the program supports the following arguments in additio
 **-po** | **-parseout** | prints parse tree used to an output file
 **-f** | **-file** | input .c file to read from and tokenize
 
+**Note** `-po` is currently not supported.
+
 # Program Overview
 The compiler is broken up into three parts (Front End, Intermediate/Optimizer, and Back End), each with their own set of stages. Below is a brief explanation of the current implementation.
 
