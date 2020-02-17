@@ -1,19 +1,15 @@
-# [Spring 2020] CSE423 Compiler Project
-
-## JxC
-### J - Java  
-### x - Unknown due to our unknown knowledge of how to build a functioning C  compiler.   
-### C - (C)ompiler   
+# [Spring 2020] CSE423 Compiler Project: JxC
 
 ### Summary
-This project is intended for the Spring 2020 semester of CSE423 at New Mexico Institute of Mining and Technology. This document will serve as a constantly updated instructional document for running the compiler project with a description of the contents of our repo.
+Our Compiler is called *JxC* which stands for (**J**)ava (**x** is undefined) (**C**)ompiler which supports a subset of the C-programming language. This document will serve as a constantly updated instructional document for running the compiler project with a description of the contents of our repo.
+
 ##### Team members (in alphabetical order):
 * Garrett Bates (gbbofh)
 * Sterling Blevins (S3Blevins)
 * Damon Estrada (damon-estrada)
 * Jacob Santillanes (Ulteelectrom)
 
-##### Working Progress: `Stage 1 (Parser) of 3`
+##### Working Progress: [`Stage 2 (Parser) of Assignment 1`](docs/design_spec.md)
 
 We are currently working on implementing a fully featured parser with a "pretty-printed" syntax tree based on the [C- grammar](http://marvin.cs.uidaho.edu/Teaching/CS445/c-Grammar.pdf).
 
@@ -32,88 +28,48 @@ Currently our project is set up to be easily imported directly into the IntelliJ
 
 > The complexity of the project is increasing but currently our project can be compiled using `javac *.java` from within the lexer package in the `src` directory of our compiler project. We'll have a more formalized compilation method from source on a later date.
 
-Our plan is for every week for the duration of the project, a running build will be available for download in the `bin` directory for ease of use.
+Our plan is for each milestone in the project, a running build will be available for download in the `build` directory.
 
-[See here for a list of dependencies included in our build.](#dependencies-and-attributions)
+[See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)
 
 ### Usage
-Currently our compiler is only completely working in the scanner phase so functionality is limited. You can run the program as `java compiler <test>.c` with <test> being replaced with the name of your `.c` file.
-
-Since the project is being done in Java, we are currently hand-rolling command line arguments due to no native argument handling being present in Java. We are working on implementing a more fully featured cli-interface by using Apache's [*Commons CLI*](http://commons.apache.org/proper/commons-cli/) library.
+Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/bin/JxC_2_16_2020/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
+  <code>
+    java -jar JxC_2_16_2020.jar -f "FILE.c" -p -t
+  </code>
+Please make sure your `.c` files are in the same directory or else you'll need to specifiy the path to the test file. For example:
+<code>
+  java -jar JxC_2_16_2020.jar -f ~/Desktop/test1.c -p -t
+</code>
 
 Our current iteration of the program supports the following arguments in addition to the `.c` file being read in.
 
-*Argument* | *Long Output* | *Description*
+*Argument* | *Long Argument* | *Description*
 --- | --- | :---
-**-h** | -help | provides a helpful description on the usage of the program
-**-t** | -token | provides tokens present in the .c file fed into the compiler
-**-to** | -tokenout | prints tokens present in the .c file fed into the compiler to output file and command line
-**-p** | -parsetree | provides parse tree used 
-**-po** | -parsetreeout | prints parse tree used to an output file
-**-f** | -file | input .c file to read from and tokenise 
-
-**NOTE:** The argument **-t** is on by default
+**-h** | **-help** | provides a helpful description on the usage of the program
+**-t** | **-token** | provides tokens present in the .c file fed into the compiler
+**-to** | **-tokenout** | prints tokens present in the .c file into output file
+**-p** | **-parse** | provides parse tree used
+**-po** | **-parseout** | prints parse tree used to an output file
+**-f** | **-file** | input .c file to read from and tokenize
 
 # Program Overview
-In our current implementation of the compiler, we are capable of reading in a file and tokenizing much of the *C- language*. Command line arguments are in their infancy stage and at the time of this posting and we are unable to parse and construct a syntax tree.
+The compiler is broken up into three parts (Front End, Intermediate/Optimizer, and Back End), each with their own set of stages. Below is a brief explanation of the current implementation.
 
-### Supported Tokens
-Below is a table containing tokens supported by the lexer/scanner component of the compiler. Although a token may be supported this ***DOES NOT*** mean that we will full support or implement the C- language feature associated with that token. We reserve the right to remove or ignore support for tokens at our discretion although within the bounds of the assignment requirement.
+## [Assignment 1 *(Front End)*](docs/design_spec.md)
+In our current standing, JxC is capable of reading in a file and tokenizing much of the alphabet supported by the *C- language*, in addition to using a modified *C-* grammar to parse the C-program into a custom parse-tree. No additional processing of the C-program has been completed at this time.
 
-*ID*  | *Token*
---- | :---:
-**TK_PLUSEQ** | +=
-**TK_MINUSEQ** | -=
-**TK_STAREQ** | *=
-**TK_SLASHEQ** | /=
-**TK_EQEQUAL** | ==
-**TK_RPAREN** | )
-**TK_LPAREN** | (
-**TK_RBRACE** | }
-**TK_LBRACE** | {
-**TK_RBRACKET** | ]
-**TK_LBRACKET** | [
-**TK_PLUS** | +
-**TK_MINUS** | -
-**TK_STAR** | *
-**TK_SLASH** | /
-**TK_SEMICOLON** | ;
-**TK_COLON** | :
-**TK_QMARK** | ?
-**TK_BANG** | !
-**TK_DOT** | .
-**TK_COMMA** | ,
-**TK_DQUOTE** | "string"
-**TK_KEYWORDS** | for, while, break, ...
-**TK_TYPE** | int, long, short
-**TK_IDENTIFIER** | foo, main, c, ...
-**TK_NUMBER** | 1,2,3,...
-**TK_EQUALS** | =
-**TK_LESS** | <
-**TK_GREATER** | >
-**TK_LESSEQ** |<=
-**TK_GREATEREQ** | >=
+>### Stage 0: Command Line Arguments
+The processing of command line arguments for our compiler has been delegated to the use of a library with support for reading in a file, outputting the tokens, and a displaying a parse-tree to the user.
 
-### The JxC Grammar (as of 2/16/2020) 
-**NOTE:** All terminals are denoted in lowercase and bold words or characters.  
+>### Stage 1: Tokenizing the C-Language
+Tokenizing the C-Language alphabet is implemented using a character-by-character approach, using an ordered set of regular expressions to classify and save the tokens into a list.
 
-*# Grammar*  | *Production Rules*
---- | :---:
-*1. program* | *declaration*
-*2. declaration* | *aStatement* / *varDeclaration*
-*3. aStatement* | --- 
-*4. varDeclaration* | *typeSpecifier* *varDecList* / *varDecInit*
-*5. varDecList* | *varDecList*, *varDecInit* / *varDecInit*
-*6. varDecInit* | *varDecId* / *varDecId* **=** *expression*
-*7. varDecId* | **ID** / **ID** [**NUMCONSTANT**]
-*8. typeSpecifier* | **int**
+>### Stage 2: Building the Parser
+The program's tokens are then fed into our parser, which uses a top-down recursive approach to structure the C-program into a tree based on a modified `C-` grammar.
 
-##### Comment Support:
-Comments are supported in both their multi-line `/*...*/` and single line `//...` implementation.
-
-## Dependencies and Attributions
-
+# Dependencies and Attributions
+No need to install these libraries, they are already included in our build:
 * [*Appache Commons CLI Library*](http://commons.apache.org/proper/commons-cli/) - Used in cli-interface branch (not fully implemented)
 
 * [*JUnit4*](https://junit.org/junit4/) - Used to write repeatable unit test for methods to ensure code base changes do not introduce new bugs.
-
