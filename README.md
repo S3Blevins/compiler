@@ -23,17 +23,15 @@ We are currently working on implementing a fully featured parser with a "pretty-
 # Compilation and Usage
 
 ### Compilation of the Project
-##### Compatible with Java JDK 11
+##### Compatible with Java JDK 8+
 Currently our project is set up to be easily imported directly into the IntelliJ IDE with the `src` and `lib` folders being designated as sources. Just build the project through the menu.
-
-> The complexity of the project is increasing but currently our project can be compiled using `javac *.java` from within the lexer package in the `src` directory of our compiler project. We'll have a more formalized compilation method from source on a later date.
 
 Our plan is for each milestone in the project, a running build will be available for download in the `build` directory.
 
 [See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)
 
 ### Usage
-Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/bin/JxC_2_16_2020/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
+Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/JxC_2_16_2020/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
   <code>
     java -jar JxC_2_16_2020.jar -f "FILE.c" -p -t
   </code>
