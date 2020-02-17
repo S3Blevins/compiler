@@ -26,11 +26,11 @@ Our plan is for each milestone in the project, a running build will be available
 
 Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
   <code>
-    java -jar JxC_##_##_2020.jar -f "FILE.c" -p -t
+    java -jar JxC_BUILD_DATE.jar -f "FILE.c" -p -t
   </code>
-Please make sure your `.c` files are in the same directory or else you'll need to specifiy the path to the test file. For example:
+where **BUILD_DATE** is the lasted build date. Please make sure your `.c` files are in the same directory or else you'll need to specifiy the path to the test file. For example:
 <code>
-  java -jar JxC_##_##_2020.jar -f ~/Desktop/test1.c -p -t
+  java -jar JxC_BUILD_DATE.jar -f ~/Desktop/test1.c -p -t
 </code>
 
 [See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)  
