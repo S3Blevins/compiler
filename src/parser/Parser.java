@@ -2,12 +2,12 @@ package parser;
 
 import lexer.Token;
 import lexer.TokenType;
+import parser.treeObjects.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static java.lang.System.exit;
-import static java.lang.System.setOut;
 
 public class Parser {
 
@@ -91,7 +91,7 @@ public class Parser {
                         new ParseRule.Nud() {
                                 Expression exec() {
                                         Parser parser = Parser.Instance();
-                                        Expression expr = parser.Expression();
+                                        Expression expr = parser.expressionGrammar();
                                         parser.previous = parser.tokens.remove(0);
                                         return new Expression.Group(expr);
                                 }
@@ -161,7 +161,7 @@ public class Parser {
         }
 
         Expression.Number Number() {
-                Expression expr = this.Expression();
+                Expression expr = this.expressionGrammar();
                 this.previous = this.tokens.remove(0);
 
                 return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
@@ -169,7 +169,7 @@ public class Parser {
 
         Expression.Unary Unary() {
                 Token operator = this.previous;
-                Expression expr = this.Expression();
+                Expression expr = this.expressionGrammar();
                 this.previous = this.tokens.remove(0);
 
                 return new Expression.Unary(expr, operator);
@@ -214,7 +214,7 @@ public class Parser {
                 return left;
         }
 
-        Expression Expression() {
+        Expression expressionGrammar() {
                 //System.out.println("Expression()");
 
                 Expression expr = null;
@@ -233,24 +233,24 @@ public class Parser {
                 //return ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
-        ASTNode Statement() {
+        Statement statementGrammar() {
                 //System.out.println("Statement()");
 
                 previous = tokens.get(0);
-                AStatement statement = null;
+                Statement statement = null;
 
                 if(previous.tokenType == TokenType.TK_LBRACE) {
                         // compound/block statement
-                        statement = new AStatement.Block();
+                        statement = new Statement.Block();
+                        previous = tokens.remove(0);
 
-                        while(tokens.get(0).tokenType != TokenType.TK_RBRACE) {
-                                previous = tokens.remove(0);
+                        while(previous.tokenType != TokenType.TK_RBRACE) {
 
                                 // has to either be a statement or a declaration
-                                if(previous.tokenType == TokenType.TK_TYPE) {
-                                        ((AStatement.Block) statement).addDeclaration((Declaration) Declaration());
+                                if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
+                                        ((Statement.Block) statement).addDeclaration((Declaration) declarationGrammar());
                                 } else {
-                                        ((AStatement.Block) statement).addStatement((AStatement) Statement());
+                                        ((Statement.Block) statement).addStatement((Statement) statementGrammar());
                                 }
                         }
 
@@ -264,20 +264,20 @@ public class Parser {
                                 case "if":
                                         // selection statement
                                         //TODO: further implementation
-                                        statement = new AStatement.Selection();
+                                        statement = new Statement.Selection();
                                         break;
                                 case "while":
                                         // iteration statement
                                         //TODO: further implementation
-                                        Expression condition = Expression();
-                                        AStatement.Block body = (AStatement.Block) Statement();
+                                        Expression condition = expressionGrammar();
+                                        Statement.Block body = (Statement.Block) statementGrammar();
 
-                                        statement = new AStatement.Iteration(condition, body);
+                                        statement = new Statement.Iteration(condition, body);
 
                                         break;
                                 case "return":
                                         // return statement
-                                        statement = new AStatement.Return();
+                                        statement = new Statement.Return();
 
                                         // remove return
                                         tokens.remove(0);
@@ -285,15 +285,16 @@ public class Parser {
                                         // in the event that the next token after the return is not a semicolon,
                                         // then it is an expression
                                         if(tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                                                ((AStatement.Return) statement).setExpression(Expression());
+                                                ((Statement.Return) statement).setExpression(expressionGrammar());
                                         }
 
                                         // remove semicolon
                                         tokens.remove(0);
+                                        previous = tokens.get(0);
                                         break;
                                 case "break":
                                         // break statement is empty
-                                        statement = new AStatement.Break();
+                                        statement = new Statement.Break();
                                         break;
                                 default:
                                         System.out.println("Somethin's wrong and Imma head out...");
@@ -314,6 +315,7 @@ public class Parser {
                         tokens.remove(0);
                 }
 
+                // remove last remaining brace
                 return statement;
         }
 
@@ -321,14 +323,13 @@ public class Parser {
          * Check for either a variable declaration or a function declaration
          * @return
          */
-        ASTNode Declaration() {
-                //System.out.println("Declaration()");
+        Declaration declarationGrammar() {
                 Token typeSpec;
                 Token decID;
 
                 // check for error
                 if(tokens.get(0).tokenType != TokenType.TK_TYPE && tokens.get(1).tokenType != TokenType.TK_IDENTIFIER) {
-                        System.err.println("Invalid Declaration!");
+                        System.err.println("declarationGrammar(): There was a type or TOKEN that does not follow the grammar.");
                         exit(1);
                 }
 
@@ -340,10 +341,12 @@ public class Parser {
 
                 // check to see if a parenthesis exists (means a function declaration)
                 if(previous.tokenType == TokenType.TK_LPAREN) {
-                        Declaration.paramList parList = new Declaration.paramList();
+
+                        Declaration.funDeclaration funDec = new Declaration.funDeclaration(typeSpec, decID);
 
                         while(tokens.get(0).tokenType != TokenType.TK_RPAREN) {
-                                if(parList.size() > 255) {
+
+                                if(funDec.getParamSize()  > 8) {
                                         System.err.println("Too many parameters in list!");
                                         exit(1);
                                 }
@@ -351,27 +354,32 @@ public class Parser {
                                 Token type = tokens.remove(0);
 
                                 if(type.tokenType != TokenType.TK_TYPE && tokens.get(0).tokenType != TokenType.TK_IDENTIFIER) {
-                                        System.err.println("Invalid parameter!");
+                                        System.err.println("Function Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
                                         exit(1);
                                 }
 
                                 Token paramID = tokens.remove(0);
 
                                 // create a parameter, and add it to the list
-                                Declaration.paramList.Param parameter = new Declaration.paramList.Param(type, paramID);
-                                parList.addParam(parameter);
+                                Declaration.Parameter parameter = new Declaration.Parameter(type, paramID);
+
+                                funDec.addParameter(parameter);
 
                                 // check to see if next token is a comma, if it is, then continue the loop.
-                                if(tokens.remove(0).tokenType != TokenType.TK_COMMA) {
+                                if(tokens.get(0).tokenType != TokenType.TK_COMMA) {
                                         break;
                                 }
+
+                                tokens.remove(0);
+
                         }
 
                         // remove the right parenthesis
                         tokens.remove(0);
 
-                        AStatement funDecStmnt = (AStatement) Statement();
-                        return new Declaration.funDeclaration(typeSpec, decID, parList, funDecStmnt);
+                        funDec.addStatement(statementGrammar());
+
+                        return funDec;
                 }
 
                 // Made it to this point, must be a variable declaration
@@ -389,11 +397,18 @@ public class Parser {
                         // This condition handles this --> // [int column], row, index;
                         if (previous.tokenType == TokenType.TK_IDENTIFIER) {
                                 // We should get the next varID here with the same type.
-                                varDeclaration.variables.addVarDec(new Declaration.varDecList.Variable(typeSpec, previous));
+                                varDeclaration.addVarDec(typeSpec, previous);
                         } else if (previous.tokenType == TokenType.TK_EQUALS) {
                                 // This condition handles this --> [int column] = 0, row = 0, index = 0;
+
+                                Expression expr = expressionGrammar();
+
+                                varDeclaration.fillDec(expr);
+
+                                varDeclaration.addVarDec(typeSpec, previous, expr);
+
                         } else {
-                                System.err.println("Declaration(): There was a type or TOKEN that does not follow the grammar.");
+                                System.err.println("Variable Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
                                 System.exit(1);
                         }
 
@@ -420,30 +435,26 @@ public class Parser {
 
         /**
          * Program calls upon Declaration(), looking for declarations until the token list is empty
-         * @return ASTNode containing the head to the Abstract Syntax
+         * @return Node containing the head to the Abstract Syntax
          */
-        ASTNode Program(String fileName) {
+        Node programGrammar(String fileName) {
                 // initialize a new list of declarations
-                Program ASThead = new Program();
+                Program headNode = new Program(fileName);
 
                 // run until tokens list is empty
                 while(!tokens.isEmpty()) {
-                        //System.out.println("tokens = " + tokens);
-                        //System.out.println("Program()");
-                        ASThead.addDeclaration((Declaration) Declaration());
+                        headNode.addDeclaration(declarationGrammar());
                 }
 
-                ASThead.printNode(fileName, 0);
+                headNode.printNode(0);
 
-                return ASThead;
+                return headNode;
         }
 
-        public ASTNode Parse(ArrayList<Token> tokens, String fileName) {
+        public Node Parse(ArrayList<Token> tokens, String fileName) {
                 this.tokens = tokens;
 
-
-
-                return Program(fileName);
+                return programGrammar(fileName);
         }
 }
 
