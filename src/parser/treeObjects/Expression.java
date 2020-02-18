@@ -8,37 +8,50 @@ public abstract class Expression extends Node {
 
         public static class Binary extends Expression {
 
-                Token op;
-                Expression left;
-                Expression right;
+                public Token op;
 
                 public Binary(Expression left, Token op, Expression right) {
-                        this.left = left;
+                        this.addChild(left);
                         this.op = op;
-                        this.right = right;
+                        this.addChild(right);
                 }
-/*
-                public void printNode(int depth) {
-                        System.out.println("<" + this.op.str + ">");
-                        left.printNode(depth + 1);
-                        right.printNode(depth + 1);
-                }*/
+
+                public Node getLeftExpr() {
+                        if(!this.hasChildren()) {
+                                System.err.println("Left expression does not exist");
+                                return null;
+                        }
+
+                        return this.children.get(0);
+                }
+
+                public Node getRightExpr() {
+                        if(!this.hasChildren() || this.childSize() != 2) {
+                                System.err.println("Right expression does not exist");
+                                return null;
+                        }
+
+                        return this.children.get(1);
+                }
         }
 
         public static class Unary extends Expression {
 
                 Token op;
-                Expression expr;
 
                 public Unary(Expression expr, Token op) {
                         this.op = op;
-                        this.expr = expr;
+                        this.addChild(expr);
                 }
-/*
-                public void printNode(int depth) {
-                        System.out.println("<" + this.op.str + ">");
-                        this.expr.printNode(depth + 1);
-                }*/
+
+                public Node getExpr() {
+                        if(!this.hasChildren() || this.childSize() != 1) {
+                                System.err.println("Expression does not exist");
+                                return null;
+                        }
+
+                        return this.children.get(0);
+                }
         }
 
         public static class Group extends Expression {
@@ -48,11 +61,7 @@ public abstract class Expression extends Node {
                 public Group(Expression expr) {
                         this.expr = expr;
                 }
-/*
-                public void printNode(int depth) {
-                        this.expr.printNode(depth + 1);
-                }
- */       }
+      }
 
         public static class Number extends Expression {
 

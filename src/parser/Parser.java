@@ -393,6 +393,7 @@ public class Parser {
 
                         // Get next varID
                         previous = tokens.remove(0);
+                        System.out.println("previous = " + previous);
 
                         // This condition handles this --> // [int column], row, index;
                         if (previous.tokenType == TokenType.TK_IDENTIFIER) {
@@ -400,6 +401,7 @@ public class Parser {
                                 varDeclaration.addVarDec(typeSpec, previous);
                         } else if (previous.tokenType == TokenType.TK_EQUALS) {
                                 // This condition handles this --> [int column] = 0, row = 0, index = 0;
+                                System.out.println("previous = " + previous);
 
                                 Expression expr = expressionGrammar();
 
