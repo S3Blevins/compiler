@@ -39,21 +39,31 @@ public abstract class Statement extends Node {
         public static class Iteration extends Statement {
 
                 public Iteration(Expression condition, Block body) {
-                        this.condition = condition;
-                        this.body = body;
+                        this.addChild(condition);
+                        this.addChild(body);
                 }
-
-                Expression condition;
-                Block body;
         }
 
         public static class Selection extends Statement {
-
                 public Selection() {
-                        this.ifElse = new LinkedHashMap<>();
+
                 }
 
-                public LinkedHashMap<Expression, Block> ifElse;
+                public Selection(Expression condition, Block body) {
+                        this.addChild(condition);
+                        this.addChild(body);
+                }
+
+                public void addSelection(Expression condition, Block body) {
+                        this.addChild(condition);
+                        this.addChild(body);
+                }
+
+                public void addSelection(Statement statement) {
+                        this.addChild(statement.children.get(0));
+                        this.addChild(statement.children.get(1));
+                }
+
         }
 
         public static class Return extends Statement {

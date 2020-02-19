@@ -242,9 +242,9 @@ public class Parser {
                 if(previous.tokenType == TokenType.TK_LBRACE) {
                         // compound/block statement
                         statement = new Statement.Block();
-                        previous = tokens.remove(0);
+                        tokens.remove(0);
 
-                        while(previous.tokenType != TokenType.TK_RBRACE) {
+                        while(tokens.get(0).tokenType != TokenType.TK_RBRACE) {
 
                                 // has to either be a statement or a declaration
                                 if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
@@ -261,15 +261,68 @@ public class Parser {
                         String keywordIndicator = previous.str.toLowerCase();
 
                         switch(keywordIndicator) {
+                                case "else":
+
                                 case "if":
-                                        // selection statement
-                                        //TODO: further implementation
+                                        boolean selectFlag = true;
                                         statement = new Statement.Selection();
+
+                                        while(selectFlag) {
+                                                // remove keyword
+                                                tokens.remove(0);
+
+                                                if(tokens.get(0).str.equals("if")) {
+                                                        tokens.remove(0);
+                                                }
+
+                                                // remove token, it should be a left parenthesis
+                                                if (tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
+                                                        System.out.println("Malformed statement()");
+                                                        exit(1);
+                                                }
+
+                                                // populate the expression with the contents parenthesis
+                                                Expression condition = expressionGrammar();
+
+                                                // remove remaining parenthesis
+                                                tokens.remove(0);
+
+                                                // use a block statement for the next section
+                                                Statement.Block body = (Statement.Block) statementGrammar();
+
+                                                statement.addChild(condition);
+                                                statement.addChild(body);
+
+                                                if(!tokens.get(0).str.equals("else")) {
+                                                        selectFlag = false;
+                                                } else {
+                                                        tokens.remove(0);
+                                                        if(!tokens.get(0).str.equals("if")) {
+                                                                statement.addChild(statementGrammar());
+                                                                selectFlag = false;
+                                                        }
+                                                }
+                                        }
+
                                         break;
                                 case "while":
-                                        // iteration statement
-                                        //TODO: further implementation
+
+                                        // remove while keyword
+                                        tokens.remove(0);
+
+                                        // remove token, it should be a left parenthesis
+                                        if(tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
+                                                System.out.println("Malformed statement()");
+                                                exit(1);
+                                        }
+
+                                        // populate the expression with the contents parenthesis
                                         Expression condition = expressionGrammar();
+
+                                        // remove remaining parenthesis
+                                        tokens.remove(0);
+
+                                        // use a block statement for the next section
                                         Statement.Block body = (Statement.Block) statementGrammar();
 
                                         statement = new Statement.Iteration(condition, body);
@@ -295,9 +348,13 @@ public class Parser {
                                 case "break":
                                         // break statement is empty
                                         statement = new Statement.Break();
+
+                                        //get rid of break
+                                        tokens.remove(0);
+
                                         break;
                                 default:
-                                        System.out.println("Somethin's wrong and Imma head out...");
+                                        System.out.println("Invalid statement(): " + keywordIndicator);
                                         exit(1);
                         }
 
@@ -315,7 +372,6 @@ public class Parser {
                         tokens.remove(0);
                 }
 
-                // remove last remaining brace
                 return statement;
         }
 
@@ -401,7 +457,6 @@ public class Parser {
                                 varDeclaration.addVarDec(typeSpec, previous);
                         } else if (previous.tokenType == TokenType.TK_EQUALS) {
                                 // This condition handles this --> [int column] = 0, row = 0, index = 0;
-                                System.out.println("previous = " + previous);
 
                                 Expression expr = expressionGrammar();
 
