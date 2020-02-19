@@ -21,14 +21,14 @@ We are currently working on implementing a fully featured parser with a "pretty-
 
 ---
 # Compilation and Usage
-##### Compatible with Java JDK 11+ only
+##### Compatible with [Java JDK 11+](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
 Our plan is for each milestone in the project, a running build will be available for download in the `build` directory. We will have not established an easy way for the user to compile on their own (will update with details soon) so now we just provide jars.
 
-Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
+Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/` through your terminal. Please ensure you have a version of Java 11 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html). To run JxC, please use
   <code>
-    java -jar JxC_BUILD_DATE.jar -f "FILE.c" -p -t
+    java -jar JxC_BUILD_DATE.jar -f FILE.c -p -t
   </code>
-where **BUILD_DATE** is the lasted build date. Please make sure your `.c` files are in the same directory or else you'll need to specifiy the path to the test file. For example:
+where **BUILD_DATE** is the lasted build date and **FILE.c** is your C-program.. Please make sure your `.c` files are in the same directory or else you'll need to specifiy the path to the test file. For example:
 <code>
   java -jar JxC_BUILD_DATE.jar -f ~/Desktop/test1.c -p -t
 </code>
