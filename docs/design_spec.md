@@ -28,6 +28,8 @@ Utilizing the Pratt Parsing approach, we provide the a precedence to tokens when
 
 The parser is not quite finished but is close to being as fully featured as we can get within our given time frame. Below is an example of how the parser outputs based on a nonsensical C-program that is only syntactically correct.
 
+See below for functionality and limitations.
+
 ![](doc_images/parse_tree.png)
 
 See [here](language_spec.md#program) for an in-depth look at our grammar.
@@ -35,4 +37,4 @@ See [here](language_spec.md#program) for an in-depth look at our grammar.
 # Functionality and Limitations
 The compiler is insofar built to only read in a file, and provide a list of tokens, and a basic modified parse tree to the user. All of the required `C-` functions are not fully implemented, though most of them are capable of being recognized as tokens such as keywords, and symbols.
 
-Our team has left open the option of supporting additional number types, and support for binary-operators but nothing is concrete.
+We can support variable declarations (not definitions/initializations), while loops, if, if-else, and return statements and that is about it.

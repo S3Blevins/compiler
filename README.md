@@ -21,8 +21,8 @@ We are currently working on implementing a fully featured parser with a "pretty-
 
 ---
 # Compilation and Usage
-##### Compatible with Java JDK 11+
-Our plan is for each milestone in the project, a running build will be available for download in the `build` directory.
+##### Compatible with Java JDK 11+ only
+Our plan is for each milestone in the project, a running build will be available for download in the `build` directory. We will have not established an easy way for the user to compile on their own (will update with details soon) so now we just provide jars.
 
 Please download (and untar/unzip) our repository or clone it. You may relocate the download or open our project in your OSs downloads folder. Once downloaded and untar/unziped, natigate to `compiler-master/build/` through your terminal. Please ensure you have a version of Java 8 or higher. If you do not, you can install a version [here](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html). To run JxC, please use
   <code>
@@ -47,6 +47,8 @@ Our current iteration of the program supports the following arguments in additio
 **-f** | **-file** | input .c file to compile from
 
 **Note** `-po` is currently not supported.
+
+[You can check here for our functionality and limitations of the program.](docs/design_spec.md#functionality-and-limitations)
 
 # Program Overview
 The compiler is broken up into three parts (Front End, Intermediate/Optimizer, and Back End), each with their own set of stages. Below is a brief explanation of the current implementation.
