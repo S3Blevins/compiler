@@ -26,13 +26,9 @@ We decided that the parser, designed with a top-down recursive approach made pra
 
 Utilizing the Pratt Parsing approach, we provide the a precedence to tokens when processing an expression. A `Left Denotative` and `Null Denotative` consideration is given to each relevant token, handling through delegate classes through Java anonymous functions (no function pointers here) for handling the processing.
 
-The parser is on the verge of being completed, though at this time only supports the parsing of the minimum feature requirement program:
+The parser is not quite finished but is close to being as fully featured as we can get within our given time frame. Below is an example of how the parser outputs based on a nonsensical C-program that is only syntactically correct.
 
-```
-int maint() {
-    return 1;
-}
-```
+![](doc_images/parse_tree.png)
 
 See [here](language_spec.md#program) for an in-depth look at our grammar.
 
