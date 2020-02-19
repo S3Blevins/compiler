@@ -4,6 +4,7 @@ import lexer.Token;
 import lexer.TokenType;
 import parser.treeObjects.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -449,7 +450,6 @@ public class Parser {
 
                         // Get next varID
                         previous = tokens.remove(0);
-                        System.out.println("previous = " + previous);
 
                         // This condition handles this --> // [int column], row, index;
                         if (previous.tokenType == TokenType.TK_IDENTIFIER) {
@@ -473,20 +473,6 @@ public class Parser {
                         previous = tokens.remove(0);
                 }
 
-                /* Testing if this is working as intended.
-                System.out.print("\nSame line variables\nint ");
-                for (int i = 0; i < varDeclaration.variables.varDecList.size(); i++) {
-
-                        System.out.print(varDeclaration.variables.varDecList.get(i).varID.str);
-
-                        if (i + 1 == varDeclaration.variables.varDecList.size()) {
-                                System.out.println(";");
-                                break;
-                        } else
-                                System.out.print(", ");
-                }
-                 */
-
                 return varDeclaration;
         }
 
@@ -503,7 +489,7 @@ public class Parser {
                         headNode.addDeclaration(declarationGrammar());
                 }
 
-                headNode.printNode(0);
+                headNode.printNode(new ArrayList<Boolean>());
 
                 return headNode;
         }
@@ -513,5 +499,7 @@ public class Parser {
 
                 return programGrammar(fileName);
         }
+
+
 }
 
