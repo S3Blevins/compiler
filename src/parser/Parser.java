@@ -206,10 +206,12 @@ public class Parser {
                  * operand from the calling object. We are looking for
                  * while(prec <= rules.get(...).precedence)
                  */
-                while(prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
+                while(tokens.get(0).tokenType != TokenType.TK_SEMICOLON &&
+                        prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
 
                         previous = tokens.remove(0);
                         left = rules.get(previous.tokenType).led.exec(left);
+
                 }
 
                 return left;
@@ -217,6 +219,7 @@ public class Parser {
 
         Expression expressionGrammar() {
                 //System.out.println("Expression()");
+
 
                 Expression expr = null;
 
