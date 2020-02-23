@@ -15,7 +15,7 @@ public class Parser {
         private Token previous;
         private ArrayList<Token> tokens;
         private HashMap<TokenType, ParseRule> rules;
-
+        private SymbolTable table;
         /*
          * 14 Feb 2020
          *
@@ -247,17 +247,26 @@ public class Parser {
                         // compound/block statement
                         statement = new Statement.Block();
                         tokens.remove(0);
-
+                        SymbolTable childTable = new SymbolTable();
                         while(tokens.get(0).tokenType != TokenType.TK_RBRACE) {
 
                                 // has to either be a statement or a declaration
                                 if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
-                                        ((Statement.Block) statement).addDeclaration((Declaration) declarationGrammar());
+                                        Declaration dec = declarationGrammar();
+                                        ((Statement.Block) statement).addDeclaration(dec);
+
+                                        if(dec instanceof Declaration.varDeclaration) {
+                                                childTable.addSymbol((Declaration.varDeclaration) dec);
+                                        }
                                 } else {
                                         ((Statement.Block) statement).addStatement((Statement) statementGrammar());
                                 }
                         }
 
+                        // need to specify scope
+                        // currently adds symbol table as child to main symbol table
+                        // may need to add the current table as a parameter to the statementGrammar() method
+                        table.addChildTable(childTable);
                         // removes right brace
                         tokens.remove(0);
 
@@ -469,7 +478,7 @@ public class Parser {
 
                         } else {
                                 System.err.println("Variable Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
-                                System.exit(1);
+                                exit(1);
                         }
 
                         // Remove next token, will break out if semi-colon
@@ -486,10 +495,19 @@ public class Parser {
         Node programGrammar(String fileName) {
                 // initialize a new list of declarations
                 Program headNode = new Program(fileName);
+                Declaration dec;
+                table = new SymbolTable();
 
                 // run until tokens list is empty
                 while(!tokens.isEmpty()) {
-                        headNode.addDeclaration(declarationGrammar());
+                        dec = declarationGrammar();
+                        headNode.addDeclaration(dec);
+
+                        // add global variables to the symbol table
+                        if(dec instanceof Declaration.varDeclaration) {
+                                table.addSymbol((Declaration.varDeclaration) dec);
+                               // System.out.println("There is a global variable");
+                        }
                 }
 
                 headNode.printNode(new ArrayList<Boolean>());
