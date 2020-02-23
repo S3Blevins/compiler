@@ -21,6 +21,10 @@ public abstract class Declaration extends Node {
             this.addChild(new Variable(type, ID, expr));
         }
 
+        public Variable getVarDec(){
+            return (Variable) this.getLastChild();
+        }
+
         public void fillDec(Expression expr) {
             for(int i = 0; i < this.childSize(); i++) {
                 this.addChild(expr);
