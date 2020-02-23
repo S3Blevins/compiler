@@ -42,6 +42,15 @@ public abstract class Declaration extends Node {
             this.typeSpecifier = type;
             this.variableID = ID;
         }
+
+        public Token getType(){
+            return this.typeSpecifier;
+        }
+
+        public Token getVariableID(){
+            return this.variableID;
+        }
+
     }
 
     public static class funDeclaration extends Declaration {
@@ -82,5 +91,4 @@ public abstract class Declaration extends Node {
             this.paramID = ID;
         }
     }
-
 }
