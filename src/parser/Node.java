@@ -31,6 +31,10 @@ public class Node {
         return true;
     }
 
+    public Node getLastChild(){
+        return this.children.get(this.children.size()-1);
+    }
+
     public void printClass() {
         String superClass = this.getClass().getSuperclass().getSimpleName();
         String subClass = this.getClass().getSimpleName();
