@@ -405,7 +405,6 @@ public class Parser {
                 // remove the specified element, and store it into the attributes
                 typeSpec = tokens.remove(0);
                 decID = tokens.remove(0);
-
                 previous = tokens.remove(0);
 
                 // check to see if a parenthesis exists (means a function declaration)
@@ -415,7 +414,7 @@ public class Parser {
 
                         while(tokens.get(0).tokenType != TokenType.TK_RPAREN) {
 
-                                if(funDec.getParamSize()  > 8) {
+                                if(funDec.getParamSize() > 8) {
                                         System.err.println("Too many parameters in list!");
                                         exit(1);
                                 }
@@ -440,7 +439,6 @@ public class Parser {
                                 }
 
                                 tokens.remove(0);
-
                         }
 
                         // remove the right parenthesis
@@ -455,34 +453,79 @@ public class Parser {
                 // Loop through tokens until we see a semi colon. This is to handle
                 // the case where we have multiple variables defined on the same line.
                 // Add the first varID as the first variable.
-                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration(typeSpec, decID);
 
-                // Previous holds the last comma at this point
-                while (previous.tokenType != TokenType.TK_SEMICOLON) {
+                // Consume everything until the comma to get the potential var value.
+                // Paired programmed with Garrett Bates
 
-                        // Get next varID
-                        previous = tokens.remove(0);
+                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
 
-                        // This condition handles this --> // [int column], row, index;
-                        if (previous.tokenType == TokenType.TK_IDENTIFIER) {
-                                // We should get the next varID here with the same type.
-                                varDeclaration.addVarDec(typeSpec, previous);
-                        } else if (previous.tokenType == TokenType.TK_EQUALS) {
-                                // This condition handles this --> [int column] = 0, row = 0, index = 0;
 
-                                Expression expr = expressionGrammar();
+                while (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
+                        if (previous.tokenType == TokenType.TK_EQUALS) {
+                                varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
 
-                                varDeclaration.fillDec(expr);
+                                if (tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                        previous = tokens.get(1);
+                                } else {
+                                        previous = tokens.get(0);
+                                }
 
-                                varDeclaration.addVarDec(typeSpec, previous, expr);
+                                decID = tokens.get(0);
 
                         } else {
-                                System.err.println("Variable Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
-                                exit(1);
+                                varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID);
+
+                                if (tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                        previous = tokens.get(1);
+                                }
+
+                                decID = tokens.get(0);
                         }
 
-                        // Remove next token, will break out if semi-colon
-                        previous = tokens.remove(0);
+                        // Need this since in the case 'int a;' previous == ;
+                        // Which means if this is a condition in while() then
+                        // we will never make it inside of here.
+                        if (previous.tokenType == TokenType.TK_SEMICOLON) break;
+                }
+
+                // remove semicolon
+                if (previous.tokenType != TokenType.TK_SEMICOLON || tokens.get(0).tokenType == TokenType.TK_SEMICOLON)
+                        tokens.remove(0);
+
+
+                return varDeclaration;
+        }
+
+        public Declaration.varDeclaration varDecInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
+
+                // Remove identifier and '='
+                if (tokens.get(0).tokenType == TokenType.TK_IDENTIFIER) {
+                        tokens.remove(0); // remove ID
+                        tokens.remove(0); // remove '='
+                } else if (tokens.get(0).tokenType == TokenType.TK_EQUALS){
+                        tokens.remove(0);
+                }
+
+                varDeclaration.addVarDec(typeSpec, decID, expressionGrammar());
+                if (tokens.get(0).tokenType == TokenType.TK_COMMA) {
+                        //remove ','
+                        tokens.remove(0);
+                }
+
+                return varDeclaration;
+        }
+
+        public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
+
+                // If first init has already passed, successors should have ','s
+                if (varDeclaration.hasChildren())
+                        tokens.remove(0);
+
+                varDeclaration.addVarDec(typeSpec, decID);
+
+                if (tokens.get(0).tokenType == TokenType.TK_COMMA) {
+                        // remove ','
+                        tokens.remove(0);
                 }
 
                 return varDeclaration;
