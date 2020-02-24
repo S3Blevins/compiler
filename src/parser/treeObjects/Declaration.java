@@ -13,6 +13,8 @@ public abstract class Declaration extends Node {
             this.addChild(new Variable(type, ID));
         }
 
+        public varDeclaration() {}
+
         public void addVarDec(Token type, Token ID) {
             this.addChild(new Variable(type, ID));
         }
