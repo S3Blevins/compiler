@@ -91,7 +91,21 @@ public abstract class Statement extends Node {
                 Token token;
         }
 
+        public static class ExpressionStatement extends Statement {
+                public Token token;
 
+                public ExpressionStatement() {
+                        this.token = new Token("return", TokenType.TK_KEYWORDS);
+                }
 
+                public ExpressionStatement(Expression expr) {
+                        this.token = new Token("return", TokenType.TK_KEYWORDS);
+                        this.addChild(expr);
+                }
+
+                public void setExpression(Expression expr) {
+                        this.addChild(expr);
+                }
+        }
 }
 
