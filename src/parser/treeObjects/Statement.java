@@ -8,12 +8,6 @@ import lexer.TokenType;
 import parser.Node;
 
 public abstract class Statement extends Node {
-        // TODO: expression statement
-        // compound/block statement
-        // TODO: selection statement
-        // iteration statement
-        // return statement
-        // break statement
 
         public static class Block extends Statement {
 
@@ -67,6 +61,7 @@ public abstract class Statement extends Node {
         }
 
         public static class Return extends Statement {
+
                 public Token token;
 
                 public Return() {
@@ -85,13 +80,15 @@ public abstract class Statement extends Node {
 
         public static class Break extends Statement {
 
+                public Token token;
+
                 public Break() {
                         this.token = new Token("break", TokenType.TK_KEYWORDS);
                 }
-                Token token;
         }
 
         public static class ExpressionStatement extends Statement {
+
                 public Token token;
 
                 public ExpressionStatement() {
