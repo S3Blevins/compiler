@@ -1,17 +1,17 @@
 
 /* test */
-int main(int h, int f) {
+int main(int a, int b) {
 
     // expression testing
-    //(1 + 2);
+    (1 + 2);
 
     // variable declaration testing
-    int x;
-    int x = 7;
-    int x, y = 3;
-    int x = 10, y = 3;
+    int c;
+    int d = 7;
+    int e, f = 3;
+    int g = 10, h = 3;
 
-    int a, b, c;
+    int i, j, k;
 
     // iterative statement testing
     while(1) {
@@ -23,12 +23,12 @@ int main(int h, int f) {
         while(1+4) {
             // break statement testing
             break;
-            int e;
+            int m;
         }
     } else if (9) {
-        int w;
+        int n;
     } else {
-        int h;
+        int o;
     }
 
     // return statement testing
@@ -36,6 +36,23 @@ int main(int h, int f) {
 }
 
 // another function testing
-int foo(int n) {
-    int g;
+int foo(int p) {
+    int q;
+}
+
+int product(int a, int b)
+{
+    int mid;
+    if (1) {
+       return 1;
+    } else {
+      int mid;
+      return 1;
+   }
+}
+
+int main() {
+
+	int p;
+	return 0;
 }

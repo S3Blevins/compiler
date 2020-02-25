@@ -226,6 +226,7 @@ public class Parser {
                 previous = tokens.remove(0);
 
                 ParseRule rule = rules.get(previous.tokenType);
+
                 if(rule.nud == null) {
 
                         /*
@@ -244,8 +245,6 @@ public class Parser {
                  * operand from the calling object. We are looking for
                  * while(prec <= rules.get(...).precedence)
                  */
-                //while(tokens.get(0).tokenType != TokenType.TK_SEMICOLON &&
-                //        prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
                 int i = prec.compareTo(rules.get(tokens.get(0).tokenType).precedence);
                 while(prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
 
@@ -257,21 +256,6 @@ public class Parser {
         }
 
         Expression expressionGrammar() {
-                //System.out.println("Expression()");
-
-
-                /*Expression expr = null;
-
-                // This is temporary implementation of expression until it is combined with the
-                // precedence parsing above
-                if(tokens.get(0).tokenType == TokenType.TK_NUMBER) {
-                        expr = new Expression.Number(Integer.parseInt(tokens.get(0).str));
-
-                        // remove number
-                        tokens.remove(0);
-                }
-
-                return expr;*/
 
                 return ParsePrecedence(Precedence.ASSIGNMENT);
         }
@@ -401,7 +385,9 @@ public class Parser {
                                         // break statement is empty
                                         statement = new Statement.Break();
 
-                                        //get rid of break
+                                        // get rid of break
+                                        tokens.remove(0);
+                                        // get rid of the ';' token.
                                         tokens.remove(0);
 
                                         break;
@@ -503,7 +489,7 @@ public class Parser {
                         if (previous.tokenType == TokenType.TK_EQUALS) {
                                 varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
 
-                                if (tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                                         previous = tokens.get(1);
                                 } else {
                                         previous = tokens.get(0);
@@ -514,7 +500,7 @@ public class Parser {
                         } else {
                                 varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID);
 
-                                if (tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                                         previous = tokens.get(1);
                                 }
 
