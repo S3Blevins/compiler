@@ -102,39 +102,6 @@ public class Parser {
                                 }
                         }, Precedence.CALL));
 
-                rules.put(TokenType.TK_RPAREN, new ParseRule(
-                        new ParseRule.Nud() {
-                                Expression exec() {
-                                        return null;
-                                }
-                        }, new ParseRule.Led() {
-                        Expression exec(Expression left) {
-                                return null;
-                        }
-                }, Precedence.NONE));
-
-                rules.put(TokenType.TK_SEMICOLON, new ParseRule(
-                        new ParseRule.Nud() {
-                                Expression exec() {
-                                        return null;
-                                }
-                        }, new ParseRule.Led() {
-                                Expression exec(Expression left) {
-                                        return null;
-                                }
-                }, Precedence.NONE));
-
-                rules.put(TokenType.TK_COMMA, new ParseRule(
-                        new ParseRule.Nud() {
-                                Expression exec() {
-                                        return null;
-                                }
-                        }, new ParseRule.Led() {
-                        Expression exec(Expression left) {
-                                return null;
-                        }
-                }, Precedence.NONE));
-
                 rules.put(TokenType.TK_MINUS, new ParseRule(
                         new ParseRule.Nud() {
                                 Expression exec() {
@@ -195,11 +162,10 @@ public class Parser {
         }
 
         Expression.Number Number() {
-                //Expression expr = this.expressionGrammar();
-                //this.previous = this.tokens.remove(0);
+                Expression expr = this.expressionGrammar();
+                this.previous = this.tokens.remove(0);
 
-                //return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
-                return new Expression.Number(Integer.parseInt(previous.str));
+                return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
         }
 
         Expression.Unary Unary() {
@@ -223,8 +189,6 @@ public class Parser {
         Expression ParsePrecedence(Precedence prec) {
                 Expression left = null;
 
-                previous = tokens.remove(0);
-
                 ParseRule rule = rules.get(previous.tokenType);
                 if(rule.nud == null) {
 
@@ -236,21 +200,18 @@ public class Parser {
                         return null;
                 }
 
-                left = rule.nud.exec();
-
                 /*
                  * I'm relatively certain that this loop is set up correctly
                  * as the implementation of compareTo subtracts the other
                  * operand from the calling object. We are looking for
                  * while(prec <= rules.get(...).precedence)
                  */
-                //while(tokens.get(0).tokenType != TokenType.TK_SEMICOLON &&
-                //        prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
-                int i = prec.compareTo(rules.get(tokens.get(0).tokenType).precedence);
-                while(prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
+                while(tokens.get(0).tokenType != TokenType.TK_SEMICOLON &&
+                        prec.compareTo(rules.get(tokens.get(0).tokenType).precedence) <= 0) {
 
                         previous = tokens.remove(0);
                         left = rules.get(previous.tokenType).led.exec(left);
+
                 }
 
                 return left;
@@ -260,7 +221,7 @@ public class Parser {
                 //System.out.println("Expression()");
 
 
-                /*Expression expr = null;
+                Expression expr = null;
 
                 // This is temporary implementation of expression until it is combined with the
                 // precedence parsing above
@@ -271,9 +232,9 @@ public class Parser {
                         tokens.remove(0);
                 }
 
-                return expr;*/
+                return expr;
 
-                return ParsePrecedence(Precedence.ASSIGNMENT);
+                //return ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
         Statement statementGrammar() {
@@ -417,7 +378,7 @@ public class Parser {
                         if(previous.tokenType != TokenType.TK_SEMICOLON) {
                                 //TODO: implement
 
-                                statement = new Statement.ExpressionStatement(expressionGrammar());
+                                //statement = Expression();
                         }
 
                         // remove remaining semicolon

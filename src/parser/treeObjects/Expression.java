@@ -56,11 +56,9 @@ public abstract class Expression extends Node {
 
         public static class Group extends Expression {
 
-                public Token op;
-                public Expression expr;
+                Expression expr;
 
                 public Group(Expression expr) {
-                        op = new Token("(", TokenType.TK_LPAREN);
                         this.expr = expr;
                 }
       }
