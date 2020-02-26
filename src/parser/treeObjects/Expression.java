@@ -72,5 +72,12 @@ public abstract class Expression extends Node {
         }
 
 
+        public static class Identifier extends Expression {
 
+                public Token value;
+
+                public Identifier(String value) {
+                        this.value = new Token(value, TokenType.TK_IDENTIFIER);
+                }
+        }
 }

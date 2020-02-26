@@ -3,7 +3,17 @@
 int main(int a, int b) {
 
     // expression testing
-    (1 + 2);
+    (1 + 2 - 3 / 6);
+    i = 3;
+
+    (1 == 2 > 3);
+    (1 < 3);
+    (1 > 4);
+    (1 >= 3);
+    (1 <= 2);
+
+    (1 > 2 && 0 < 1);
+    (1 > 2 || 0 < 1);
 
     // variable declaration testing
     int c;

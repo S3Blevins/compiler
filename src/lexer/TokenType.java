@@ -31,5 +31,7 @@ public enum TokenType {
         TK_LESS,
         TK_GREATER,
         TK_LESSEQ,
-        TK_GREATEREQ
+        TK_GREATEREQ,
+        TK_LOGAND,
+        TK_LOGOR
 }

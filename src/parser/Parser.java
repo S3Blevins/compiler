@@ -4,7 +4,6 @@ import lexer.Token;
 import lexer.TokenType;
 import parser.treeObjects.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -161,6 +160,135 @@ public class Parser {
 
                         }, Precedence.TERM));
 
+                rules.put(TokenType.TK_SLASH, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Unary();
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+                }, Precedence.FACTOR));
+
+                rules.put(TokenType.TK_STAR, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+                }, Precedence.FACTOR));
+
+                rules.put(TokenType.TK_EQUALS, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.ASSIGNMENT));
+
+                rules.put(TokenType.TK_EQEQUAL, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.EQUALITY));
+
+                rules.put(TokenType.TK_LESSEQ, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.COMPARISON));
+
+                rules.put(TokenType.TK_GREATEREQ, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.COMPARISON));
+
+                rules.put(TokenType.TK_LESS, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.COMPARISON));
+
+                rules.put(TokenType.TK_GREATER, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.COMPARISON));
+
+                rules.put(TokenType.TK_LOGOR, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.OR));
+
+                rules.put(TokenType.TK_LOGAND, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        return null;
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                Parser parser = Parser.Instance();
+                                return parser.Binary(left);
+                        }
+
+                }, Precedence.AND));
+
                 rules.put(TokenType.TK_NUMBER, new ParseRule(
                         new ParseRule.Nud() {
                                 Expression exec() {
@@ -172,6 +300,18 @@ public class Parser {
                                         return null;
                                 }
                         }, Precedence.PRIMARY));
+
+                rules.put(TokenType.TK_IDENTIFIER, new ParseRule(
+                        new ParseRule.Nud() {
+                                Expression exec() {
+                                        Parser parser = Parser.Instance();
+                                        return parser.Identifier();
+                                }
+                        }, new ParseRule.Led() {
+                        Expression exec(Expression left) {
+                                return null;
+                        }
+                }, Precedence.PRIMARY));
 
                 rules.put(TokenType.TK_KEYWORDS, new ParseRule(
                         new ParseRule.Nud() {
@@ -192,6 +332,11 @@ public class Parser {
                 }
 
                 return Parser.instance;
+        }
+
+        Expression.Identifier Identifier() {
+
+                return new Expression.Identifier(previous.str);
         }
 
         Expression.Number Number() {

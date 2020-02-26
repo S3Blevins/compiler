@@ -92,11 +92,11 @@ public abstract class Statement extends Node {
                 public Token token;
 
                 public ExpressionStatement() {
-                        this.token = new Token("return", TokenType.TK_KEYWORDS);
+                        this.token = new Token("statement", TokenType.TK_KEYWORDS);
                 }
 
                 public ExpressionStatement(Expression expr) {
-                        this.token = new Token("return", TokenType.TK_KEYWORDS);
+                        this.token = new Token("statement", TokenType.TK_KEYWORDS);
                         this.addChild(expr);
                 }
 

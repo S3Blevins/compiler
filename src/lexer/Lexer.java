@@ -26,6 +26,8 @@ public class Lexer {
         patterns.put(Pattern.compile("^\\*="), TokenType.TK_STAREQ);
         patterns.put(Pattern.compile("^/="), TokenType.TK_SLASHEQ);
         patterns.put(Pattern.compile("^=="), TokenType.TK_EQEQUAL);
+        patterns.put(Pattern.compile("^&&"), TokenType.TK_EQEQUAL);
+        patterns.put(Pattern.compile("^\\|\\|"), TokenType.TK_EQEQUAL);
         patterns.put(Pattern.compile("^\\+"), TokenType.TK_PLUS);
         patterns.put(Pattern.compile("^-"), TokenType.TK_MINUS);
         patterns.put(Pattern.compile("^\\*"), TokenType.TK_STAR);
