@@ -6,6 +6,8 @@ public enum TokenType {
         TK_STAREQ,
         TK_SLASHEQ,
         TK_EQEQUAL,
+        TK_PPLUS,
+        TK_MMINUS,
         TK_RPAREN,
         TK_LPAREN,
         TK_RBRACE,

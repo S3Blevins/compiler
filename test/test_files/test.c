@@ -2,8 +2,13 @@
 /* test */
 int main(int a, int b) {
 
+
+    x ? 1 : 0;
+    !x;
+    ++x + y;
+    x++ + y;
     // expression testing
-    (1 + 2 - 3 / 6);
+    (1 + 2 - -3 / 6);
     i = 3;
 
     (1 == 2 > 3);

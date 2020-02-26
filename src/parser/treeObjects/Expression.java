@@ -6,6 +6,16 @@ import parser.Node;
 
 public abstract class Expression extends Node {
 
+        public static class Ternary extends Expression {
+
+                public Ternary(Expression left, Expression onTrue, Expression onFalse) {
+
+                        this.addChild(left);
+                        this.addChild(onTrue);
+                        this.addChild(onFalse);
+                }
+        }
+
         public static class Binary extends Expression {
 
                 public Token op;
@@ -37,7 +47,7 @@ public abstract class Expression extends Node {
 
         public static class Unary extends Expression {
 
-                Token op;
+                public Token op;
 
                 public Unary(Expression expr, Token op) {
                         this.op = op;
