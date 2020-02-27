@@ -19,6 +19,10 @@ public class Token {
      */
     public Token(){}
 
+    public Token(String str) {
+        this.str = str;
+    }
+
     /**
      * Constructor to assign fields in class.
      * @param str The string that corresponds to the token.
