@@ -15,6 +15,7 @@ public class Parser {
         private ArrayList<Token> tokens;
         private HashMap<TokenType, ParseRule> rules;
         private SymbolTable table;
+        private Token enumVal = new Token("0", TokenType.TK_NUMBER); // This is used to increment enum variables.
         /*
          * 14 Feb 2020
          *
@@ -663,9 +664,11 @@ public class Parser {
                 Token decID;
 
                 // check for error
-                if(tokens.get(0).tokenType != TokenType.TK_TYPE && tokens.get(1).tokenType != TokenType.TK_IDENTIFIER) {
+                if (tokens.get(0).tokenType != TokenType.TK_TYPE && tokens.get(1).tokenType != TokenType.TK_IDENTIFIER) {
+                    if (tokens.get(0).tokenType != TokenType.TK_KEYWORDS && tokens.get(1).tokenType != TokenType.TK_KEYWORDS) {
                         System.err.println("declarationGrammar(): There was a type or TOKEN that does not follow the grammar.");
                         exit(1);
+                    }
                 }
 
                 // remove the specified element, and store it into the attributes
@@ -674,21 +677,22 @@ public class Parser {
                 previous = tokens.remove(0);
 
                 // check to see if a parenthesis exists (means a function declaration)
-                if(previous.tokenType == TokenType.TK_LPAREN) {
+                if (previous.tokenType == TokenType.TK_LPAREN) {
+
                         SymbolTable childTable = new SymbolTable();
 
                         Declaration.funDeclaration funDec = new Declaration.funDeclaration(typeSpec, decID);
 
-                        while(tokens.get(0).tokenType != TokenType.TK_RPAREN) {
+                        while (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
 
-                                if(funDec.getParamSize() > 8) {
+                                if (funDec.getParamSize() > 8) {
                                         System.err.println("Too many parameters in list!");
                                         exit(1);
                                 }
 
                                 Token type = tokens.remove(0);
 
-                                if(type.tokenType != TokenType.TK_TYPE && tokens.get(0).tokenType != TokenType.TK_IDENTIFIER) {
+                                if (type.tokenType != TokenType.TK_TYPE && tokens.get(0).tokenType != TokenType.TK_IDENTIFIER) {
                                         System.err.println("Function Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
                                         exit(1);
                                 }
@@ -702,7 +706,7 @@ public class Parser {
                                 funDec.addParameter(parameter);
 
                                 // check to see if next token is a comma, if it is, then continue the loop.
-                                if(tokens.get(0).tokenType != TokenType.TK_COMMA) {
+                                if (tokens.get(0).tokenType != TokenType.TK_COMMA) {
                                         break;
                                 }
 
@@ -719,6 +723,87 @@ public class Parser {
                         return funDec;
                 }
 
+                /**
+                 * Example of enum w/ typedef
+                 * typedef enum {Sun, Mon, Tue} dow_type;
+                 * dow_type today = Sun;
+                 *
+                 * W/o typedef
+                 * enum strategy {RANDOM, IMMEDIATE, SEARCH};
+                 * enum strategy my_strategy = IMMEDIATE;
+                 */
+                else if (previous.tokenType == TokenType.TK_LBRACE) {
+
+                    Declaration.TypeDeclaration enumerationDec = new Declaration.TypeDeclaration();
+                    Declaration.varDeclaration varDecEnum = new Declaration.varDeclaration();
+                    Token Int = new Token("int", TokenType.TK_TYPE);
+
+                    /* TODO: Add enumerationDec to ENUM Symbol Table so we can reference
+                             this enum to a variable name later when the developer
+                             assigns something.
+                    */
+
+                    enumVal.str = "0"; // Reset enumVal to 0 if we have multiple enums.
+
+                    /* This section handles typedef */
+                    if (typeSpec.str.equals("typedef") && tokens.get(0).tokenType != TokenType.TK_RBRACE) {
+
+                        decID = tokens.remove(0); // get first element of enum
+
+                        // If we have our first enum value as varDecInit, we need to set prev to '=' initially.
+                        if (tokens.get(0).tokenType == TokenType.TK_EQUALS)
+                            previous = tokens.get(0);
+
+                        do {
+                            if (previous.tokenType == TokenType.TK_EQUALS) {
+                                varDecEnum = varDecInit(varDecEnum, Int, decID); // Init our var with the correct value.
+
+                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                    previous = tokens.get(1);
+                                } else {
+                                    previous = tokens.get(0);
+                                }
+
+                                decID = tokens.get(0);
+
+                            } else {
+                                // Technically the user is not initializing a var but under the hood we need to.
+                                varDecEnum = varDecNoInit(varDecEnum, Int, decID, true);
+
+                                // varDecEnum = varDecInit(varDecEnum, Int, decID);
+
+                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                    previous = tokens.get(1);
+                                }
+                                if (tokens.get(0).tokenType != TokenType.TK_RBRACE)
+                                    decID = tokens.get(0);
+                            }
+
+                            // Increment enumVal to add to net variable if un assigned.
+                            enumVal.str = Integer.toString(Integer.parseInt(enumVal.str) + 1);
+                        } while (tokens.get(0).tokenType != TokenType.TK_RBRACE);
+
+                        /* Add all of the enum vars to tree. */
+                        enumerationDec.addEnumVar(varDecEnum);
+
+                        tokens.remove(0); // remove RBRACE
+                        enumerationDec.enumType = tokens.remove(0); // Get Enum type
+
+                        enumerationDec.enumID = new Token("enumName");; // TEMPORARY SINCE WE DO NOT KNOW ID NAME YET.
+                        tokens.remove(0); // remove ';'
+
+                    } else if (typeSpec.str.equals("enum")) {
+                        // Non typedef enum
+
+                    } else {
+                        if (tokens.get(0).tokenType == TokenType.TK_RBRACE)
+                            System.err.println("declarationGrammar(): enum body cannot be empty...");
+                        exit(1);
+                    }
+
+                    return enumerationDec;
+                }
+
                 // Made it to this point, must be a variable declaration
                 // Loop through tokens until we see a semi colon. This is to handle
                 // the case where we have multiple variables defined on the same line.
@@ -726,60 +811,65 @@ public class Parser {
 
                 // Consume everything until the comma to get the potential var value.
                 // Paired programmed with Garrett Bates
+                else {
 
-                Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
+                        Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
+                        parentTable.addSymbol(typeSpec, decID);
+                        do {
+                                if (previous.tokenType == TokenType.TK_EQUALS) {
+                                        varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
 
-                parentTable.addSymbol(typeSpec, decID);
+                                        parentTable.addSymbol(varDeclaration);
 
-                while (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                        if (previous.tokenType == TokenType.TK_EQUALS) {
-                                varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
+                                        if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                                previous = tokens.get(1);
+                                        } else {
+                                                previous = tokens.get(0);
+                                        }
 
-                                parentTable.addSymbol(varDeclaration);
+                                        decID = tokens.get(0);
 
-                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
-                                        previous = tokens.get(1);
                                 } else {
-                                        previous = tokens.get(0);
+                                        varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID, false);
+                                        parentTable.addSymbol(varDeclaration);
+
+                                        if (tokens.size() > 0) {
+                                            if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                                previous = tokens.get(1);
+                                            }
+
+                                            decID = tokens.get(0);
+                                        }
                                 }
 
-                                decID = tokens.get(0);
+                                // Need this since in the case 'int a;' previous == ;
+                                // Which means if this is a condition in while() then
+                                // we will never make it inside of here.
+                                if (previous.tokenType == TokenType.TK_SEMICOLON) break;
+                        } while (tokens.get(0).tokenType != TokenType.TK_SEMICOLON);
 
-                        } else {
-                                varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID);
+                        // remove semicolon
+                        if (tokens.size() > 0 && (previous.tokenType != TokenType.TK_SEMICOLON ||
+                                                                tokens.get(0).tokenType == TokenType.TK_SEMICOLON))
+                                tokens.remove(0);
 
-                                parentTable.addSymbol(varDeclaration);
 
-                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
-                                        previous = tokens.get(1);
-                                }
-
-                                decID = tokens.get(0);
-                        }
-
-                        // Need this since in the case 'int a;' previous == ;
-                        // Which means if this is a condition in while() then
-                        // we will never make it inside of here.
-                        if (previous.tokenType == TokenType.TK_SEMICOLON) break;
+                        return varDeclaration;
                 }
-
-                // remove semicolon
-                if (previous.tokenType != TokenType.TK_SEMICOLON || tokens.get(0).tokenType == TokenType.TK_SEMICOLON)
-                        tokens.remove(0);
-
-
-                return varDeclaration;
         }
 
         public Declaration.varDeclaration varDecInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
 
-                // Remove identifier and '='
+                // Used for regular var init
                 if (tokens.get(0).tokenType == TokenType.TK_IDENTIFIER) {
                         tokens.remove(0); // remove ID
                         tokens.remove(0); // remove '='
+
                 } else if (tokens.get(0).tokenType == TokenType.TK_EQUALS){
                         tokens.remove(0);
                 }
+
+                enumVal = tokens.get(0); // Update the value as other enums can have assignments.
 
                 varDeclaration.addVarDec(typeSpec, decID, expressionGrammar());
                 if (tokens.get(0).tokenType == TokenType.TK_COMMA) {
@@ -790,15 +880,21 @@ public class Parser {
                 return varDeclaration;
         }
 
-        public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
+        public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID, boolean inEnum) {
 
-                // If first init has already passed, successors should have ','s
+                // We set decID outside after first pass so we need to get rid of the redundant token.
                 if (varDeclaration.hasChildren())
                         tokens.remove(0);
 
-                varDeclaration.addVarDec(typeSpec, decID);
+                // For enums that have no init value.
+                if (inEnum) {
+                    previous = enumVal;
+                    varDeclaration.addVarDec(typeSpec, decID, Number());
 
-                if (tokens.get(0).tokenType == TokenType.TK_COMMA) {
+                } else
+                    varDeclaration.addVarDec(typeSpec, decID);
+
+                if (tokens.size() > 0 && tokens.get(0).tokenType == TokenType.TK_COMMA) {
                         // remove ','
                         tokens.remove(0);
                 }
@@ -820,13 +916,6 @@ public class Parser {
                 while(!tokens.isEmpty()) {
                         dec = declarationGrammar(table);
                         headNode.addDeclaration(dec);
-/*
-                        // add global variables to the symbol table
-                        if(dec instanceof Declaration.varDeclaration) {
-                                table.addSymbol((Declaration.varDeclaration) dec);
-                               // System.out.println("There is a global variable");
-                        }
-*/
                 }
 
                 table.printTable(0);
