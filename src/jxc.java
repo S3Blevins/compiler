@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import parser.Node;
 import parser.Parser;
 
 public class jxc {
@@ -19,6 +20,7 @@ public class jxc {
     public static void main(String[] args) {
         // create argument parser for cli library
         CommandLineParser commandParser = new DefaultParser();
+        Node root;
 
         // Adding arguments for our compiler
         Options commandArgs = new Options();
@@ -42,6 +44,8 @@ public class jxc {
         StringBuilder str = new StringBuilder();
         ArrayList<Token> tokens = null;
         File file = null;
+
+
 
         //get file name
         if(line.hasOption("f")){
@@ -103,15 +107,19 @@ public class jxc {
             }
         }
 
+        root = Parser.Instance().Parse(tokens, file.getName());
+
         //parse tree options
         if(line.hasOption("p")){
             //display parse tree to command line
             System.out.println("\nPARSER:");
-            Parser.Instance().Parse(tokens, file.getName());
+            root.printNode(new ArrayList<Boolean>());
         }
         if(line.hasOption("po")){
             //prints parse tree to output file
         }
+
+
 
     }
 }
