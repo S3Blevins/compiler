@@ -500,7 +500,7 @@ public class Parser {
                 return ParsePrecedence(Precedence.ASSIGNMENT);
         }
 
-        Statement statementGrammar() {
+        Statement statementGrammar(SymbolTable parentTable) {
                 //System.out.println("Statement()");
 
                 previous = tokens.get(0);
@@ -510,26 +510,22 @@ public class Parser {
                         // compound/block statement
                         statement = new Statement.Block();
                         tokens.remove(0);
-                        SymbolTable childTable = new SymbolTable();
                         while(tokens.get(0).tokenType != TokenType.TK_RBRACE) {
 
                                 // has to either be a statement or a declaration
                                 if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
-                                        Declaration dec = declarationGrammar();
+                                        Declaration dec = declarationGrammar(parentTable);
                                         ((Statement.Block) statement).addDeclaration(dec);
-
-                                        if(dec instanceof Declaration.varDeclaration) {
-                                                childTable.addSymbol((Declaration.varDeclaration) dec);
-                                        }
+                                        parentTable.addSymbol((Declaration.varDeclaration) dec);
                                 } else {
-                                        ((Statement.Block) statement).addStatement((Statement) statementGrammar());
+                                        ((Statement.Block) statement).addStatement((Statement) statementGrammar(parentTable));
                                 }
                         }
 
                         // need to specify scope
                         // currently adds symbol table as child to main symbol table
                         // may need to add the current table as a parameter to the statementGrammar() method
-                        table.addChildTable(childTable);
+
                         // removes right brace
                         tokens.remove(0);
 
@@ -564,7 +560,8 @@ public class Parser {
                                                 tokens.remove(0);
 
                                                 // use a block statement for the next section
-                                                Statement.Block body = (Statement.Block) statementGrammar();
+                                                SymbolTable childTable = new SymbolTable();
+                                                Statement.Block body = (Statement.Block) statementGrammar(childTable);
 
                                                 statement.addChild(condition);
                                                 statement.addChild(body);
@@ -574,10 +571,12 @@ public class Parser {
                                                 } else {
                                                         tokens.remove(0);
                                                         if(!tokens.get(0).str.equals("if")) {
-                                                                statement.addChild(statementGrammar());
+                                                                statement.addChild(statementGrammar(childTable));
                                                                 selectFlag = false;
                                                         }
                                                 }
+
+                                                parentTable.addChildTable(childTable);
                                         }
 
                                         break;
@@ -598,11 +597,13 @@ public class Parser {
                                         // remove remaining parenthesis
                                         tokens.remove(0);
 
+                                        SymbolTable childTable = new SymbolTable();
                                         // use a block statement for the next section
-                                        Statement.Block body = (Statement.Block) statementGrammar();
+                                        Statement.Block body = (Statement.Block) statementGrammar(childTable);
 
                                         statement = new Statement.Iteration(condition, body);
 
+                                        parentTable.addChildTable(childTable);
                                         break;
                                 case "return":
                                         // return statement
@@ -657,7 +658,7 @@ public class Parser {
          * Check for either a variable declaration or a function declaration
          * @return
          */
-        Declaration declarationGrammar() {
+        Declaration declarationGrammar(SymbolTable parentTable) {
                 Token typeSpec;
                 Token decID;
 
@@ -674,6 +675,7 @@ public class Parser {
 
                 // check to see if a parenthesis exists (means a function declaration)
                 if(previous.tokenType == TokenType.TK_LPAREN) {
+                        SymbolTable childTable = new SymbolTable();
 
                         Declaration.funDeclaration funDec = new Declaration.funDeclaration(typeSpec, decID);
 
@@ -695,6 +697,7 @@ public class Parser {
 
                                 // create a parameter, and add it to the list
                                 Declaration.Parameter parameter = new Declaration.Parameter(type, paramID);
+                                childTable.addSymbol(type, paramID);
 
                                 funDec.addParameter(parameter);
 
@@ -709,7 +712,9 @@ public class Parser {
                         // remove the right parenthesis
                         tokens.remove(0);
 
-                        funDec.addStatement(statementGrammar());
+                        funDec.addStatement(statementGrammar(childTable));
+
+                        parentTable.addChildTable(childTable);
 
                         return funDec;
                 }
@@ -724,10 +729,13 @@ public class Parser {
 
                 Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
 
+                parentTable.addSymbol(typeSpec, decID);
 
                 while (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
                         if (previous.tokenType == TokenType.TK_EQUALS) {
                                 varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
+
+                                parentTable.addSymbol(varDeclaration);
 
                                 if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                                         previous = tokens.get(1);
@@ -739,6 +747,8 @@ public class Parser {
 
                         } else {
                                 varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID);
+
+                                parentTable.addSymbol(varDeclaration);
 
                                 if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                                         previous = tokens.get(1);
@@ -808,17 +818,18 @@ public class Parser {
 
                 // run until tokens list is empty
                 while(!tokens.isEmpty()) {
-                        dec = declarationGrammar();
+                        dec = declarationGrammar(table);
                         headNode.addDeclaration(dec);
-
+/*
                         // add global variables to the symbol table
                         if(dec instanceof Declaration.varDeclaration) {
                                 table.addSymbol((Declaration.varDeclaration) dec);
                                // System.out.println("There is a global variable");
                         }
+*/
                 }
 
-                headNode.printNode(new ArrayList<Boolean>());
+                table.printTable(0);
 
                 return headNode;
         }
@@ -828,7 +839,5 @@ public class Parser {
 
                 return programGrammar(fileName);
         }
-
-
 }
 
