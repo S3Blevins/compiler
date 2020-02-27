@@ -1,7 +1,25 @@
+typedef enum {
+    MON,
+    TUE,
+    WED,
+    THUR,
+    FRI
+} weekday_type;
+
+typedef enum {
+    SAT = 5,
+    SUN
+} weekend_type;
+
+int tmp;
 
 /* test */
 int main(int a, int b) {
 
+    int z;
+
+    a = (b * 3) - 2 + 10;
+    a++;
 
     x ? 1 : 0;
     !x;
