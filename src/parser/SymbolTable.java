@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SymbolTable {
-    //Create a new HasMap <Type, ID>
+    //Create a new HasMap <ID, Type>
     HashMap<Token, Token> ST;
 
     //Creates a new array of hash maps
@@ -57,6 +57,20 @@ public class SymbolTable {
             return false;
         }
         return true;
+    }
+
+    //prints entire symbol table
+    public void printTable(int scope){
+        System.out.println("scope: " + scope);
+        System.out.println("\nSYMBOL TABLE:");
+        System.out.println(this.ST);
+        System.out.println("\nSYMBOL TABLE CHILDREN:");
+
+        if(this.hasTableChildren()) {
+            for (int i = 0; i < this.children.size(); i++) {
+                this.children.get(i).printTable(scope + 1);
+            }
+        }
     }
 
 
