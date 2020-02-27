@@ -97,4 +97,35 @@ public abstract class Declaration extends Node {
             this.paramID = ID;
         }
     }
+
+    public static class TypeDeclaration extends Declaration {
+
+        public Token enumType;
+        public Token enumID;
+
+        public TypeDeclaration(Token enumTypeID, Token ID) {
+            this.enumType = enumTypeID;
+            this.enumID = ID;
+        }
+
+        public TypeDeclaration() {
+        }
+
+        public void addEnumVar(varDeclaration enumVars) {
+            if (!this.hasChildren())
+                this.addChild(new treeList.ParameterList());
+
+            this.children = enumVars.children;
+        }
+
+        public static class EnumVar extends Declaration {
+            public Token type;
+            public Token enumID;
+
+            public EnumVar(Token type, Token enumID) {
+                this.type = type;
+                this.enumID = enumID;
+            }
+        }
+    }
 }
