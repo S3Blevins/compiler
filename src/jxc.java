@@ -1,3 +1,5 @@
+import intermediateRep_stage1.Instruction;
+import intermediateRep_stage1.Intermediate;
 import lexer.Lexer;
 import lexer.Token;
 import lexer.TokenType;
@@ -34,6 +36,9 @@ public class jxc {
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f","file,", true, "File to read in from");
+        commandArgs.addOption("i","ir,", false, "Print out the intermediate representation");
+        commandArgs.addOption("O0","no-opt,", false, "Compile with no optimization");
+        commandArgs.addOption("O1","with-opt,", false, "Compile with optimization");
 
         //parse command line options
         CommandLine line = null;
@@ -127,5 +132,18 @@ public class jxc {
             System.out.println("\n\nSYMBOL TABLE:");
             Parser.Instance().printTable();
         }
+
+        if(line.hasOption("O0")) {
+            System.out.println("compile with no optimization");
+        }
+
+        if(line.hasOption("O1")) {
+            System.out.println("compile with optimization");
+        }
+
+        if(line.hasOption("i")) {
+            System.out.println("print out the IR");
+        }
+
     }
 }
