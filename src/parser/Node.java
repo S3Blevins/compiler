@@ -10,11 +10,17 @@ public class Node {
 
     public treeList<Node> children;
 
-    public void addChild(Node child) {
-        if(this.children == null) {
+    public boolean addChild(Node child) {
+        if(this.children == null && child != null) {
             this.children = new treeList<>();
         }
-        this.children.add(child);
+        
+        if(child != null) {
+            this.children.add(child);
+            return true;
+        }
+
+        return false;
     }
 
     public int childSize() {

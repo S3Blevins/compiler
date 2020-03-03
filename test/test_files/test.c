@@ -16,10 +16,12 @@ int tmp;
 /* test */
 int main(int a, int b) {
 
-    int z;
+    int zdfjhsaldkfjhsdlkafhj;
 
     a = (b * 3) - 2 + 10;
     a++;
+
+    label:
 
     x ? 1 : 0;
     !x;
@@ -29,11 +31,37 @@ int main(int a, int b) {
     (1 + 2 - -3 / 6);
     i = 3;
 
+    for(int i; j < u; i++) {
+        h = 9;
+    }
+
+    for(; k <= 7; --i) {
+        y = 8;
+    }
+
+    for(int r; ; r--) {
+        p = 34;
+    }
+
+    for(int t = 8; k > 9;) {
+        p = 34;
+    }
+
+    for(;k > j;) {
+        w = 55;
+    }
+
+    for(;;) {
+        y - 9;
+    }
+
     (1 == 2 > 3);
     (1 < 3);
     (1 > 4);
     (1 >= 3);
     (1 <= 2);
+
+    goto label;
 
     (1 > 2 && 0 < 1);
     (1 > 2 || 0 < 1);

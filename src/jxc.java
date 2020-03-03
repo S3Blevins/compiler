@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 import parser.Node;
 import parser.Parser;
+import parser.treeObjects.Declaration;
 
 public class jxc {
 
@@ -30,6 +31,7 @@ public class jxc {
         commandArgs.addOption("to", "tokenout", false , "Displays tokens to command line and output file");
         commandArgs.addOption("h", "help", false , "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
+        commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f","file,", true, "File to read in from");
 
@@ -112,14 +114,18 @@ public class jxc {
         //parse tree options
         if(line.hasOption("p")){
             //display parse tree to command line
-            System.out.println("\nPARSER:");
+            System.out.println("\n\nPARSER:");
             root.printNode(new ArrayList<Boolean>());
         }
+
         if(line.hasOption("po")){
             //prints parse tree to output file
+
         }
 
-
-
+        if(line.hasOption("s")) {
+            System.out.println("\n\nSYMBOL TABLE:");
+            Parser.Instance().printTable();
+        }
     }
 }

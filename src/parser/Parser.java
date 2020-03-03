@@ -16,6 +16,7 @@ public class Parser {
         private HashMap<TokenType, ParseRule> rules;
         private SymbolTable table;
         private Token enumVal = new Token("0", TokenType.TK_NUMBER); // This is used to increment enum variables.
+
         /*
          * 14 Feb 2020
          *
@@ -33,6 +34,15 @@ public class Parser {
          * -- Garrett
          */
         private static Parser instance = null;
+
+        // singleton pattern only has one instance of the object
+        public static Parser Instance() {
+            if(Parser.instance == null) {
+                Parser.instance = new Parser();
+            }
+
+            return Parser.instance;
+        }
 
         enum Precedence {
                 NONE,
@@ -136,17 +146,17 @@ public class Parser {
                         }
                 }, Precedence.NONE));
 
-            rules.put(TokenType.TK_BANG, new ParseRule(
-                    new ParseRule.Nud() {
-                        Expression exec() {
-                            Parser parser = Parser.Instance();
-                            return parser.Unary();
-                        }
-                    }, new ParseRule.Led() {
-                Expression exec(Expression left) {
-                    return null;
-                }
-            }, Precedence.UNARY));
+                rules.put(TokenType.TK_BANG, new ParseRule(
+                        new ParseRule.Nud() {
+                            Expression exec() {
+                                Parser parser = Parser.Instance();
+                                return parser.Unary();
+                            }
+                        }, new ParseRule.Led() {
+                    Expression exec(Expression left) {
+                        return null;
+                    }
+                }, Precedence.UNARY));
 
                 rules.put(TokenType.TK_MINUS, new ParseRule(
                         new ParseRule.Nud() {
@@ -400,15 +410,6 @@ public class Parser {
                     }, Precedence.PRIMARY));
         }
 
-        // singleton pattern only has one instance of the object
-        public static Parser Instance() {
-                if(Parser.instance == null) {
-                        Parser.instance = new Parser();
-                }
-
-                return Parser.instance;
-        }
-
         Expression.Identifier Identifier() {
 
                 return new Expression.Identifier(previous.str);
@@ -518,8 +519,58 @@ public class Parser {
                                         Declaration dec = declarationGrammar(parentTable);
                                         ((Statement.Block) statement).addDeclaration(dec);
                                         parentTable.addSymbol((Declaration.varDeclaration) dec);
+
+                                } else if(tokens.get(0).str.equals("for")) {
+                                        // handle the for-loop here so if there happens to be a declaration, the declaration can be added to the parent scope
+                                        // but we can use the same structure as a while-loop
+
+                                        // remove keyword
+                                        tokens.remove(0);
+
+                                        // will remove the first parenthesis
+                                        tokens.remove(0);
+
+                                        // if the token is a type on the first loop, it's a declaration
+                                        if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
+                                                // a new declaration (should not be possible inside the condition and increment of a for-loop)
+                                                Declaration dec = declarationGrammar(parentTable);
+                                                System.out.println(tokens.get(0));
+                                                ((Statement.Block) statement).addDeclaration(dec);
+
+                                        } else if(tokens.get(0).tokenType != TokenType.TK_SEMICOLON){
+                                                // expression statement in place of a declaration (in theory)
+                                                System.out.println(tokens.get(0));
+                                                ((Statement.Block) statement).addStatement(statementGrammar(parentTable));
+                                        } else {
+                                                // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
+                                                tokens.remove(0);
+                                        }
+
+                                        Expression expr = null;
+                                        if(tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
+                                                expr = expressionGrammar();
+                                        }
+
+
+                                        // remove the semicolon
+                                        tokens.remove(0);
+
+                                        Statement increment = null;
+                                        if(tokens.get(0).tokenType != TokenType.TK_RPAREN) {
+                                                increment = statementGrammar(parentTable);
+                                        } else {
+                                                tokens.remove(0);
+                                        }
+
+
+                                        Statement forLoopBlock = statementGrammar(parentTable);
+                                        forLoopBlock.addChild(increment);
+
+                                        statement.addChild(new Statement.Iteration(expr, (Statement.Block) forLoopBlock, "for"));
                                 } else {
+                                        // add a normal for-loop
                                         ((Statement.Block) statement).addStatement((Statement) statementGrammar(parentTable));
+
                                 }
                         }
 
@@ -538,7 +589,7 @@ public class Parser {
 
                                 case "if":
                                         boolean selectFlag = true;
-                                        statement = new Statement.Selection();
+                                        statement = new Statement.Conditional();
 
                                         while(selectFlag) {
                                                 // remove keyword
@@ -583,12 +634,12 @@ public class Parser {
                                         break;
                                 case "while":
 
-                                        // remove while keyword
+                                        // remove keyword
                                         tokens.remove(0);
 
                                         // remove token, it should be a left parenthesis
                                         if(tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
-                                                System.out.println("Malformed statement()");
+                                                System.err.println("ERROR: Malformed statementGrammar() " + tokens.get(0).tokError());
                                                 exit(1);
                                         }
 
@@ -602,7 +653,7 @@ public class Parser {
                                         // use a block statement for the next section
                                         Statement.Block body = (Statement.Block) statementGrammar(childTable);
 
-                                        statement = new Statement.Iteration(condition, body);
+                                        statement = new Statement.Iteration(condition, body, keywordIndicator);
 
                                         parentTable.addChildTable(childTable);
                                         break;
@@ -627,28 +678,46 @@ public class Parser {
                                         // break statement is empty
                                         statement = new Statement.Break();
 
-                                        // get rid of break
+                                        // get rid of "break"
                                         tokens.remove(0);
                                         // get rid of the ';' token.
                                         tokens.remove(0);
 
                                         break;
+                                case "goto":
+                                        // remove "goto"
+                                        tokens.remove(0);
+
+                                        // populate the tree object with the name of the label
+                                        statement = new Statement.gotoStatement(tokens.remove(0));
+
+                                        // remove the semicolon
+                                        tokens.remove(0);
+                                        break;
                                 default:
-                                        System.out.println("Invalid statement(): " + keywordIndicator);
+                                        System.out.println("ERROR: unrecognized " + tokens.get(0).tokError());
                                         exit(1);
                         }
 
                 } else {
                         // expression statement
 
-                        // if the next token is not a semicolon, then it is an expression
-                        if(previous.tokenType != TokenType.TK_SEMICOLON) {
-                                //TODO: implement
+                        // goto label
+                        if(tokens.get(1).tokenType == TokenType.TK_COLON) {
+                                // remove label
+                                statement = new Statement.gotoLabel(tokens.remove(0));
 
+                                // check to make sure not at the end of a block
+                                if(tokens.get(1).tokenType == TokenType.TK_RPAREN) {
+                                        System.err.println("ERROR: goto label precedes empty statement " + tokens.get(0).tokError());
+                                }
+                        } else if (previous.tokenType != TokenType.TK_SEMICOLON) {
+                                // if the next token is not a semicolon, then it is an expression
                                 statement = new Statement.ExpressionStatement(expressionGrammar());
+
                         }
 
-                        // remove remaining semicolon
+                        // remove remaining semicolon/colon
                         tokens.remove(0);
                 }
 
@@ -666,7 +735,7 @@ public class Parser {
                 // check for error
                 if (tokens.get(0).tokenType != TokenType.TK_TYPE && tokens.get(1).tokenType != TokenType.TK_IDENTIFIER) {
                     if (tokens.get(0).tokenType != TokenType.TK_KEYWORDS && tokens.get(1).tokenType != TokenType.TK_KEYWORDS) {
-                        System.err.println("declarationGrammar(): There was a type or TOKEN that does not follow the grammar.");
+                        System.err.println("declarationGrammar(): TYPE or TOKEN that does not follow the grammar " + tokens.get(0).tokError());
                         exit(1);
                     }
                 }
@@ -686,14 +755,14 @@ public class Parser {
                         while (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
 
                                 if (funDec.getParamSize() > 8) {
-                                        System.err.println("Too many parameters in list!");
+                                        System.err.println("ERROR: Unsupported number of parameters in function " + decID.str);
                                         exit(1);
                                 }
 
                                 Token type = tokens.remove(0);
 
                                 if (type.tokenType != TokenType.TK_TYPE && tokens.get(0).tokenType != TokenType.TK_IDENTIFIER) {
-                                        System.err.println("Function Declaration ERROR! : There was a type or TOKEN that does not follow the grammar.");
+                                        tokens.get(0).tokError();
                                         exit(1);
                                 }
 
@@ -797,7 +866,7 @@ public class Parser {
 
                     } else {
                         if (tokens.get(0).tokenType == TokenType.TK_RBRACE)
-                            System.err.println("declarationGrammar(): enum body cannot be empty...");
+                            System.err.println("ERROR: declarationGrammar(): enum body cannot be empty..." + tokens.get(0).tokError());
                         exit(1);
                     }
 
@@ -834,11 +903,17 @@ public class Parser {
                                         parentTable.addSymbol(varDeclaration);
 
                                         if (tokens.size() > 0) {
-                                            if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
-                                                previous = tokens.get(1);
-                                            }
+                                                if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
+                                                        previous = tokens.get(1);
+                                                }
 
-                                            decID = tokens.get(0);
+                                                decID = tokens.get(0);
+
+                                                // if in the case the declaration ID happens to be a semicolon, do nothing and return immediately
+                                                // applicable for the for-loop variable declaration
+                                                if(decID.tokenType == TokenType.TK_SEMICOLON) {
+                                                    return varDeclaration;
+                                                }
                                         }
                                 }
 
@@ -911,14 +986,16 @@ public class Parser {
                 Program headNode = new Program(fileName);
                 Declaration dec;
                 table = new SymbolTable();
-
-                // run until tokens list is empty
-                while(!tokens.isEmpty()) {
-                        dec = declarationGrammar(table);
-                        headNode.addDeclaration(dec);
+                try {
+                        // run until tokens list is empty
+                        while (!tokens.isEmpty()) {
+                                dec = declarationGrammar(table);
+                                headNode.addDeclaration(dec);
+                        }
+                } catch(NullPointerException e) {
+                        System.err.println("ERROR: Malformed code " + tokens.get(0).tokError());
+                        exit(1);
                 }
-
-                table.printTable(0);
 
                 return headNode;
         }
@@ -927,6 +1004,10 @@ public class Parser {
                 this.tokens = tokens;
 
                 return programGrammar(fileName);
+        }
+
+        public void printTable() {
+            table.printTable(0);
         }
 }
 

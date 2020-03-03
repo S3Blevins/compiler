@@ -1,12 +1,11 @@
 package parser;
-//TODO add more Nessasary functions, implement in parser
 
 import lexer.Token;
 import parser.treeObjects.Declaration;
-import parser.treeObjects.treeList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class SymbolTable {
     //Create a new HasMap <ID, Type>
@@ -29,7 +28,7 @@ public class SymbolTable {
 
     //add a new element to current hash map
     public void addSymbol(Token type, Token ID){
-        this.ST.put(type, ID);
+        this.ST.put(ID, type);
     }
 
     public void addSymbol(Declaration.varDeclaration varDec){
@@ -37,7 +36,7 @@ public class SymbolTable {
 
         Token type = var.getType();
         Token ID = var.getVariableID();
-        this.ST.put(type, ID);
+        this.ST.put(ID, type);
     }
 
     //retreve a specific element
@@ -59,17 +58,35 @@ public class SymbolTable {
         return true;
     }
 
-    //prints entire symbol table
+    // prints symbol table with some printf magic
     public void printTable(int scope){
-        System.out.println("scope: " + scope);
-        System.out.println("\nSYMBOL TABLE:");
-        System.out.println(this.ST);
-        System.out.println("\nSYMBOL TABLE CHILDREN:");
+        String indent = ":\t".repeat(scope);
 
+        // table header line
+        System.out.printf("%s+------------------------------------+\n", indent);
+
+        // name the scope
+        if(scope == 0) {
+            System.out.printf("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
+        } else {
+            System.out.printf("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope-1), ": ->", scope, "|\n");
+        }
+
+        // print out the type and associated variable
+        for(Map.Entry<Token, Token> set: this.ST.entrySet()) {
+            System.out.printf("%s| %4s | %-22s %6s\n", indent, set.getValue().str, set.getKey().str, "|");
+        }
+
+        // indicate the number of children, and print out the table formatting
         if(this.hasTableChildren()) {
+            System.out.printf("%s|------------------------------------|\n", indent);
+            System.out.printf("%s| This table has %s inner scope(s) %5s", indent, this.children.size(), "|\n");
+            System.out.printf("%s+------------------------------------+\n", indent);
             for (int i = 0; i < this.children.size(); i++) {
                 this.children.get(i).printTable(scope + 1);
             }
+        } else {
+            System.out.printf("%s+------------------------------------+\n", indent);
         }
     }
 
