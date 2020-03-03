@@ -21,7 +21,9 @@ public abstract class Statement extends Node {
                 }
 
                 public void addStatement(Statement statement) {
-                        this.addChild(statement);
+                        if(statement != null) {
+                                this.addChild(statement);
+                        }
                 }
 
                 public void addDeclaration(Declaration declaration) {
@@ -32,28 +34,38 @@ public abstract class Statement extends Node {
 
         public static class Iteration extends Statement {
 
-                public Iteration(Expression condition, Block body) {
+                public Token statementType;
+
+                public Iteration(Expression condition, Block body, String type) {
+
+                        // if the condition is null, default it to equivalent of true
+                        if(condition == null) {
+                                condition = new Expression.Number(1);
+
+                        }
+
                         this.addChild(condition);
                         this.addChild(body);
+                        this.statementType = new Token(type, TokenType.TK_KEYWORDS);
                 }
         }
 
-        public static class Selection extends Statement {
-                public Selection() {
+        public static class Conditional extends Statement {
+                public Conditional() {
 
                 }
 
-                public Selection(Expression condition, Block body) {
+                public Conditional(Expression condition, Block body) {
                         this.addChild(condition);
                         this.addChild(body);
                 }
 
-                public void addSelection(Expression condition, Block body) {
+                public void addConditional(Expression condition, Block body) {
                         this.addChild(condition);
                         this.addChild(body);
                 }
 
-                public void addSelection(Statement statement) {
+                public void addConditional(Statement statement) {
                         this.addChild(statement.children.get(0));
                         this.addChild(statement.children.get(1));
                 }
@@ -92,16 +104,32 @@ public abstract class Statement extends Node {
                 public Token token;
 
                 public ExpressionStatement() {
-                        this.token = new Token("statement", TokenType.TK_KEYWORDS);
+                        this.token = new Token("Expression Statement", TokenType.TK_KEYWORDS);
                 }
 
                 public ExpressionStatement(Expression expr) {
-                        this.token = new Token("statement", TokenType.TK_KEYWORDS);
+                        this.token = new Token("Expression Statement", TokenType.TK_KEYWORDS);
                         this.addChild(expr);
                 }
 
                 public void setExpression(Expression expr) {
                         this.addChild(expr);
+                }
+        }
+
+        public static class gotoStatement extends Statement {
+                public Token label;
+
+                public gotoStatement(Token label) {
+                        this.label = label;
+                }
+        }
+
+        public static class gotoLabel extends Statement {
+                public Token label;
+
+                public gotoLabel(Token label) {
+                        this.label = label;
                 }
         }
 }
