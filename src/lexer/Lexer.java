@@ -120,7 +120,7 @@ public class Lexer {
 
                     if(m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
-                        Token tk = new Token();
+                        Token tk = new Token(fileLine);
                         tk.tokenType = e.getValue();
 
                         /*
