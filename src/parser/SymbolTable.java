@@ -6,6 +6,7 @@ import parser.treeObjects.Declaration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+//TODO add new scope levels for if else and for loops(done in parser.java)
 
 public class SymbolTable {
     //Create a new HasMap <ID, Type>
@@ -44,6 +45,7 @@ public class SymbolTable {
         return this.ST.get(ID);
     }
 
+    //checks the size of a child table
     public int childTableSize() {
         if(this.children == null) {
             return 0;
@@ -51,6 +53,7 @@ public class SymbolTable {
         return this.children.size();
     }
 
+    //Checks if a table has a child table or not
     public boolean hasTableChildren() {
         if(this.children == null) {
             return false;
