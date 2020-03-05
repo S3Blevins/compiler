@@ -69,7 +69,7 @@ public class jxc {
                 String[] lines = fileLines.toArray(new String[0]);
 
                 // tokenize the contents of the file
-                tokens = Lexer.tokenize(lines);
+                tokens = Lexer.Instance().tokenize(lines);
 
                 // print & write out tokens
                 str.append("\nTOKENS:\n");

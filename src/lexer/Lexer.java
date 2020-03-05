@@ -10,6 +10,16 @@ import static java.lang.System.exit;
 public class Lexer {
 
     private static LinkedHashMap<Pattern, TokenType> patterns = new LinkedHashMap<>();
+    private static Lexer instance = null;
+
+    // not convinced of the necessity of Lexer being a singleton - Sterling
+    public static Lexer Instance() {
+        if(Lexer.instance == null) {
+            Lexer.instance = new Lexer();
+        }
+
+        return Lexer.instance;
+    }
 
     // Regex patterns required to match token types
     static {
