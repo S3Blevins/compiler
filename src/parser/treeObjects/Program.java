@@ -1,7 +1,9 @@
 package parser.treeObjects;
 
+import parser.IVisitor;
 import parser.Node;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -28,4 +30,7 @@ public class Program extends Node {
         System.out.print("Program");
     }
 
+    void accept(IVisitor visitor) {
+        visitor.visitProgram(this);
+    }
 }

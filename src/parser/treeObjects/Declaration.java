@@ -1,6 +1,7 @@
 package parser.treeObjects;
 
 import lexer.Token;
+import parser.IVisitor;
 import parser.Node;
 
 import java.util.ArrayList;
@@ -32,6 +33,10 @@ public abstract class Declaration extends Node {
                 this.addChild(expr);
             }
         }
+
+        public void accept(IVisitor visitor) {
+            visitor.visitVarDecl(this);
+        }
     }
 
     public static class Variable extends Declaration {
@@ -56,7 +61,9 @@ public abstract class Declaration extends Node {
         public Token getVariableID(){
             return this.variableID;
         }
-
+        public void accept(IVisitor visitor) {
+            visitor.visitVariable(this);
+        }
     }
 
     public static class funDeclaration extends Declaration {
@@ -86,6 +93,9 @@ public abstract class Declaration extends Node {
 
             return this.children.get(0).childSize();
         }
+        public void accept(IVisitor visitor) {
+            visitor.visitFunDecl(this);
+        }
     }
 
     public static class Parameter extends Declaration {
@@ -95,6 +105,9 @@ public abstract class Declaration extends Node {
         public Parameter(Token type, Token ID) {
             this.type = type;
             this.paramID = ID;
+        }
+        public void accept(IVisitor visitor) {
+            visitor.visitParameter(this);
         }
     }
 
@@ -126,6 +139,14 @@ public abstract class Declaration extends Node {
                 this.type = type;
                 this.enumID = enumID;
             }
+
+            public void accept(IVisitor visitor) {
+                visitor.visitEnumVar(this);
+            }
+        }
+
+        public void accept(IVisitor visitor) {
+            visitor.visitTypeDecl(this);
         }
     }
 }

@@ -2,6 +2,7 @@ package parser.treeObjects;
 
 import lexer.Token;
 import lexer.TokenType;
+import parser.IVisitor;
 import parser.Node;
 
 public abstract class Expression extends Node {
@@ -13,6 +14,10 @@ public abstract class Expression extends Node {
                         this.addChild(left);
                         this.addChild(onTrue);
                         this.addChild(onFalse);
+                }
+
+                void accept(IVisitor visitor) {
+                        visitor.visitTernary(this);
                 }
         }
 
@@ -43,6 +48,9 @@ public abstract class Expression extends Node {
 
                         return this.children.get(1);
                 }
+                public void accept(IVisitor visitor) {
+                        visitor.visitBinary(this);
+                }
         }
 
         public static class Unary extends Expression {
@@ -62,12 +70,18 @@ public abstract class Expression extends Node {
 
                         return this.children.get(0);
                 }
+                public void accept(IVisitor visitor) {
+                        visitor.visitUnary(this);
+                }
         }
 
         public static class Group extends Expression {
 
                 public Group(Expression expr) {
                         this.addChild(expr);
+                }
+                public void accept(IVisitor visitor) {
+                        visitor.visitGroup(this);
                 }
         }
 
@@ -78,7 +92,9 @@ public abstract class Expression extends Node {
                 public Number(Integer value) {
                         this.value = new Token(value.toString(), TokenType.TK_NUMBER);
                 }
-
+                public void accept(IVisitor visitor) {
+                        visitor.visitNumber(this);
+                }
         }
 
 
@@ -88,6 +104,9 @@ public abstract class Expression extends Node {
 
                 public Identifier(String value) {
                         this.value = new Token(value, TokenType.TK_IDENTIFIER);
+                }
+                public void accept(IVisitor visitor) {
+                        visitor.visitIdentifier(this);
                 }
         }
 }

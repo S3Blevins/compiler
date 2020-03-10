@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 
 import lexer.Token;
 import lexer.TokenType;
+import parser.IVisitor;
 import parser.Node;
 
 public abstract class Statement extends Node {
@@ -30,6 +31,10 @@ public abstract class Statement extends Node {
                         this.addChild(declaration);
                 }
 
+                public void accept(IVisitor visitor) {
+                        visitor.visitBlock(this);
+                }
+
         }
 
         public static class Iteration extends Statement {
@@ -47,6 +52,9 @@ public abstract class Statement extends Node {
                         this.addChild(condition);
                         this.addChild(body);
                         this.statementType = new Token(type, TokenType.TK_KEYWORDS);
+                }
+                public void accept(IVisitor visitor) {
+                        visitor.visitIteration(this);
                 }
         }
 
@@ -69,7 +77,9 @@ public abstract class Statement extends Node {
                         this.addChild(statement.children.get(0));
                         this.addChild(statement.children.get(1));
                 }
-
+                public void accept(IVisitor visitor) {
+                        visitor.visitConditional(this);
+                }
         }
 
         public static class Return extends Statement {
@@ -88,6 +98,9 @@ public abstract class Statement extends Node {
                 public void setExpression(Expression expr) {
                         this.addChild(expr);
                 }
+                public void accept(IVisitor visitor) {
+                        visitor.visitReturn(this);
+                }
         }
 
         public static class Break extends Statement {
@@ -96,6 +109,9 @@ public abstract class Statement extends Node {
 
                 public Break() {
                         this.token = new Token("break", TokenType.TK_KEYWORDS);
+                }
+                public void accept(IVisitor visitor) {
+                        visitor.visitBreak(this);
                 }
         }
 
@@ -115,6 +131,9 @@ public abstract class Statement extends Node {
                 public void setExpression(Expression expr) {
                         this.addChild(expr);
                 }
+                public void accept(IVisitor visitor) {
+                        visitor.visitExpressionStatement(this);
+                }
         }
 
         public static class gotoStatement extends Statement {
@@ -123,6 +142,9 @@ public abstract class Statement extends Node {
                 public gotoStatement(Token label) {
                         this.label = label;
                 }
+                public void accept(IVisitor visitor) {
+                        visitor.visitGoto(this);
+                }
         }
 
         public static class gotoLabel extends Statement {
@@ -130,6 +152,9 @@ public abstract class Statement extends Node {
 
                 public gotoLabel(Token label) {
                         this.label = label;
+                }
+                public void accept(IVisitor visitor) {
+                        visitor.visitGotoLabel(this);
                 }
         }
 }

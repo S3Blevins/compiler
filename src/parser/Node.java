@@ -122,5 +122,10 @@ public class Node {
             }
         }
     }
+
+    void accept(IVisitor visitor) throws Exception {
+
+        throw new Exception();
+    }
 }
 

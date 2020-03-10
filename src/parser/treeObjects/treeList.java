@@ -1,5 +1,6 @@
 package parser.treeObjects;
 
+import parser.IVisitor;
 import parser.Node;
 
 import java.util.AbstractCollection;
@@ -32,6 +33,11 @@ public class treeList<T> extends Node {
     public static class ParameterList extends treeList{
         public ParameterList() {
 
+        }
+
+        void accept(IVisitor visitor) {
+
+            visitor.visitParamList(this);
         }
     }
 }
