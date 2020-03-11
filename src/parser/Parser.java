@@ -518,7 +518,6 @@ public class Parser {
                                 if(tokens.get(0).tokenType == TokenType.TK_TYPE) {
                                         Declaration dec = declarationGrammar(parentTable);
                                         ((Statement.Block) statement).addDeclaration(dec);
-                                        parentTable.addSymbol((Declaration.varDeclaration) dec);
 
                                 } else if(tokens.get(0).str.equals("for")) {
                                         // handle the for-loop here so if there happens to be a declaration, the declaration can be added to the parent scope
@@ -902,6 +901,11 @@ public class Parser {
                                         varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID, false);
                                         parentTable.addSymbol(typeSpec, decID);
 
+
+                                        if (previous.tokenType == TokenType.TK_SEMICOLON) {
+                                            return varDeclaration;
+                                        }
+
                                         if (tokens.size() > 0) {
                                                 if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                                                         previous = tokens.get(1);
@@ -917,10 +921,10 @@ public class Parser {
                                         }
                                 }
 
-                                // Need this since in the case 'int a;' previous == ;
-                                // Which means if this is a condition in while() then
-                                // we will never make it inside of here.
-                                if (previous.tokenType == TokenType.TK_SEMICOLON) break;
+                            // Need this since in the case 'int a;' previous == ;
+                            // Which means if this is a condition in while() then
+                            // we will never make it inside of here.
+                            if (previous.tokenType == TokenType.TK_SEMICOLON) break;
                         } while (tokens.get(0).tokenType != TokenType.TK_SEMICOLON);
 
                         // remove semicolon
