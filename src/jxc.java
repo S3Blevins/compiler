@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import parser.Node;
+import parser.NodePrinter;
 import parser.Parser;
 import parser.treeObjects.Declaration;
 
@@ -121,6 +122,8 @@ public class jxc {
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
             root.printNode(new ArrayList<Boolean>());
+            //NodePrinter printer = new NodePrinter();
+            //root.accept(printer);
         }
 
         if(line.hasOption("po")){

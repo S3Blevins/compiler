@@ -29,5 +29,5 @@ public interface IVisitor {
 
     void visitParamList(treeList.ParameterList list);
 
-    void visitProgram(Program progam);
+    void visitProgram(Program program);
 }

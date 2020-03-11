@@ -34,6 +34,7 @@ public abstract class Declaration extends Node {
             }
         }
 
+        @Override
         public void accept(IVisitor visitor) {
             visitor.visitVarDecl(this);
         }
@@ -61,6 +62,8 @@ public abstract class Declaration extends Node {
         public Token getVariableID(){
             return this.variableID;
         }
+
+        @Override
         public void accept(IVisitor visitor) {
             visitor.visitVariable(this);
         }
@@ -93,6 +96,8 @@ public abstract class Declaration extends Node {
 
             return this.children.get(0).childSize();
         }
+
+        @Override
         public void accept(IVisitor visitor) {
             visitor.visitFunDecl(this);
         }
@@ -106,6 +111,8 @@ public abstract class Declaration extends Node {
             this.type = type;
             this.paramID = ID;
         }
+
+        @Override
         public void accept(IVisitor visitor) {
             visitor.visitParameter(this);
         }
@@ -140,11 +147,13 @@ public abstract class Declaration extends Node {
                 this.enumID = enumID;
             }
 
+            @Override
             public void accept(IVisitor visitor) {
                 visitor.visitEnumVar(this);
             }
         }
 
+        @Override
         public void accept(IVisitor visitor) {
             visitor.visitTypeDecl(this);
         }

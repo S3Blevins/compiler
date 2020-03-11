@@ -16,7 +16,8 @@ public abstract class Expression extends Node {
                         this.addChild(onFalse);
                 }
 
-                void accept(IVisitor visitor) {
+                @Override
+                public void accept(IVisitor visitor) {
                         visitor.visitTernary(this);
                 }
         }
@@ -48,6 +49,8 @@ public abstract class Expression extends Node {
 
                         return this.children.get(1);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitBinary(this);
                 }
@@ -70,6 +73,8 @@ public abstract class Expression extends Node {
 
                         return this.children.get(0);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitUnary(this);
                 }
@@ -80,6 +85,8 @@ public abstract class Expression extends Node {
                 public Group(Expression expr) {
                         this.addChild(expr);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitGroup(this);
                 }
@@ -92,6 +99,8 @@ public abstract class Expression extends Node {
                 public Number(Integer value) {
                         this.value = new Token(value.toString(), TokenType.TK_NUMBER);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitNumber(this);
                 }
@@ -105,6 +114,8 @@ public abstract class Expression extends Node {
                 public Identifier(String value) {
                         this.value = new Token(value, TokenType.TK_IDENTIFIER);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitIdentifier(this);
                 }

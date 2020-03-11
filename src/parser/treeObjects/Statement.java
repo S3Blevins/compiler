@@ -31,6 +31,7 @@ public abstract class Statement extends Node {
                         this.addChild(declaration);
                 }
 
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitBlock(this);
                 }
@@ -53,6 +54,8 @@ public abstract class Statement extends Node {
                         this.addChild(body);
                         this.statementType = new Token(type, TokenType.TK_KEYWORDS);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitIteration(this);
                 }
@@ -77,6 +80,8 @@ public abstract class Statement extends Node {
                         this.addChild(statement.children.get(0));
                         this.addChild(statement.children.get(1));
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitConditional(this);
                 }
@@ -98,6 +103,8 @@ public abstract class Statement extends Node {
                 public void setExpression(Expression expr) {
                         this.addChild(expr);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitReturn(this);
                 }
@@ -110,6 +117,8 @@ public abstract class Statement extends Node {
                 public Break() {
                         this.token = new Token("break", TokenType.TK_KEYWORDS);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitBreak(this);
                 }
@@ -131,6 +140,8 @@ public abstract class Statement extends Node {
                 public void setExpression(Expression expr) {
                         this.addChild(expr);
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitExpressionStatement(this);
                 }
@@ -142,6 +153,8 @@ public abstract class Statement extends Node {
                 public gotoStatement(Token label) {
                         this.label = label;
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitGoto(this);
                 }
@@ -153,6 +166,8 @@ public abstract class Statement extends Node {
                 public gotoLabel(Token label) {
                         this.label = label;
                 }
+
+                @Override
                 public void accept(IVisitor visitor) {
                         visitor.visitGotoLabel(this);
                 }

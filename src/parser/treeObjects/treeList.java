@@ -35,7 +35,8 @@ public class treeList<T> extends Node {
 
         }
 
-        void accept(IVisitor visitor) {
+        @Override
+        public void accept(IVisitor visitor) {
 
             visitor.visitParamList(this);
         }

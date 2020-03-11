@@ -123,9 +123,11 @@ public class Node {
         }
     }
 
-    void accept(IVisitor visitor) throws Exception {
+    /*void accept(IVisitor visitor) throws Exception {
 
         throw new Exception();
+    }*/
+    public void accept(IVisitor visitor) {
     }
 }
 

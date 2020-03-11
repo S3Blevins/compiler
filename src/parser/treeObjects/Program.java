@@ -30,7 +30,9 @@ public class Program extends Node {
         System.out.print("Program");
     }
 
-    void accept(IVisitor visitor) {
+    @Override
+    public void accept(IVisitor visitor) {
+
         visitor.visitProgram(this);
     }
 }
