@@ -32,7 +32,7 @@ public class SymbolTable {
 
         for(Token token : ST.keySet()) {
             if (token.str.equals(ID.str)) {
-                System.err.println("This variable already exists : "+ ID);
+                System.err.println("This variable already exists : "+ ID.tokError());
                 System.exit(1);
             }
         }
