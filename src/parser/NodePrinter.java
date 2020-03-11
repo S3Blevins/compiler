@@ -122,9 +122,29 @@ public class NodePrinter implements IVisitor {
     public void visitProgram(Program program) {
 
         System.out.println("PROGRAM");
+
+        this.depth.add(true);
+
         for(int i = 0; i < program.children.size(); i++) {
 
             program.children.get(i).accept(this);
+        }
+
+        this.depth.remove(this.depth.size() - 1);
+    }
+
+    private void printDepth() {
+
+        for(Boolean printLine : this.depth) {
+
+            if(printLine) {
+
+                System.out.println("|   ");
+
+            } else {
+
+                System.out.println("    ");
+            }
         }
     }
 }
