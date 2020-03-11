@@ -883,7 +883,7 @@ public class Parser {
                 else {
 
                         Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
-                        parentTable.addSymbol(typeSpec, decID);
+                        //parentTable.addSymbol(typeSpec, decID);
                         do {
                                 if (previous.tokenType == TokenType.TK_EQUALS) {
                                         varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
@@ -900,7 +900,7 @@ public class Parser {
 
                                 } else {
                                         varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID, false);
-                                        parentTable.addSymbol(varDeclaration);
+                                        parentTable.addSymbol(typeSpec, decID);
 
                                         if (tokens.size() > 0) {
                                                 if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {

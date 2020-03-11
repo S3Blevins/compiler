@@ -29,6 +29,13 @@ public class SymbolTable {
 
     //add a new element to current hash map
     public void addSymbol(Token type, Token ID){
+
+        for(Token token : ST.keySet()) {
+            if (token.str.equals(ID.str)) {
+                System.err.println("This variable already exists : "+ ID);
+                System.exit(1);
+            }
+        }
         this.ST.put(ID, type);
     }
 
@@ -37,10 +44,21 @@ public class SymbolTable {
 
         Token type = var.getType();
         Token ID = var.getVariableID();
+        //compare every key to the ID to ensure there are no duplicate variable names
+
+        for(Token token : ST.keySet()) {
+                if (token.str.equals(ID.str)) {
+                    System.err.println("This variable already exists : "+ ID.tokError());
+                    System.err.println("Current symbol table : " + ST);
+
+                    System.exit(1);
+                }
+        }
+
         this.ST.put(ID, type);
     }
 
-    //retreve a specific element
+    //retrieve a specific element
     public Token hasSymbol(Token ID){
         return this.ST.get(ID);
     }
