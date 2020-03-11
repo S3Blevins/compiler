@@ -28,7 +28,9 @@ public abstract class Statement extends Node {
                 }
 
                 public void addDeclaration(Declaration declaration) {
-                        this.addChild(declaration);
+                        if(declaration != null) {
+                                this.addChild(declaration);
+                        }
                 }
 
                 @Override
