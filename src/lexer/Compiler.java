@@ -11,15 +11,15 @@ public class Compiler {
 
     public static void main(String[] args) {
 
-        if(0 < args.length) {
+        if (0 < args.length) {
             int index = 0;
 
             // check for arguments (there is cleaner way to implement)
-            for(int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++) {
                 // run help function
-                if(args[i].equals("-h")) {
+                if (args[i].equals("-h")) {
                     helpString();
-                } else if(args[i].contains(".c")) {
+                } else if (args[i].contains(".c")) {
                     index = i;
                 } else {
                     System.out.println("error: the argument " + args[i] + " is not recognized.");
@@ -32,7 +32,7 @@ public class Compiler {
                 Scanner readScanner = new Scanner(file);
                 ArrayList<String> fileLines = new ArrayList<String>();
 
-                while(readScanner.hasNextLine()) {
+                while (readScanner.hasNextLine()) {
                     fileLines.add(readScanner.nextLine().trim());
                 }
 
@@ -55,7 +55,7 @@ public class Compiler {
 
                 System.out.println("\nReconstructed");
                 for (Token token : tokens)
-                    if(token.tokenType == TokenType.TK_SEMICOLON)
+                    if (token.tokenType == TokenType.TK_SEMICOLON)
                         System.out.println(token.str + "\n");
                     else
                         System.out.print(token.str + " ");

@@ -30,7 +30,7 @@ public class treeList<T> extends Node {
         return this.array.get(index);
     }
 
-    public static class ParameterList extends treeList{
+    public static class ParameterList extends treeList {
         public ParameterList() {
 
         }

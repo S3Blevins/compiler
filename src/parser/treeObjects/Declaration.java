@@ -14,7 +14,8 @@ public abstract class Declaration extends Node {
             this.addChild(new Variable(type, ID));
         }
 
-        public varDeclaration() {}
+        public varDeclaration() {
+        }
 
         public void addVarDec(Token type, Token ID) {
             this.addChild(new Variable(type, ID));
@@ -24,12 +25,12 @@ public abstract class Declaration extends Node {
             this.addChild(new Variable(type, ID, expr));
         }
 
-        public Variable getVarDec(){
+        public Variable getVarDec() {
             return (Variable) this.getLastChild();
         }
 
         public void fillDec(Expression expr) {
-            for(int i = 0; i < this.childSize(); i++) {
+            for (int i = 0; i < this.childSize(); i++) {
                 this.addChild(expr);
             }
         }
@@ -55,11 +56,11 @@ public abstract class Declaration extends Node {
             this.variableID = ID;
         }
 
-        public Token getType(){
+        public Token getType() {
             return this.typeSpecifier;
         }
 
-        public Token getVariableID(){
+        public Token getVariableID() {
             return this.variableID;
         }
 
@@ -79,7 +80,7 @@ public abstract class Declaration extends Node {
         }
 
         public void addParameter(Parameter parameter) {
-            if(!this.hasChildren()) {
+            if (!this.hasChildren()) {
                 this.addChild(new treeList.ParameterList());
             }
             this.children.get(0).addChild(parameter);
@@ -90,7 +91,7 @@ public abstract class Declaration extends Node {
         }
 
         public int getParamSize() {
-            if(!this.hasChildren()) {
+            if (!this.hasChildren()) {
                 return 0;
             }
 

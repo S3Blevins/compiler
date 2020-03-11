@@ -11,11 +11,11 @@ public class Node {
     public treeList<Node> children;
 
     public boolean addChild(Node child) {
-        if(this.children == null && child != null) {
+        if (this.children == null && child != null) {
             this.children = new treeList<>();
         }
-        
-        if(child != null) {
+
+        if (child != null) {
             this.children.add(child);
             return true;
         }
@@ -24,21 +24,21 @@ public class Node {
     }
 
     public int childSize() {
-        if(this.children == null) {
+        if (this.children == null) {
             return 0;
         }
         return children.size();
     }
 
     public boolean hasChildren() {
-        if(this.children == null) {
+        if (this.children == null) {
             return false;
         }
         return true;
     }
 
-    public Node getLastChild(){
-        return this.children.get(this.children.size()-1);
+    public Node getLastChild() {
+        return this.children.get(this.children.size() - 1);
     }
 
     public void printClass() {
@@ -56,8 +56,8 @@ public class Node {
         // iterate through object attributes, which should only be tokens
         // unless overridden in the object's respective class.
 
-        for(int i = 0; i < fields.length; i++) {
-            if(i == 0) {
+        for (int i = 0; i < fields.length; i++) {
+            if (i == 0) {
                 System.out.print(" <");
             } else {
                 System.out.print(" ");
@@ -69,7 +69,7 @@ public class Node {
                 e.printStackTrace();
             }
 
-            if(i == fields.length - 1) {
+            if (i == fields.length - 1) {
                 System.out.print(">");
             }
         }
@@ -91,12 +91,12 @@ public class Node {
                     depthTracker.add(false);
                 } else {
                     // while the last flag of the array is false, remove boolean flags.
-                    while(depthTracker.size() != 0 && !depthTracker.get(depthTracker.size() - 1)) {
+                    while (depthTracker.size() != 0 && !depthTracker.get(depthTracker.size() - 1)) {
                         depthTracker.remove(depthTracker.size() - 1);
                     }
 
                     // remove a true element to realign node in tree
-                    if(depthTracker.size() != 0) {
+                    if (depthTracker.size() != 0) {
                         depthTracker.remove(depthTracker.size() - 1);
                     }
                 }
@@ -114,8 +114,8 @@ public class Node {
     }
 
     public void printDepth(ArrayList<Boolean> depthTracker) {
-        for(int i = 0; i < depthTracker.size(); i++) {
-            if(depthTracker.get(i)) {
+        for (int i = 0; i < depthTracker.size(); i++) {
+            if (depthTracker.get(i)) {
                 System.out.print("|   ");
             } else {
                 System.out.print("    ");

@@ -7,117 +7,117 @@ import parser.Node;
 
 public abstract class Expression extends Node {
 
-        public static class Ternary extends Expression {
+    public static class Ternary extends Expression {
 
-                public Ternary(Expression left, Expression onTrue, Expression onFalse) {
+        public Ternary(Expression left, Expression onTrue, Expression onFalse) {
 
-                        this.addChild(left);
-                        this.addChild(onTrue);
-                        this.addChild(onFalse);
-                }
-
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitTernary(this);
-                }
+            this.addChild(left);
+            this.addChild(onTrue);
+            this.addChild(onFalse);
         }
 
-        public static class Binary extends Expression {
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitTernary(this);
+        }
+    }
 
-                public Token op;
+    public static class Binary extends Expression {
 
-                public Binary(Expression left, Token op, Expression right) {
-                        this.addChild(left);
-                        this.op = op;
-                        this.addChild(right);
-                }
+        public Token op;
 
-                public Node getLeftExpr() {
-                        if(!this.hasChildren()) {
-                                System.err.println("Left expression does not exist");
-                                return null;
-                        }
-
-                        return this.children.get(0);
-                }
-
-                public Node getRightExpr() {
-                        if(!this.hasChildren() || this.childSize() != 2) {
-                                System.err.println("Right expression does not exist");
-                                return null;
-                        }
-
-                        return this.children.get(1);
-                }
-
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitBinary(this);
-                }
+        public Binary(Expression left, Token op, Expression right) {
+            this.addChild(left);
+            this.op = op;
+            this.addChild(right);
         }
 
-        public static class Unary extends Expression {
+        public Node getLeftExpr() {
+            if (!this.hasChildren()) {
+                System.err.println("Left expression does not exist");
+                return null;
+            }
 
-                public Token op;
-
-                public Unary(Expression expr, Token op) {
-                        this.op = op;
-                        this.addChild(expr);
-                }
-
-                public Node getExpr() {
-                        if(!this.hasChildren() || this.childSize() != 1) {
-                                System.err.println("Expression does not exist");
-                                return null;
-                        }
-
-                        return this.children.get(0);
-                }
-
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitUnary(this);
-                }
+            return this.children.get(0);
         }
 
-        public static class Group extends Expression {
+        public Node getRightExpr() {
+            if (!this.hasChildren() || this.childSize() != 2) {
+                System.err.println("Right expression does not exist");
+                return null;
+            }
 
-                public Group(Expression expr) {
-                        this.addChild(expr);
-                }
-
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitGroup(this);
-                }
+            return this.children.get(1);
         }
 
-        public static class Number extends Expression {
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitBinary(this);
+        }
+    }
 
-                public Token value;
+    public static class Unary extends Expression {
 
-                public Number(Integer value) {
-                        this.value = new Token(value.toString(), TokenType.TK_NUMBER);
-                }
+        public Token op;
 
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitNumber(this);
-                }
+        public Unary(Expression expr, Token op) {
+            this.op = op;
+            this.addChild(expr);
         }
 
+        public Node getExpr() {
+            if (!this.hasChildren() || this.childSize() != 1) {
+                System.err.println("Expression does not exist");
+                return null;
+            }
 
-        public static class Identifier extends Expression {
-
-                public Token value;
-
-                public Identifier(String value) {
-                        this.value = new Token(value, TokenType.TK_IDENTIFIER);
-                }
-
-                @Override
-                public void accept(IVisitor visitor) {
-                        visitor.visitIdentifier(this);
-                }
+            return this.children.get(0);
         }
+
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitUnary(this);
+        }
+    }
+
+    public static class Group extends Expression {
+
+        public Group(Expression expr) {
+            this.addChild(expr);
+        }
+
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitGroup(this);
+        }
+    }
+
+    public static class Number extends Expression {
+
+        public Token value;
+
+        public Number(Integer value) {
+            this.value = new Token(value.toString(), TokenType.TK_NUMBER);
+        }
+
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitNumber(this);
+        }
+    }
+
+
+    public static class Identifier extends Expression {
+
+        public Token value;
+
+        public Identifier(String value) {
+            this.value = new Token(value, TokenType.TK_IDENTIFIER);
+        }
+
+        @Override
+        public void accept(IVisitor visitor) {
+            visitor.visitIdentifier(this);
+        }
+    }
 }

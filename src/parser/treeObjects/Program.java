@@ -18,12 +18,12 @@ public class Program extends Node {
     }
 
     // add item to current existing declaration list
-    public void addDeclaration(Declaration dec){
+    public void addDeclaration(Declaration dec) {
         this.addChild(dec);
     }
 
     public void printAttributes() {
-        System.out.println(" <"+this.progName+">");
+        System.out.println(" <" + this.progName + ">");
     }
 
     public void printClass() {

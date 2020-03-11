@@ -30,23 +30,23 @@ public class jxc {
         Options commandArgs = new Options();
 
         // Adding command line options.
-        commandArgs.addOption("t", "token", false , "Display tokens to command line");
-        commandArgs.addOption("to", "tokenout", false , "Displays tokens to command line and output file");
-        commandArgs.addOption("h", "help", false , "Displays help options.");
+        commandArgs.addOption("t", "token", false, "Display tokens to command line");
+        commandArgs.addOption("to", "tokenout", false, "Displays tokens to command line and output file");
+        commandArgs.addOption("h", "help", false, "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
-        commandArgs.addOption("f","file,", true, "File to read in from");
-        commandArgs.addOption("i","ir,", false, "Print out the intermediate representation");
-        commandArgs.addOption("O0","no-opt,", false, "Compile with no optimization");
-        commandArgs.addOption("O1","with-opt,", false, "Compile with optimization");
+        commandArgs.addOption("f", "file,", true, "File to read in from");
+        commandArgs.addOption("i", "ir,", false, "Print out the intermediate representation");
+        commandArgs.addOption("O0", "no-opt,", false, "Compile with no optimization");
+        commandArgs.addOption("O1", "with-opt,", false, "Compile with optimization");
 
         //parse command line options
         CommandLine line = null;
         try {
-            line = commandParser.parse( commandArgs, args);
+            line = commandParser.parse(commandArgs, args);
         } catch (ParseException exp) {
-            System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
+            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
         }
 
         StringBuilder str = new StringBuilder();
@@ -54,15 +54,14 @@ public class jxc {
         File file = null;
 
 
-
         //get file name
-        if(line.hasOption("f")){
-            try{
+        if (line.hasOption("f")) {
+            try {
                 file = new File(line.getOptionValue("f"));
                 Scanner readScanner = new Scanner(file);
                 ArrayList<String> fileLines = new ArrayList<String>();
 
-                while(readScanner.hasNextLine()) {
+                while (readScanner.hasNextLine()) {
                     fileLines.add(readScanner.nextLine().trim());
                 }
 
@@ -88,13 +87,13 @@ public class jxc {
         }
 
         //displays helpful information
-        if(line.hasOption("h")){
+        if (line.hasOption("h")) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "ant", commandArgs );
+            formatter.printHelp("ant", commandArgs);
         }
 
         //token options
-        if(line.hasOption("t")){
+        if (line.hasOption("t")) {
             //displays tokens to command line
             System.out.println(str);
 
@@ -118,7 +117,7 @@ public class jxc {
         root = Parser.Instance().Parse(tokens, file.getName());
 
         //parse tree options
-        if(line.hasOption("p")){
+        if (line.hasOption("p")) {
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
             root.printNode(new ArrayList<Boolean>());
@@ -126,25 +125,25 @@ public class jxc {
             //root.accept(printer);
         }
 
-        if(line.hasOption("po")){
+        if (line.hasOption("po")) {
             //prints parse tree to output file
 
         }
 
-        if(line.hasOption("s")) {
+        if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
             Parser.Instance().printTable();
         }
 
-        if(line.hasOption("O0")) {
+        if (line.hasOption("O0")) {
             System.out.println("compile with no optimization");
         }
 
-        if(line.hasOption("O1")) {
+        if (line.hasOption("O1")) {
             System.out.println("compile with optimization");
         }
 
-        if(line.hasOption("i")) {
+        if (line.hasOption("i")) {
             System.out.println("print out the IR");
         }
 

@@ -125,7 +125,7 @@ public class NodePrinter implements IVisitor {
 
         this.depth.add(true);
 
-        for(int i = 0; i < program.children.size(); i++) {
+        for (int i = 0; i < program.children.size(); i++) {
 
             program.children.get(i).accept(this);
         }
@@ -135,9 +135,9 @@ public class NodePrinter implements IVisitor {
 
     private void printDepth() {
 
-        for(Boolean printLine : this.depth) {
+        for (Boolean printLine : this.depth) {
 
-            if(printLine) {
+            if (printLine) {
 
                 System.out.println("|   ");
 

@@ -14,7 +14,7 @@ public class Lexer {
 
     // not convinced of the necessity of Lexer being a singleton - Sterling
     public static Lexer Instance() {
-        if(Lexer.instance == null) {
+        if (Lexer.instance == null) {
             Lexer.instance = new Lexer();
         }
 
@@ -65,8 +65,8 @@ public class Lexer {
         // we reserve the right to remove and alter these lists
         patterns.put(Pattern.compile("^((int)|(char)|(void)|(double)|(float)|(long)|(short))[^A-Za-z0-9_]"), TokenType.TK_TYPE);
         patterns.put(Pattern.compile("^((if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
-                "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
-                "(volatile)|(enum))[^A-Za-z0-9_]"), TokenType.TK_KEYWORDS);
+            "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
+            "(volatile)|(enum))[^A-Za-z0-9_]"), TokenType.TK_KEYWORDS);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
         patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
@@ -74,6 +74,7 @@ public class Lexer {
 
     /**
      * Tokenizes the lines in the c-file by iterating over the lines,
+     *
      * @param lines C syntax
      * @return tokens of the file on success.
      */
@@ -82,39 +83,39 @@ public class Lexer {
         ArrayList<Token> tokens = new ArrayList<>();
         int fileLine = 1; // Used to see where in the file failure occurs.
 
-        for(String line : lines) {
+        for (String line : lines) {
 
             /* Keep reference to original string to see which 'token' isn't accepted.*/
             String originalLine = line;
 
-            while(line.length() > 0) {
+            while (line.length() > 0) {
 
                 int end = 0;
                 // Move the end marker past white-space
-                while(Character.isWhitespace(line.charAt(end))) end++;
+                while (Character.isWhitespace(line.charAt(end))) end++;
 
                 // Checking for comments within '/*' and '*/' to ignore
-                if(line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
+                if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
                     end += 2;
 
-                    while(line.charAt(end) != '*' && line.charAt(end + 1) != '/') end++;
+                    while (line.charAt(end) != '*' && line.charAt(end + 1) != '/') end++;
 
                     end += 2;
 
-                    if(end == line.length()) {
+                    if (end == line.length()) {
                         break;
                     }
                 }
 
                 // Checking for inline comments after '//'. If encountered, go to next line
-                if(line.charAt(end) == '/' && line.charAt(end + 1) == '/' ) {
+                if (line.charAt(end) == '/' && line.charAt(end + 1) == '/') {
                     break;
                 }
 
                 //System.out.println("end = " + end);
 
                 // Shorten string to eliminate whitespace and comments up to this point
-                if(end != 0) {
+                if (end != 0) {
                     line = line.substring(end);
                     //System.out.println("line = " + line);
                 }
@@ -122,13 +123,13 @@ public class Lexer {
                 int counter = 1;
 
                 // Iterate through regex
-                for(Map.Entry<Pattern, TokenType> e : Lexer.patterns.entrySet()) {
+                for (Map.Entry<Pattern, TokenType> e : Lexer.patterns.entrySet()) {
 
                     Matcher m = e.getKey().matcher(line);
 
                     counter += 1;
 
-                    if(m.find()) {
+                    if (m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
                         Token tk = new Token(fileLine);
                         tk.tokenType = e.getValue();
@@ -139,13 +140,12 @@ public class Lexer {
                          *
                          * We account for that here.
                          */
-                        if(tk.tokenType == TokenType.TK_KEYWORDS ||
-                                tk.tokenType == TokenType.TK_TYPE) {
+                        if (tk.tokenType == TokenType.TK_KEYWORDS ||
+                            tk.tokenType == TokenType.TK_TYPE) {
 
                             tk.str = line.substring(m.start(), m.end() - 1);
                             line = line.substring(m.end() - 1);
-                        }
-                        else {
+                        } else {
 
                             tk.str = line.substring(m.start(), m.end());
                             line = line.substring(m.end());
@@ -175,12 +175,12 @@ public class Lexer {
                     }
 
                     /* If counter reaches the size of the regex map size, it isn't a supported token. */
-                    if (counter > patterns.size()){
+                    if (counter > patterns.size()) {
                         // Error and exit if there is an unrecognized token. Print location of failure.
                         System.err.println("error: unrecognized token! -- > " + line);
                         System.out.println("'lexer.Token' at position " +
-                                (originalLine.indexOf(line.charAt(0)) + 1) +
-                                " on line " + fileLine);
+                            (originalLine.indexOf(line.charAt(0)) + 1) +
+                            " on line " + fileLine);
                         exit(0);
                     }
                 }
