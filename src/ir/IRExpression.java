@@ -1,23 +1,22 @@
-package intermediateRep_stage1;
+package ir;
 
 import lexer.Token;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Intermediate {
+public class IRExpression {
     public Instruction inst;
-    public List<Token> idInfo;
+    public List<Token> operands;
 
-    public Intermediate(Instruction instruction, Token... tk) {
+    public IRExpression(Instruction instruction, Token... tk) {
         this.inst = instruction;
-        this.idInfo = Arrays.asList(tk);
+        this.operands = Arrays.asList(tk);
     }
 
     public void printInstruction() {
         System.out.print("(" + inst + ",");
-        for (Token token : idInfo) {
+        for (Token token : operands) {
             System.out.print(token.str + ",");
         }
 

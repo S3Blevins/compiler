@@ -1,8 +1,5 @@
-import intermediateRep_stage1.Instruction;
-import intermediateRep_stage1.Intermediate;
 import lexer.Lexer;
 import lexer.Token;
-import lexer.TokenType;
 import org.apache.commons.cli.*;
 
 import java.io.BufferedWriter;
@@ -13,9 +10,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import parser.Node;
-import parser.NodePrinter;
 import parser.Parser;
-import parser.treeObjects.Declaration;
 
 public class jxc {
 
