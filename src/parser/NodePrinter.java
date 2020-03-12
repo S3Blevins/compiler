@@ -4,7 +4,7 @@ import parser.treeObjects.*;
 
 import java.util.ArrayList;
 
-public class NodePrinter implements IVisitor {
+public class NodePrinter implements IVisitor<String> {
 
     private ArrayList<Boolean> depth;
 
@@ -14,112 +14,112 @@ public class NodePrinter implements IVisitor {
     }
 
     @Override
-    public void visitUnary(Expression.Unary unary) {
-
+    public String visitUnary(Expression.Unary unary) {
+        return null;
     }
 
     @Override
-    public void visitBinary(Expression.Binary binary) {
-
+    public String visitBinary(Expression.Binary binary) {
+        return null;
     }
 
     @Override
-    public void visitTernary(Expression.Ternary ternary) {
-
+    public String visitTernary(Expression.Ternary ternary) {
+        return null;
     }
 
     @Override
-    public void visitGroup(Expression.Group group) {
-
+    public String visitGroup(Expression.Group group) {
+        return null;
     }
 
     @Override
-    public void visitNumber(Expression.Number number) {
-
+    public String visitNumber(Expression.Number number) {
+        return null;
     }
 
     @Override
-    public void visitIdentifier(Expression.Identifier identifier) {
-
+    public String visitIdentifier(Expression.Identifier identifier) {
+        return null;
     }
 
     @Override
-    public void visitBlock(Statement.Block block) {
-
+    public String visitBlock(Statement.Block block) {
+        return null;
     }
 
     @Override
-    public void visitReturn(Statement.Return statement) {
-
+    public String visitReturn(Statement.Return statement) {
+        return null;
     }
 
     @Override
-    public void visitBreak(Statement.Break statement) {
-
+    public String visitBreak(Statement.Break statement) {
+        return null;
     }
 
     @Override
-    public void visitIteration(Statement.Iteration statement) {
-
+    public String visitIteration(Statement.Iteration statement) {
+        return null;
     }
 
     @Override
-    public void visitConditional(Statement.Conditional conditional) {
-
+    public String visitConditional(Statement.Conditional conditional) {
+        return null;
     }
 
     @Override
-    public void visitExpressionStatement(Statement.ExpressionStatement expr) {
-
+    public String visitExpressionStatement(Statement.ExpressionStatement expr) {
+        return null;
     }
 
     @Override
-    public void visitGotoLabel(Statement.gotoLabel label) {
-
+    public String visitGotoLabel(Statement.gotoLabel label) {
+        return null;
     }
 
     @Override
-    public void visitGoto(Statement.gotoStatement statement) {
-
+    public String visitGoto(Statement.gotoStatement statement) {
+        return null;
     }
 
     @Override
-    public void visitVarDecl(Declaration.varDeclaration decl) {
-
+    public String visitVarDecl(Declaration.varDeclaration decl) {
+        return null;
     }
 
     @Override
-    public void visitFunDecl(Declaration.funDeclaration decl) {
-
+    public String visitFunDecl(Declaration.funDeclaration decl) {
+        return null;
     }
 
     @Override
-    public void visitVariable(Declaration.Variable decl) {
-
+    public String visitVariable(Declaration.Variable decl) {
+        return null;
     }
 
     @Override
-    public void visitParameter(Declaration.Parameter decl) {
-
+    public String visitParameter(Declaration.Parameter decl) {
+        return null;
     }
 
     @Override
-    public void visitTypeDecl(Declaration.TypeDeclaration decl) {
-
+    public String visitTypeDecl(Declaration.TypeDeclaration decl) {
+        return null;
     }
 
     @Override
-    public void visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
-
+    public String visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
+        return null;
     }
 
     @Override
-    public void visitParamList(treeList.ParameterList list) {
-
+    public String visitParamList(treeList.ParameterList list) {
+        return null;
     }
 
     @Override
-    public void visitProgram(Program program) {
+    public String visitProgram(Program program) {
 
         System.out.println("PROGRAM");
 
@@ -131,9 +131,11 @@ public class NodePrinter implements IVisitor {
         }
 
         this.depth.remove(this.depth.size() - 1);
+
+        return null;
     }
 
-    private void printDepth() {
+    private String printDepth() {
 
         for (Boolean printLine : this.depth) {
 
@@ -146,5 +148,7 @@ public class NodePrinter implements IVisitor {
                 System.out.println("    ");
             }
         }
+
+        return null;
     }
 }

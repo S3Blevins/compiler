@@ -2,49 +2,49 @@ package parser;
 
 import parser.treeObjects.*;
 
-public interface IVisitor {
+public interface IVisitor<T> {
 
-    void visitUnary(Expression.Unary unary);
+    T visitUnary(Expression.Unary unary);
 
-    void visitBinary(Expression.Binary binary);
+    T visitBinary(Expression.Binary binary);
 
-    void visitTernary(Expression.Ternary ternary);
+    T visitTernary(Expression.Ternary ternary);
 
-    void visitGroup(Expression.Group group);
+    T visitGroup(Expression.Group group);
 
-    void visitNumber(Expression.Number number);
+    T visitNumber(Expression.Number number);
 
-    void visitIdentifier(Expression.Identifier identifier);
+    T visitIdentifier(Expression.Identifier identifier);
 
-    void visitBlock(Statement.Block block);
+    T visitBlock(Statement.Block block);
 
-    void visitReturn(Statement.Return statement);
+    T visitReturn(Statement.Return statement);
 
-    void visitBreak(Statement.Break statement);
+    T visitBreak(Statement.Break statement);
 
-    void visitIteration(Statement.Iteration statement);
+    T visitIteration(Statement.Iteration statement);
 
-    void visitConditional(Statement.Conditional conditional);
+    T visitConditional(Statement.Conditional conditional);
 
-    void visitExpressionStatement(Statement.ExpressionStatement expr);
+    T visitExpressionStatement(Statement.ExpressionStatement expr);
 
-    void visitGotoLabel(Statement.gotoLabel label);
+    T visitGotoLabel(Statement.gotoLabel label);
 
-    void visitGoto(Statement.gotoStatement statement);
+    T visitGoto(Statement.gotoStatement statement);
 
-    void visitVarDecl(Declaration.varDeclaration decl);
+    T visitVarDecl(Declaration.varDeclaration decl);
 
-    void visitFunDecl(Declaration.funDeclaration decl);
+    T visitFunDecl(Declaration.funDeclaration decl);
 
-    void visitVariable(Declaration.Variable decl);
+    T visitVariable(Declaration.Variable decl);
 
-    void visitParameter(Declaration.Parameter decl);
+    T visitParameter(Declaration.Parameter decl);
 
-    void visitTypeDecl(Declaration.TypeDeclaration decl);
+    T visitTypeDecl(Declaration.TypeDeclaration decl);
 
-    void visitEnumVar(Declaration.TypeDeclaration.EnumVar decl);
+    T visitEnumVar(Declaration.TypeDeclaration.EnumVar decl);
 
-    void visitParamList(treeList.ParameterList list);
+    T visitParamList(treeList.ParameterList list);
 
-    void visitProgram(Program program);
+    T visitProgram(Program program);
 }
