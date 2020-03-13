@@ -1,5 +1,6 @@
 package parser;
 
+import common.IVisitor;
 import lexer.Token;
 import parser.treeObjects.treeList;
 

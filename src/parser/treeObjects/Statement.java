@@ -1,11 +1,8 @@
 package parser.treeObjects;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-
 import lexer.Token;
 import lexer.TokenType;
-import parser.IVisitor;
+import common.IVisitor;
 import parser.Node;
 
 public abstract class Statement extends Node {

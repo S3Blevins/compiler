@@ -1,9 +1,8 @@
 package parser.treeObjects;
 
-import parser.IVisitor;
+import common.IVisitor;
 import parser.Node;
 
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 
 

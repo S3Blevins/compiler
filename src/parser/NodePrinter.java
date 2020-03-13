@@ -1,5 +1,6 @@
 package parser;
 
+import common.IVisitor;
 import parser.treeObjects.*;
 
 import java.util.ArrayList;

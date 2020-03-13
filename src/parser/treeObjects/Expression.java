@@ -2,7 +2,7 @@ package parser.treeObjects;
 
 import lexer.Token;
 import lexer.TokenType;
-import parser.IVisitor;
+import common.IVisitor;
 import parser.Node;
 
 public abstract class Expression extends Node {

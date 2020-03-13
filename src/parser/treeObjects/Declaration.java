@@ -1,10 +1,8 @@
 package parser.treeObjects;
 
 import lexer.Token;
-import parser.IVisitor;
+import common.IVisitor;
 import parser.Node;
-
-import java.util.ArrayList;
 
 public abstract class Declaration extends Node {
 

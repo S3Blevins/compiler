@@ -1,10 +1,7 @@
 package parser.treeObjects;
 
-import parser.IVisitor;
+import common.IVisitor;
 import parser.Node;
-
-import javax.swing.*;
-import java.util.ArrayList;
 
 /**
  *
