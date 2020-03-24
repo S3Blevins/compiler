@@ -28,8 +28,13 @@ public class Program extends Node {
     }
 
     @Override
-    public void accept(IVisitor visitor) {
-
-        visitor.visitProgram(this);
+    public <T> T accept(IVisitor visitor) {
+        return (T) visitor.visitProgram(this);
     }
+
+    /*
+    public <T> T accept(IVisitor builder) {
+        return builder.visitProgram(this);
+    }
+     */
 }

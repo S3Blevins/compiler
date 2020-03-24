@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import parser.Node;
+import parser.NodePrinter;
 import parser.Parser;
 
 public class jxc {
@@ -115,7 +116,10 @@ public class jxc {
         if (line.hasOption("p")) {
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
-            root.printNode(new ArrayList<Boolean>());
+
+            NodePrinter printer = new NodePrinter();
+            root.accept(printer);
+
             //NodePrinter printer = new NodePrinter();
             //root.accept(printer);
         }
@@ -132,6 +136,7 @@ public class jxc {
 
         if (line.hasOption("O0")) {
             System.out.println("compile with no optimization");
+
         }
 
         if (line.hasOption("O1")) {

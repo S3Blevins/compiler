@@ -1,8 +1,10 @@
 package parser;
 
 import common.IVisitor;
+import lexer.Token;
 import parser.treeObjects.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class NodePrinter implements IVisitor<String> {
@@ -22,6 +24,35 @@ public class NodePrinter implements IVisitor<String> {
     @Override
     public String visitBinary(Expression.Binary binary) {
         return null;
+        /*
+             -
+           /   \
+          +     6
+         / \
+        3  5
+
+        NOP 3
+        NOP 5
+
+        ADD 3 5 L1
+        --------------------
+
+             -
+           /   \
+         L1     6
+
+       SUB L1 6 L2
+
+       -------------------
+
+
+        ADD 3 5 L1
+        SUB L1 6 L2
+
+
+
+
+            */
     }
 
     @Override
@@ -122,18 +153,89 @@ public class NodePrinter implements IVisitor<String> {
     @Override
     public String visitProgram(Program program) {
 
-        System.out.println("PROGRAM");
+        //System.out.println("PROGRAM");
 
         this.depth.add(true);
 
         for (int i = 0; i < program.children.size(); i++) {
-
             program.children.get(i).accept(this);
         }
 
         this.depth.remove(this.depth.size() - 1);
 
-        return null;
+        return "Program";
+    }
+
+    public void printClass() {
+        String superClass = this.getClass().getSuperclass().getSimpleName();
+        String subClass = this.getClass().getSimpleName();
+
+        System.out.print(superClass + "[" + subClass + "]");
+    }
+
+    public void printAttributes() {
+
+        // get all attributes
+        Field[] fields = this.getClass().getDeclaredFields();
+
+        // iterate through object attributes, which should only be tokens
+        // unless overridden in the object's respective class.
+
+        for (int i = 0; i < fields.length; i++) {
+            if (i == 0) {
+                System.out.print(" <");
+            } else {
+                System.out.print(" ");
+            }
+
+            try {
+                System.out.print(((Token) fields[i].get(this)).str);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+            if (i == fields.length - 1) {
+                System.out.print(">");
+            }
+        }
+
+        System.out.println();
+    }
+
+    public void printNode() {
+        this.printClass();
+        this.printAttributes();
+
+        printDepth();
+/*
+        for (int i = 0; i < this.childSize(); i++) {
+
+            if (i == this.childSize() - 1) {
+                System.out.print("`-- ");
+                if (this.children.get(i).hasChildren()) {
+                    depth.add(false);
+                } else {
+                    // while the last flag of the array is false, remove boolean flags.
+                    while (depth.size() != 0 && !depth.get(depth.size() - 1)) {
+                        depth.remove(depth.size() - 1);
+                    }
+
+                    // remove a true element to realign node in tree
+                    if (depth.size() != 0) {
+                        depth.remove(depth.size() - 1);
+                    }
+                }
+            } else {
+                System.out.print("|-- ");
+                if (this.children.get(i).hasChildren()) {
+                    depth.add(true);
+                }
+            }
+
+            this.children.get(i).printNode();
+
+        }
+*/
     }
 
     private String printDepth() {
@@ -152,4 +254,13 @@ public class NodePrinter implements IVisitor<String> {
 
         return null;
     }
+
+/*
+    public void iterator(Node node) {
+        for (int i = 0; i < node.children.size(); i++) {
+            node.children.get(i).accept(this);
+        }
+    }
+    */
+
 }
