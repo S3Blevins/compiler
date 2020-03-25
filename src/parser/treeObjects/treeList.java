@@ -31,14 +31,17 @@ public class treeList<T> extends Node {
 
     public static class ParameterList extends treeList {
         public ParameterList() {
-
         }
 
-        @Override
-        public void accept(IVisitor visitor) {
+        //@Override
+        //public <T> T accept(IVisitor visitor) {
+         //   return (T) visitor.visitParamList(this);
+        //}
+    }
 
-            visitor.visitParamList(this);
-        }
+    @Override
+    public <T> T accept(IVisitor visitor) {
+        return null;
     }
 }
 

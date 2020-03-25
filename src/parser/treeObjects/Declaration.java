@@ -34,8 +34,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitVarDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitVarDecl(this);
         }
     }
 
@@ -63,8 +63,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitVariable(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitVariable(this);
         }
     }
 
@@ -97,8 +97,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitFunDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitFunDecl(this);
         }
     }
 
@@ -112,8 +112,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitParameter(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitParameter(this);
         }
     }
 
@@ -147,14 +147,14 @@ public abstract class Declaration extends Node {
             }
 
             @Override
-            public void accept(IVisitor visitor) {
-                visitor.visitEnumVar(this);
+            public <T> T accept(IVisitor visitor) {
+                return (T) visitor.visitEnumVar(this);
             }
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitTypeDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitTypeDecl(this);
         }
     }
 }

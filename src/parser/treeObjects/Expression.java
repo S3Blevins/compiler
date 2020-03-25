@@ -17,8 +17,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitTernary(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitTernary(this);
         }
     }
 
@@ -51,8 +51,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitBinary(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitBinary(this);
         }
     }
 
@@ -75,8 +75,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitUnary(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitUnary(this);
         }
     }
 
@@ -87,8 +87,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitGroup(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitGroup(this);
         }
     }
 
@@ -101,8 +101,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitNumber(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitNumber(this);
         }
     }
 
@@ -116,8 +116,8 @@ public abstract class Expression extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitIdentifier(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitIdentifier(this);
         }
     }
 }
