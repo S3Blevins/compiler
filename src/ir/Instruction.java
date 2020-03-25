@@ -14,5 +14,6 @@ public enum Instruction {
     INC,
     DEC,
     NOT,
-    COND
+    COND,
+    LOAD
 }
