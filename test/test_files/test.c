@@ -72,7 +72,7 @@ int main(int a, int b) {
     int e, f = 3;
     int g = 10, h = 3;
 
-    int i, j, k;
+    int q, j, k;
 
     // iterative statement testing
     while(1) {

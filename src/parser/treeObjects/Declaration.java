@@ -34,8 +34,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitVarDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitVarDecl(this);
         }
     }
 
@@ -63,14 +63,15 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitVariable(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitVariable(this);
         }
     }
 
     public static class funDeclaration extends Declaration {
         public Token typeSpecifier;
         public Token functionID;
+        private int parameterCount = 0;
 
         public funDeclaration(Token typeSpecifier, Token ID) {
             this.typeSpecifier = typeSpecifier;
@@ -78,10 +79,8 @@ public abstract class Declaration extends Node {
         }
 
         public void addParameter(Parameter parameter) {
-            if (!this.hasChildren()) {
-                this.addChild(new treeList.ParameterList());
-            }
-            this.children.get(0).addChild(parameter);
+            this.addChild(parameter);
+            parameterCount += 1;
         }
 
         public void addStatement(Statement statement) {
@@ -93,12 +92,12 @@ public abstract class Declaration extends Node {
                 return 0;
             }
 
-            return this.children.get(0).childSize();
+            return parameterCount;
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitFunDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitFunDecl(this);
         }
     }
 
@@ -112,8 +111,8 @@ public abstract class Declaration extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitParameter(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitParameter(this);
         }
     }
 
@@ -132,7 +131,7 @@ public abstract class Declaration extends Node {
 
         public void addEnumVar(varDeclaration enumVars) {
             if (!this.hasChildren())
-                this.addChild(new treeList.ParameterList());
+                this.addChild(enumVars);
 
             this.children = enumVars.children;
         }
@@ -147,14 +146,14 @@ public abstract class Declaration extends Node {
             }
 
             @Override
-            public void accept(IVisitor visitor) {
-                visitor.visitEnumVar(this);
+            public <T> T accept(IVisitor visitor) {
+                return (T) visitor.visitEnumVar(this);
             }
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitTypeDecl(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitTypeDecl(this);
         }
     }
 }

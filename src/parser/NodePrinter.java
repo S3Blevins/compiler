@@ -1,155 +1,254 @@
 package parser;
 
 import common.IVisitor;
+import lexer.Token;
 import parser.treeObjects.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-public class NodePrinter implements IVisitor<String> {
+public class NodePrinter implements IVisitor {
 
     private ArrayList<Boolean> depth;
+    private StringBuilder tree;
 
     public NodePrinter() {
-
         depth = new ArrayList<>();
+        tree = new StringBuilder();
+    }
+
+    public String getTree() {
+        return tree.toString();
     }
 
     @Override
-    public String visitUnary(Expression.Unary unary) {
+    public Void visitUnary(Expression.Unary unary) {
+        tree.append("Expression[Unary]\n");
+
+        iterator(unary);
+
         return null;
     }
 
     @Override
-    public String visitBinary(Expression.Binary binary) {
+    public Void visitBinary(Expression.Binary binary) {
+        tree.append("Expression[Binary]\n");
+
+        iterator(binary);
+
         return null;
     }
 
     @Override
-    public String visitTernary(Expression.Ternary ternary) {
+    public Void visitTernary(Expression.Ternary ternary) {
+        tree.append("Expression[Ternary]\n");
+
+        iterator(ternary);
+
         return null;
     }
 
     @Override
-    public String visitGroup(Expression.Group group) {
+    public Void visitGroup(Expression.Group group) {
+        tree.append("Expression[Group]\n");
+
+        iterator(group);
+
         return null;
     }
 
     @Override
-    public String visitNumber(Expression.Number number) {
+    public Void visitNumber(Expression.Number number) {
+        tree.append("Expression[Number]" + "<" + number.value.str + ">\n");
+
+        iterator(number);
+
         return null;
     }
 
     @Override
-    public String visitIdentifier(Expression.Identifier identifier) {
+    public Void visitIdentifier(Expression.Identifier identifier) {
+        tree.append("Expression[Identifier]" + "<" + identifier.value.str + ">\n");
+
+        iterator(identifier);
+
         return null;
     }
 
     @Override
-    public String visitBlock(Statement.Block block) {
+    public Void visitBlock(Statement.Block block) {
+        tree.append("Statement[Block]\n");
+
+        iterator(block);
+
         return null;
     }
 
     @Override
-    public String visitReturn(Statement.Return statement) {
+    public Void visitReturn(Statement.Return statement) {
+        tree.append("Statement[Return]\n");
+
+        iterator(statement);
+
         return null;
     }
 
     @Override
-    public String visitBreak(Statement.Break statement) {
+    public Void visitBreak(Statement.Break statement) {
+        tree.append("Statement[Break]\n");
+
+        iterator(statement);
+
         return null;
     }
 
     @Override
-    public String visitIteration(Statement.Iteration statement) {
+    public Void visitIteration(Statement.Iteration statement) {
+        tree.append("Statement[for-loop]\n");
+
+        iterator(statement);
+
         return null;
     }
 
     @Override
-    public String visitConditional(Statement.Conditional conditional) {
+    public Void visitConditional(Statement.Conditional conditional) {
+        tree.append("Statement[Conditional]\n");
+
+        iterator(conditional);
+
         return null;
     }
 
     @Override
-    public String visitExpressionStatement(Statement.ExpressionStatement expr) {
+    public Void visitExpressionStatement(Statement.ExpressionStatement expr) {
+        tree.append("Statement[ExpressionStatement]\n");
+
+        iterator(expr);
+
         return null;
     }
 
     @Override
-    public String visitGotoLabel(Statement.gotoLabel label) {
+    public Void visitGotoLabel(Statement.gotoLabel label) {
+        tree.append("Statement[gotoLabel]\n");
+
+        iterator(label);
+
         return null;
     }
 
     @Override
-    public String visitGoto(Statement.gotoStatement statement) {
+    public Void visitGoto(Statement.gotoStatement statement) {
+        tree.append("Statement[gotoStatement] <" + statement.label.str + ">\n");
+
+        iterator(statement);
+
         return null;
     }
 
     @Override
-    public String visitVarDecl(Declaration.varDeclaration decl) {
+    public Void visitVarDecl(Declaration.varDeclaration decl) {
+        tree.append("Declaration[varDeclaration]\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitFunDecl(Declaration.funDeclaration decl) {
+    public Void visitFunDecl(Declaration.funDeclaration decl) {
+        tree.append("Declaration[funcDeclaration] <" + decl.typeSpecifier.str + " " + decl.functionID.str + ">\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitVariable(Declaration.Variable decl) {
+    public Void visitVariable(Declaration.Variable decl) {
+        tree.append("Declaration[Variable] <" + decl.typeSpecifier.str + " " + decl.variableID.str + ">\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitParameter(Declaration.Parameter decl) {
+    public Void visitParameter(Declaration.Parameter decl) {
+        tree.append("Declaration[Parameter] <" + decl.type.str + " " + decl.paramID.str + ">\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitTypeDecl(Declaration.TypeDeclaration decl) {
+    public Void visitTypeDecl(Declaration.TypeDeclaration decl) {
+        tree.append("Declaration[TypeDeclaration] <" + decl.enumType.str + " " + decl.enumID.str + ">\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
+    public Void visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
+        tree.append("TypeDeclaration[EnumerationVar] <" + decl.type.str + " " + decl.enumID.str  + ">\n");
+
+        iterator(decl);
+
         return null;
     }
 
     @Override
-    public String visitParamList(treeList.ParameterList list) {
-        return null;
-    }
+    public Void visitProgram(Program program) {
+        tree.append("Program <" + program.progName + ">\n");
 
-    @Override
-    public String visitProgram(Program program) {
-
-        System.out.println("PROGRAM");
-
-        this.depth.add(true);
-
-        for (int i = 0; i < program.children.size(); i++) {
-
-            program.children.get(i).accept(this);
-        }
-
-        this.depth.remove(this.depth.size() - 1);
+        iterator(program);
 
         return null;
     }
 
-    private String printDepth() {
-
+    private void printDepth() {
         for (Boolean printLine : this.depth) {
-
             if (printLine) {
-
-                System.out.println("|   ");
-
+                tree.append("|   ");
             } else {
-
-                System.out.println("    ");
+                tree.append("    ");
             }
         }
+    }
 
-        return null;
+    public void iterator(Node node) {
+
+        printDepth();
+
+        for (int i = 0; i < node.childSize(); i++) {
+
+            if (i == node.childSize() - 1) {
+                tree.append("`-- ");
+                if (node.children.get(i).hasChildren()) {
+                    depth.add(false);
+                } else {
+                    // while the last flag of the array is false, remove boolean flags.
+                    while (depth.size() != 0 && !depth.get(depth.size() - 1)) {
+                        depth.remove(depth.size() - 1);
+                    }
+
+                    // remove a true element to realign node in tree
+                    if (depth.size() != 0) {
+                        depth.remove(depth.size() - 1);
+                    }
+                }
+            } else {
+                tree.append("|-- ");
+                if (node.children.get(i).hasChildren()) {
+                    depth.add(true);
+                }
+            }
+
+            node.children.get(i).accept(this);
+        }
     }
 }

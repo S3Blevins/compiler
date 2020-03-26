@@ -31,8 +31,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitBlock(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitBlock(this);
         }
 
     }
@@ -55,8 +55,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitIteration(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitIteration(this);
         }
     }
 
@@ -81,8 +81,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitConditional(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitConditional(this);
         }
     }
 
@@ -104,8 +104,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitReturn(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitReturn(this);
         }
     }
 
@@ -118,8 +118,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitBreak(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitBreak(this);
         }
     }
 
@@ -141,8 +141,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitExpressionStatement(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitExpressionStatement(this);
         }
     }
 
@@ -154,8 +154,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitGoto(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitGoto(this);
         }
     }
 
@@ -167,8 +167,8 @@ public abstract class Statement extends Node {
         }
 
         @Override
-        public void accept(IVisitor visitor) {
-            visitor.visitGotoLabel(this);
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitGotoLabel(this);
         }
     }
 }

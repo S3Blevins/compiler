@@ -1,3 +1,4 @@
+import ir.IRBuilder;
 import lexer.Lexer;
 import lexer.Token;
 import org.apache.commons.cli.*;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import parser.Node;
+import parser.NodePrinter;
 import parser.Parser;
 
 public class jxc {
@@ -115,14 +117,15 @@ public class jxc {
         if (line.hasOption("p")) {
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
-            root.printNode(new ArrayList<Boolean>());
-            //NodePrinter printer = new NodePrinter();
-            //root.accept(printer);
+
+            NodePrinter printer = new NodePrinter();
+            root.accept(printer);
+
+            System.out.println(printer.getTree());
         }
 
         if (line.hasOption("po")) {
             //prints parse tree to output file
-
         }
 
         if (line.hasOption("s")) {
@@ -132,6 +135,9 @@ public class jxc {
 
         if (line.hasOption("O0")) {
             System.out.println("compile with no optimization");
+
+            IRBuilder irBuilder = new IRBuilder();
+            root.accept(irBuilder);
         }
 
         if (line.hasOption("O1")) {
