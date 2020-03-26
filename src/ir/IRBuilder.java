@@ -147,11 +147,6 @@ public class IRBuilder implements IVisitor<IRExpression> {
         }
 
         @Override
-        public IRExpression visitParamList(treeList.ParameterList list) {
-                return null;
-        }
-
-        @Override
         public IRExpression visitProgram(Program program) {
                 System.out.println("Visit Program");
 

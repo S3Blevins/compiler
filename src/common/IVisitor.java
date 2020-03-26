@@ -44,7 +44,5 @@ public interface IVisitor<T> {
 
     T visitEnumVar(Declaration.TypeDeclaration.EnumVar decl);
 
-    T visitParamList(treeList.ParameterList list);
-
     T visitProgram(Program program);
 }

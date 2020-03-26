@@ -71,6 +71,7 @@ public abstract class Declaration extends Node {
     public static class funDeclaration extends Declaration {
         public Token typeSpecifier;
         public Token functionID;
+        private int parameterCount = 0;
 
         public funDeclaration(Token typeSpecifier, Token ID) {
             this.typeSpecifier = typeSpecifier;
@@ -78,10 +79,8 @@ public abstract class Declaration extends Node {
         }
 
         public void addParameter(Parameter parameter) {
-            if (!this.hasChildren()) {
-                this.addChild(new treeList.ParameterList());
-            }
-            this.children.get(0).addChild(parameter);
+            this.addChild(parameter);
+            parameterCount += 1;
         }
 
         public void addStatement(Statement statement) {
@@ -93,7 +92,7 @@ public abstract class Declaration extends Node {
                 return 0;
             }
 
-            return this.children.get(0).childSize();
+            return parameterCount;
         }
 
         @Override
@@ -132,7 +131,7 @@ public abstract class Declaration extends Node {
 
         public void addEnumVar(varDeclaration enumVars) {
             if (!this.hasChildren())
-                this.addChild(new treeList.ParameterList());
+                this.addChild(enumVars);
 
             this.children = enumVars.children;
         }

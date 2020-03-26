@@ -118,8 +118,10 @@ public class jxc {
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
 
-            //NodePrinter printer = new NodePrinter();
-            //root.accept(printer);
+            NodePrinter printer = new NodePrinter();
+            root.accept(printer);
+
+            System.out.println(printer.getTree());
         }
 
         if (line.hasOption("po")) {

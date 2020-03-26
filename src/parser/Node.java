@@ -1,19 +1,15 @@
 package parser;
 
 import common.IVisitor;
-import lexer.Token;
-import parser.treeObjects.treeList;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public abstract class Node {
 
-    public treeList<Node> children;
+    public ArrayList<Node> children;
 
     public boolean addChild(Node child) {
         if (this.children == null && child != null) {
-            this.children = new treeList<>();
+            this.children = new ArrayList<Node>();
         }
 
         if (child != null) {
@@ -39,7 +35,7 @@ public abstract class Node {
     }
 
     public Node getLastChild() {
-        return this.children.get(this.children.size() - 1);
+        return (Node) this.children.get(this.children.size() - 1);
     }
 
     public void printNode() {
