@@ -12,15 +12,7 @@ import parser.treeObjects.*;
  *    with all of the crafted IRs.
  */
 public class IRBuilder implements IVisitor<IRExpression> {
-        /*
-                        +
-                       /  \
-                      3    5
 
-                      LOAD 3, _1
-                      LOAD 5, _2
-                      ADD, _1, _2, L0
-         */
         @Override
         public IRExpression visitUnary(Expression.Unary unary) {
                 return null;

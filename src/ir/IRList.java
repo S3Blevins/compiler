@@ -19,7 +19,17 @@ public class IRList {
         label_id = 0;
     }
 
-    String getLabelName() {
-        return label_name + label_id;
+    public String getLabelName() {
+        // create a new label and increment afterwards
+        String newLabel = label_name + label_id;
+        label_id++;
+
+        return newLabel;
+    }
+
+    public void printIR() {
+        for(IRExpression expr: IRs) {
+            expr.printInstruction();
+        }
     }
 }
