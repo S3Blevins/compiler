@@ -1,21 +1,10 @@
-typedef enum {
-    MON,
-    TUE,
-    WED,
-    THUR,
-    FRI
-} weekday_type;
-
-typedef enum {
-    SAT = 5,
-    SUN
-} weekend_type;
-
-int tmp;
-
 /* test */
 int main(int a, int b) {
 
+    int test = 8 + (9 - 2 + 6);
+}
+
+/*
     int zdfjhsaldkfjhsdlkafhj;
 
     a = (b * 3) - 2 + 10;
@@ -96,6 +85,21 @@ int main(int a, int b) {
     return 1;
 }
 
+typedef enum {
+    MON,
+    TUE,
+    WED,
+    THUR,
+    FRI
+} weekday_type;
+
+typedef enum {
+    SAT = 5,
+    SUN
+} weekend_type;
+
+int tmp;
+
 // another function testing
 int foo(int p) {
     int q;
@@ -117,3 +121,4 @@ int main() {
 	int p;
 	return 0;
 }
+*/

@@ -83,7 +83,8 @@ public class Lexer {
         ArrayList<Token> tokens = new ArrayList<>();
         int fileLine = 1; // Used to see where in the file failure occurs.
 
-        for (String line : lines) {
+        for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+            String line = lines[lineNumber];
 
             /* Keep reference to original string to see which 'token' isn't accepted.*/
             String originalLine = line;
@@ -98,13 +99,26 @@ public class Lexer {
                 if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
                     end += 2;
 
-                    while (line.charAt(end) != '*' && line.charAt(end + 1) != '/') end++;
+                    Matcher endLine = Pattern.compile("\\*/").matcher(line);
 
-                    end += 2;
-
-                    if (end == line.length()) {
-                        break;
+                    while(!endLine.find()) {
+                        lineNumber++;
+                        line = lines[lineNumber];
+                        endLine = Pattern.compile("\\*/").matcher(line);
                     }
+
+                    System.out.println(line);
+                    line = line.substring(endLine.end());
+
+                    if(line.isEmpty()) {
+                        lineNumber++;
+                        if(lineNumber >= lines.length) {
+                            return tokens;
+                        }
+                        line = lines[lineNumber];
+                        end = 0;
+                    }
+
                 }
 
                 // Checking for inline comments after '//'. If encountered, go to next line
