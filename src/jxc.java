@@ -138,6 +138,8 @@ public class jxc {
 
             IRBuilder irBuilder = new IRBuilder();
             root.accept(irBuilder);
+
+            irBuilder.IRs.printIR();
         }
 
         if (line.hasOption("O1")) {
