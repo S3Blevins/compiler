@@ -193,15 +193,6 @@ public class NodePrinter implements IVisitor {
     }
 
     @Override
-    public Void visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
-        tree.append("TypeDeclaration[EnumerationVar] <" + decl.type.str + " " + decl.enumID.str  + ">\n");
-
-        iterator(decl);
-
-        return null;
-    }
-
-    @Override
     public Void visitProgram(Program program) {
         tree.append("Program <" + program.progName + ">\n");
 
