@@ -37,13 +37,6 @@ public class IRExpression {
         source2 = null;
     }
 
-    public IRExpression(Token label) {
-        this.inst = Instruction.LABEL;
-        this.dest = label;
-        source1 = null;
-        source2 = null;
-    }
-
     public IRExpression(String labelID) {
         this.inst = Instruction.LABEL;
         this.dest = new Token(labelID, TokenType.TK_IDENTIFIER);
