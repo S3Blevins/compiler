@@ -4,13 +4,10 @@ import ir.IRList;
 import ir.Instruction;
 import lexer.Lexer;
 import lexer.Token;
-import lexer.TokenType;
 import org.apache.commons.cli.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 import parser.Node;
@@ -84,12 +81,6 @@ public class jxc {
 
                     String[] curIR = curLine.split(" ");
 
-                    /*
-                    for (String s : curIR)
-                            System.out.println("s = " + s);
-                    System.out.println();
-                     */
-
                     switch (curIR.length) {
                         case 1:
                             irList.IRExprList.add(new IRExpression(curIR[0]));
@@ -133,7 +124,7 @@ public class jxc {
                 ioe.printStackTrace();
             }
 
-            System.out.println("Input read in");
+            System.out.println("Input read in\n");
             irList.printIR();
         }
 
