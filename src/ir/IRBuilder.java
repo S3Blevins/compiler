@@ -6,6 +6,8 @@ import lexer.TokenType;
 import parser.Node;
 import parser.treeObjects.*;
 
+import static java.lang.System.exit;
+
 /**
  * This class handles all of the routines and details of
  * 1) Creating an IR object (IRExpression.java).
@@ -45,38 +47,61 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitUnary(Expression.Unary unary) {
                 // similar to binary but less complex
-                return null;
+
+                Token expr = unary.getExpr().accept(this);
+                Instruction unInstr = null;
+
+                TokenType unOp = unary.op.tokenType;
+
+                // TODO: figure out if star is being used in a "unary capacity"
+
+                if(unOp == TokenType.TK_BANG) {
+                        unInstr = Instruction.NOT;
+                } else if(unOp == TokenType.TK_MMINUS) {
+                        unInstr = Instruction.DEC;
+                } else if(unOp == TokenType.TK_PPLUS) {
+                        unInstr = Instruction.INC;
+                }
+
+                IRs.addExpr(new IRExpression(unInstr, expr));
+
+                return IRs.getLastLabel();
         }
 
         @Override
         public Token visitBinary(Expression.Binary binary) {
-
-                // no need to return, just grab last dest location from the linear ir expression list
-                // so create a new method to return that
 
                 Token left = binary.getLeftExpr().accept(this);
                 Token right = binary.getRightExpr().accept(this);
                 Instruction binInstr = null;
 
                 TokenType binOp = binary.op.tokenType;
+                Token dest = null;
 
-                if(binOp == TokenType.TK_PLUS) {
+                if(binOp == TokenType.TK_PLUS || binOp == TokenType.TK_PLUSEQ) {
                         binInstr = Instruction.ADD;
-                } else if(binOp == TokenType.TK_MINUS){
+                } else if(binOp == TokenType.TK_MINUS || binOp == TokenType.TK_MINUSEQ) {
                         binInstr = Instruction.SUB;
-                } else if(binOp == TokenType.TK_SLASH) {
-                        // fill in
+                } else if(binOp == TokenType.TK_STAR || binOp == TokenType.TK_STAREQ) {
+                        binInstr = Instruction.MUL;
+                } else if(binOp == TokenType.TK_SLASH || binOp == TokenType.TK_SLASHEQ) {
+                        binInstr = Instruction.DIV;
+                } else if(binOp == TokenType.TK_GREATER || binOp == TokenType.TK_GREATEREQ ||
+                                binOp == TokenType.TK_LESS || binOp == TokenType.TK_LESSEQ ) {
+                        binInstr = Instruction.COND;
+                } else if(binOp == TokenType.TK_EQUALS) {
+                        binInstr = Instruction.ASSIGN;
                 }
 
-                /*
-                result.source0 = binary.right.token;
-                result.source1 = binary.left.token;
-                result.label_name = left.label_name;
-                result.label_id = left.label_id + 1;
-                */
+                if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ || binOp == TokenType.TK_SLASHEQ) {
+                        dest = left;
+                } else {
+                        dest = IRs.getLabelName();
+                }
 
-                IRs.addExpr(new IRExpression(Instruction.ADD, left, right, IRs.getLabelName()));
-                return IRs.getLastLabel();
+                IRs.addExpr(new IRExpression(binInstr, left, right, dest));
+
+                return dest;
         }
 
         @Override
@@ -88,7 +113,6 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitGroup(Expression.Group group) {
                 // behaves like other expressions
-
                 iterator(group);
 
                 return IRs.getLastLabel();
@@ -96,13 +120,14 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitNumber(Expression.Number number) {
+                // just returns value token
                 return number.value;
         }
 
         @Override
         public Token visitIdentifier(Expression.Identifier identifier) {
-                // will likely never be called?
-                return null;
+
+                return identifier.value;
         }
 
         @Override
@@ -116,31 +141,33 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitReturn(Statement.Return statement) {
                 // create RET expression
+                Token retVal = statement.children.get(0).accept(this);
+
+                IRs.addExpr(new IRExpression(Instruction.RET, retVal));
+
                 return null;
         }
 
         @Override
         public Token visitBreak(Statement.Break statement) {
                 // create BREAK expression
+                IRs.addExpr(new IRExpression(Instruction.BREAK));
+
                 return null;
         }
 
         @Override
         public Token visitIteration(Statement.Iteration statement) {
-                // break this down into a jump with an iteration statement
-
-                // variable declaration
-
-                // body -> iterator(this)
-
-                // inc/dec/etc
-                // jmp[cond]
+                // loop should be self-contained?
+                iterator(statement);
 
                 return null;
         }
 
         @Override
         public Token visitConditional(Statement.Conditional conditional) {
+                // conditional contains a jump condition and a block
+                iterator(conditional);
 
                 return null;
         }
@@ -149,12 +176,15 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitExpressionStatement(Statement.ExpressionStatement expr) {
                 // visit children and break down expression
 
+                iterator(expr);
+
                 return null;
         }
 
         @Override
         public Token visitGotoLabel(Statement.gotoLabel label) {
                 // just add a label, no children to iterate through
+                IRs.addExpr(new IRExpression(Instruction.LABEL, label.label));
 
                 return null;
         }
@@ -162,6 +192,7 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitGoto(Statement.gotoStatement statement) {
                 // jump to a label, no children to iterate through
+                IRs.addExpr(new IRExpression(Instruction.JMP, statement.label));
 
                 return null;
         }
@@ -169,7 +200,6 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitVarDecl(Declaration.varDeclaration decl) {
                 // no declaration to add, just iterate through children
-
                 iterator(decl);
 
                 return null;
@@ -187,7 +217,9 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitVariable(Declaration.Variable decl) {
-                IRs.addExpr(new IRExpression(Instruction.LOAD, decl.children.get(0).accept(this), decl.variableID));
+                if(decl.hasChildren()) {
+                        IRs.addExpr(new IRExpression(Instruction.LOAD, decl.children.get(0).accept(this), decl.variableID));
+                }
 
                 return null;
         }
@@ -211,8 +243,6 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitProgram(Program program) {
-                // new label with start? change this to whatever works
-                IRs.addExpr(new IRExpression("START:"));
 
                 iterator(program);
 

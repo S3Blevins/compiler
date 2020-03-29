@@ -15,5 +15,6 @@ public enum Instruction {
     DEC,
     NOT,
     COND,
-    LOAD
+    LOAD,
+    BREAK
 }

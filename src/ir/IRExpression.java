@@ -37,6 +37,13 @@ public class IRExpression {
         source2 = null;
     }
 
+    public IRExpression(Instruction inst) {
+        this.inst = inst;
+        this.dest = null;
+        source1 = null;
+        source2 = null;
+    }
+
     public IRExpression(String labelID) {
         this.inst = Instruction.LABEL;
         this.dest = new Token(labelID, TokenType.TK_IDENTIFIER);
@@ -45,6 +52,11 @@ public class IRExpression {
     }
 
     public void printInstruction() {
+        // null is temporary
+        if(inst == null || inst == Instruction.LABEL) {
+            System.out.print("\n");
+        }
+
         System.out.print("(" + inst);
 
         if(source1 != null)
@@ -53,7 +65,9 @@ public class IRExpression {
         if(source2 != null)
             System.out.print(" " + source2.str + ",");
 
-        System.out.print(" " + dest.str);
+        if(dest != null )
+            System.out.print(" " + dest.str);
+
         System.out.println(")");
     }
 
