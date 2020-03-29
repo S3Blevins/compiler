@@ -21,6 +21,7 @@ public class IRBuilder implements IVisitor<Token> {
         // DONE: visitNumber
         // TODO: visitIdentifier
         // DONE: visitBlock
+        // TODO: visitBreak
         // TODO: visitReturn
         // TODO: visitIterator
         // TODO: visitConditional
@@ -29,12 +30,11 @@ public class IRBuilder implements IVisitor<Token> {
         // TODO: visitGoTo
         // DONE: visitVarDec
         // DONE: visitFunDec
-        // TODO: visitVar
+        // DONE: visitVar
         // DONE: visitParam
         // TODO: visitEnum
         // TODO: visitTypeDecl
         // DONE: visitProgram
-
 
         public IRList IRs;
 
@@ -204,12 +204,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitTypeDecl(Declaration.TypeDeclaration decl) {
                 // TBD
 
-                return null;
-        }
-
-        @Override
-        public Token visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
-                // TBD
+                iterator(decl);
 
                 return null;
         }
