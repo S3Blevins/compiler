@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import static java.lang.System.exit;
+import static java.lang.System.setErr;
 
 public class Lexer {
 
@@ -95,35 +96,39 @@ public class Lexer {
                 // Move the end marker past white-space
                 while (Character.isWhitespace(line.charAt(end))) end++;
 
-                // Checking for comments within '/*' and '*/' to ignore
-                if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
-                    end += 2;
+                try {
+                    // Checking for comments within '/*' and '*/' to ignore
+                    if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
+                        end += 2;
 
-                    Matcher endLine = Pattern.compile("\\*/").matcher(line);
+                        Matcher endLine = Pattern.compile("\\*/").matcher(line);
 
-                    while(!endLine.find()) {
-                        lineNumber++;
-                        line = lines[lineNumber];
-                        endLine = Pattern.compile("\\*/").matcher(line);
-                    }
-
-                    System.out.println(line);
-                    line = line.substring(endLine.end());
-
-                    if(line.isEmpty()) {
-                        lineNumber++;
-                        if(lineNumber >= lines.length) {
-                            return tokens;
+                        while (!endLine.find()) {
+                            lineNumber++;
+                            line = lines[lineNumber];
+                            endLine = Pattern.compile("\\*/").matcher(line);
                         }
-                        line = lines[lineNumber];
-                        end = 0;
+
+                        line = line.substring(endLine.end());
+
+                        if (line.isEmpty()) {
+                            lineNumber++;
+                            if (lineNumber >= lines.length) {
+                                return tokens;
+                            }
+                            line = lines[lineNumber];
+                            end = 0;
+                        }
+
                     }
 
-                }
-
-                // Checking for inline comments after '//'. If encountered, go to next line
-                if (line.charAt(end) == '/' && line.charAt(end + 1) == '/') {
-                    break;
+                    // Checking for inline comments after '//'. If encountered, go to next line
+                    if (line.charAt(end) == '/' && line.charAt(end + 1) == '/') {
+                        break;
+                    }
+                } catch (Exception StringIndexOutOfBoundsException) {
+                    System.err.println("ERROR: Multi-Line Comment Mismatch\n");
+                    exit(1);
                 }
 
                 //System.out.println("end = " + end);
