@@ -70,7 +70,7 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitBinary(Expression.Binary binary) {
-
+                // binary expression
                 Token left = binary.getLeftExpr().accept(this);
                 Token right = binary.getRightExpr().accept(this);
                 Instruction binInstr = null;
@@ -110,7 +110,7 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitTernary(Expression.Ternary ternary) {
-
+                // ternary is a container for other expression
                 iterator(ternary);
 
                 return null;
@@ -181,7 +181,6 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitExpressionStatement(Statement.ExpressionStatement expr) {
                 // visit children and break down expression
-
                 iterator(expr);
 
                 return null;

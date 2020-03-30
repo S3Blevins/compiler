@@ -44,9 +44,20 @@ public class IRExpression {
         source2 = null;
     }
 
-    public IRExpression(String labelID) {
-        this.inst = Instruction.LABEL;
-        this.dest = new Token(labelID, TokenType.TK_IDENTIFIER);
+    public IRExpression(String inst) {
+        switch(inst) {
+            case "LABEL":
+                this.inst = Instruction.LABEL;
+                break;
+            case "BREAK":
+                this.inst = Instruction.BREAK;
+                break;
+            case "RET":
+                this.inst = Instruction.RET;
+                break;
+        }
+
+        this.dest = null;
         source1 = null;
         source2 = null;
     }
