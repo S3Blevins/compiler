@@ -1,5 +1,8 @@
 package ir;
 
+import lexer.Token;
+import lexer.TokenType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +12,7 @@ import java.util.List;
  */
 public class IRList {
 
-    public List<IRExpression> IRs = new ArrayList<>();
+    public List<IRExpression> IRExprList = new ArrayList<>();
 
     public String label_name;
     public int label_id;
@@ -19,17 +22,29 @@ public class IRList {
         label_id = 0;
     }
 
-    public String getLabelName() {
+    public boolean addExpr(IRExpression expr) {
+        return IRExprList.add(expr);
+    }
+
+    public Token getLabelName() {
         // create a new label and increment afterwards
         String newLabel = label_name + label_id;
         label_id++;
 
-        return newLabel;
+        return new Token(newLabel, TokenType.TK_IDENTIFIER);
     }
 
     public void printIR() {
-        for(IRExpression expr: IRs) {
+        for(IRExpression expr: IRExprList) {
             expr.printInstruction();
+        }
+    }
+
+    public Token getLastLabel() {
+        if(IRExprList.isEmpty()) {
+            return null;
+        } else {
+            return IRExprList.get(IRExprList.size() - 1).dest;
         }
     }
 }

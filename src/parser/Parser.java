@@ -550,7 +550,6 @@ public class Parser {
                         expr = expressionGrammar();
                     }
 
-
                     // remove the semicolon
                     tokens.remove(0);
 
@@ -560,7 +559,6 @@ public class Parser {
                     } else {
                         tokens.remove(0);
                     }
-
 
                     Statement forLoopBlock = statementGrammar(parentTable);
                     forLoopBlock.addChild(increment);
@@ -807,11 +805,6 @@ public class Parser {
             Declaration.varDeclaration varDecEnum = new Declaration.varDeclaration();
             Token Int = new Token("int", TokenType.TK_TYPE);
 
-                    /* TODO: Add enumerationDec to ENUM Symbol Table so we can reference
-                             this enum to a variable name later when the developer
-                             assigns something.
-                    */
-
             enumVal.str = "0"; // Reset enumVal to 0 if we have multiple enums.
 
             /* This section handles typedef */
@@ -853,7 +846,7 @@ public class Parser {
                 } while (tokens.get(0).tokenType != TokenType.TK_RBRACE);
 
                 /* Add all of the enum vars to tree. */
-                enumerationDec.addEnumVar(varDecEnum);
+                enumerationDec.addEnumVars(varDecEnum);
 
                 tokens.remove(0); // remove RBRACE
                 enumerationDec.enumType = tokens.remove(0); // Get Enum type
@@ -884,7 +877,7 @@ public class Parser {
         else {
 
             Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
-            //parentTable.addSymbol(typeSpec, decID);
+
             do {
                 if (previous.tokenType == TokenType.TK_EQUALS) {
                     varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
@@ -960,7 +953,6 @@ public class Parser {
 
         return varDeclaration;
     }
-
     public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID, boolean inEnum) {
 
         // We set decID outside after first pass so we need to get rid of the redundant token.

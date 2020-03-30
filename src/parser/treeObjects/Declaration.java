@@ -118,37 +118,18 @@ public abstract class Declaration extends Node {
 
     public static class TypeDeclaration extends Declaration {
 
+        // For identifying enums, not the body matter.
         public Token enumType;
         public Token enumID;
-
-        public TypeDeclaration(Token enumTypeID, Token ID) {
-            this.enumType = enumTypeID;
-            this.enumID = ID;
-        }
 
         public TypeDeclaration() {
         }
 
-        public void addEnumVar(varDeclaration enumVars) {
+        public void addEnumVars(varDeclaration enumVars) {
             if (!this.hasChildren())
                 this.addChild(enumVars);
 
             this.children = enumVars.children;
-        }
-
-        public static class EnumVar extends Declaration {
-            public Token type;
-            public Token enumID;
-
-            public EnumVar(Token type, Token enumID) {
-                this.type = type;
-                this.enumID = enumID;
-            }
-
-            @Override
-            public <T> T accept(IVisitor visitor) {
-                return (T) visitor.visitEnumVar(this);
-            }
         }
 
         @Override

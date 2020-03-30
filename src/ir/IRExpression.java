@@ -1,6 +1,7 @@
 package ir;
 
 import lexer.Token;
+import lexer.TokenType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,13 @@ public class IRExpression {
         this.dest = dest;
     }
 
+    public IRExpression(Instruction inst, Token src1, Token dest) {
+        this.inst = inst;
+        source1 = src1;
+        this.dest = dest;
+        source2 = null;
+    }
+
     public IRExpression(Instruction inst, Token dest) {
         this.inst = inst;
         this.dest = dest;
@@ -29,11 +37,37 @@ public class IRExpression {
         source2 = null;
     }
 
+    public IRExpression(Instruction inst) {
+        this.inst = inst;
+        this.dest = null;
+        source1 = null;
+        source2 = null;
+    }
+
+    public IRExpression(String labelID) {
+        this.inst = Instruction.LABEL;
+        this.dest = new Token(labelID, TokenType.TK_IDENTIFIER);
+        source1 = null;
+        source2 = null;
+    }
+
     public void printInstruction() {
-        System.out.print("(" + inst + ",");
-        System.out.print(" " + source1 + ",");
-        System.out.print(" " + source2);
-        System.out.print(", " + dest);
+        // null is temporary
+        if(inst == null || inst == Instruction.LABEL) {
+            System.out.print("\n");
+        }
+
+        System.out.print("(" + inst);
+
+        if(source1 != null)
+            System.out.print(" " + source1.str);
+
+        if(source2 != null)
+            System.out.print(", " + source2.str);
+
+        if(dest != null )
+            System.out.print(", " + dest.str);
+
         System.out.println(")");
     }
 

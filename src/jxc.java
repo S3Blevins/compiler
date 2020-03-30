@@ -1,12 +1,12 @@
 import ir.IRBuilder;
+import ir.IRExpression;
+import ir.IRList;
+import ir.Instruction;
 import lexer.Lexer;
 import lexer.Token;
 import org.apache.commons.cli.*;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -21,7 +21,7 @@ public class jxc {
     public static void main(String[] args) {
         // create argument parser for cli library
         CommandLineParser commandParser = new DefaultParser();
-        Node root;
+        Node root = null;
 
         // Adding arguments for our compiler
         Options commandArgs = new Options();
@@ -35,6 +35,7 @@ public class jxc {
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f", "file,", true, "File to read in from");
         commandArgs.addOption("i", "ir,", false, "Print out the intermediate representation");
+        commandArgs.addOption("r", "ri", true, "Read in an intermediate representation");
         commandArgs.addOption("O0", "no-opt,", false, "Compile with no optimization");
         commandArgs.addOption("O1", "with-opt,", false, "Compile with optimization");
 
@@ -50,6 +51,82 @@ public class jxc {
         ArrayList<Token> tokens = null;
         File file = null;
 
+        if (line.hasOption("r")) {
+            /* Up to stage 2 of the compile, the command line cannot have the supported
+             *  flags since those flags generate the step being read in now. */
+            System.out.println("read in an ir");
+
+            // Where we house the IRs
+            IRList irList = new IRList();
+
+            if (line.getOptions().length > 1) {
+                System.err.println("Cannot utilize (-r/-ri) w/ flags -O0 -O1 -s -po -p -i -to -t -h -f");
+                System.exit(1);
+            }
+
+            // Else, parse the input file.
+            try {
+                file = new File(line.getOptionValue("r"));
+                Scanner in = new Scanner(file);
+
+                while (in.hasNextLine()) {
+
+                    // Split the current IR by spaces.
+                    String curLine = in.nextLine();
+
+                    // Remove unnecessary characters.
+                    curLine = curLine.replace("(", "");
+                    curLine = curLine.replace(")", "");
+                    curLine = curLine.replace(",", "");
+
+                    String[] curIR = curLine.split(" ");
+
+                    switch (curIR.length) {
+                        case 1:
+                            irList.IRExprList.add(new IRExpression(curIR[0]));
+                            break;
+                        case 2:
+                            Instruction instr3 = null;
+                            for (int i = 0; i < Instruction.values().length; i++) {
+                                if (curIR[0].equals(Instruction.values()[i].toString())) {
+                                    instr3 = Instruction.values()[i];
+                                    break;
+                                }
+                            }
+
+                            irList.IRExprList.add(new IRExpression(instr3, new Token(curIR[1])));
+                            break;
+                        case 3:
+                            Instruction instr = null;
+                            for (int i = 0; i < Instruction.values().length; i++) {
+                                if (curIR[0].equals(Instruction.values()[i].toString())) {
+                                    instr = Instruction.values()[i];
+                                    break;
+                                }
+                            }
+
+                            irList.IRExprList.add(new IRExpression(instr, new Token(curIR[1]), new Token(curIR[2])));
+                            break;
+                        case 4:
+                            Instruction instr2 = null;
+                            for (int i = 0; i < Instruction.values().length; i++) {
+                                if (curIR[0].equals(Instruction.values()[i].toString())) {
+                                    instr2 = Instruction.values()[i];
+                                    break;
+                                }
+                            }
+                            irList.IRExprList.add(new IRExpression(instr2, new Token(curIR[1]), new Token(curIR[2]), new Token(curIR[3])));
+                            break;
+                    }
+                }
+
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+            System.out.println("Input read in\n");
+            irList.printIR();
+        }
 
         //get file name
         if (line.hasOption("f")) {
@@ -77,6 +154,8 @@ public class jxc {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+        } else if (line.hasOption("r") || line.hasOption("ri")) {
 
         } else {
             System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
@@ -111,10 +190,11 @@ public class jxc {
             }
         }
 
-        root = Parser.Instance().Parse(tokens, file.getName());
-
         //parse tree options
         if (line.hasOption("p")) {
+
+            root = Parser.Instance().Parse(tokens, file.getName());
+
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
 
@@ -138,6 +218,8 @@ public class jxc {
 
             IRBuilder irBuilder = new IRBuilder();
             root.accept(irBuilder);
+
+            irBuilder.IRs.printIR();
         }
 
         if (line.hasOption("O1")) {
@@ -147,6 +229,5 @@ public class jxc {
         if (line.hasOption("i")) {
             System.out.println("print out the IR");
         }
-
     }
 }
