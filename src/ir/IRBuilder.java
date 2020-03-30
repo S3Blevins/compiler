@@ -21,15 +21,15 @@ public class IRBuilder implements IVisitor<Token> {
         // TODO: visitTernary
         // DONE: visitGroup
         // DONE: visitNumber
-        // TODO: visitIdentifier
+        // DONE: visitIdentifier
         // DONE: visitBlock
-        // TODO: visitBreak
-        // TODO: visitReturn
+        // DONE: visitBreak
+        // DONE: visitReturn
         // TODO: visitIterator
         // TODO: visitConditional
         // TODO: visitExpressionStatement
-        // TODO: visitGoToLabel
-        // TODO: visitGoTo
+        // DONE: visitGoToLabel
+        // DONE: visitGoTo
         // DONE: visitVarDec
         // DONE: visitFunDec
         // DONE: visitVar
