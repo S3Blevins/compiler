@@ -60,13 +60,13 @@ public class IRExpression {
         System.out.print("(" + inst);
 
         if(source1 != null)
-            System.out.print(" " + source1.str + ",");
+            System.out.print(" " + source1.str);
 
         if(source2 != null)
-            System.out.print(" " + source2.str + ",");
+            System.out.print(", " + source2.str);
 
         if(dest != null )
-            System.out.print(" " + dest.str);
+            System.out.print(", " + dest.str);
 
         System.out.println(")");
     }

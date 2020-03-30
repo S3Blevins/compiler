@@ -87,14 +87,18 @@ public class IRBuilder implements IVisitor<Token> {
                 } else if(binOp == TokenType.TK_SLASH || binOp == TokenType.TK_SLASHEQ) {
                         binInstr = Instruction.DIV;
                 } else if(binOp == TokenType.TK_GREATER || binOp == TokenType.TK_GREATEREQ ||
-                                binOp == TokenType.TK_LESS || binOp == TokenType.TK_LESSEQ ) {
+                                binOp == TokenType.TK_LESS || binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_EQEQUAL) {
+                        binInstr = Instruction.COND;
+                } else if(binOp == TokenType.TK_LOGAND || binOp == TokenType.TK_LOGOR) {
+                        // needs more instructions - TODO
                         binInstr = Instruction.COND;
                 } else if(binOp == TokenType.TK_EQUALS) {
                         binInstr = Instruction.ASSIGN;
                 }
 
-                if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ || binOp == TokenType.TK_SLASHEQ) {
-                        dest = left;
+                if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
+                        binOp == TokenType.TK_SLASHEQ || binOp == TokenType.TK_EQUALS || binOp == TokenType.TK_EQEQUAL) {
+                        dest = null;
                 } else {
                         dest = IRs.getLabelName();
                 }
@@ -106,7 +110,9 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitTernary(Expression.Ternary ternary) {
-                // TBD
+
+                iterator(ternary);
+
                 return null;
         }
 
@@ -126,7 +132,7 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitIdentifier(Expression.Identifier identifier) {
-
+                // just returns identifier token
                 return identifier.value;
         }
 
