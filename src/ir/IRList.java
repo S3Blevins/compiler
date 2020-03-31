@@ -14,13 +14,17 @@ public class IRList {
 
     public List<IRExpression> IRExprList = new ArrayList<>();
 
-    public String label_name;
-    public int label_id;
+    public String labelName = "L";
+    public int labelID = 0;
 
-    public IRList() {
-        label_name = "L";
-        label_id = 0;
-    }
+    public Token lastBlock;
+
+    public String condLabel = "cond";
+    public int condID = 0;
+
+    public String itrLabel = "iterator";
+    public int itrID = 0;
+
 
     public boolean addExpr(IRExpression expr) {
         return IRExprList.add(expr);
@@ -28,10 +32,26 @@ public class IRList {
 
     public Token getLabelName() {
         // create a new label and increment afterwards
-        String newLabel = label_name + label_id;
-        label_id++;
+        String newLabel = labelName + labelID;
+        labelID++;
 
         return new Token(newLabel, TokenType.TK_IDENTIFIER);
+    }
+
+    public Token getCondName() {
+        // create a new label and increment afterwards
+        lastBlock = new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
+        condID++;
+
+        return lastBlock;
+    }
+
+    public Token getIteratorName() {
+        // create a new label and increment afterwards
+        lastBlock = new Token(itrLabel + itrID, TokenType.TK_IDENTIFIER);
+        itrID++;
+
+        return lastBlock;
     }
 
     public void printIR() {
@@ -46,5 +66,9 @@ public class IRList {
         } else {
             return IRExprList.get(IRExprList.size() - 1).dest;
         }
+    }
+
+    public Token getLastBlockLabel() {
+        return lastBlock;
     }
 }

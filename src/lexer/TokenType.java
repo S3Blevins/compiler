@@ -1,39 +1,55 @@
 package lexer;
 
+import ir.Instruction;
+
 public enum TokenType {
-    TK_PLUSEQ,
-    TK_MINUSEQ,
-    TK_STAREQ,
-    TK_SLASHEQ,
-    TK_EQEQUAL,
-    TK_PPLUS,
-    TK_MMINUS,
-    TK_RPAREN,
-    TK_LPAREN,
-    TK_RBRACE,
-    TK_LBRACE,
-    TK_RBRACKET,
-    TK_LBRACKET,
-    TK_PLUS,
-    TK_MINUS,
-    TK_STAR,
-    TK_SLASH,
-    TK_SEMICOLON,
-    TK_COLON,
-    TK_QMARK,
-    TK_BANG,
-    TK_DOT,
-    TK_COMMA,
-    TK_DQUOTE,
-    TK_KEYWORDS,
-    TK_TYPE,
-    TK_IDENTIFIER,
-    TK_NUMBER,
-    TK_EQUALS,
-    TK_LESS,
-    TK_GREATER,
-    TK_LESSEQ,
-    TK_GREATEREQ,
-    TK_LOGAND,
-    TK_LOGOR
+    TK_PLUSEQ(Instruction.ADD),
+    TK_MINUSEQ(Instruction.SUB),
+    TK_STAREQ(Instruction.MUL),
+    TK_SLASHEQ(Instruction.DIV),
+    TK_EQEQUAL(Instruction.EQUAL),
+    TK_PPLUS(Instruction.INC),
+    TK_MMINUS(Instruction.DEC),
+    TK_RPAREN(null),
+    TK_LPAREN(null),
+    TK_RBRACE(null),
+    TK_LBRACE(null),
+    TK_RBRACKET(null),
+    TK_LBRACKET(null),
+    TK_PLUS(Instruction.ADD),
+    TK_MINUS(Instruction.SUB),
+    TK_STAR(Instruction.MUL),
+    TK_SLASH(Instruction.DIV),
+    TK_SEMICOLON(null),
+    TK_COLON(null),
+    TK_QMARK(null),
+    TK_BANG(Instruction.NOT),
+    TK_DOT(null),
+    TK_COMMA(null),
+    TK_DQUOTE(null),
+    TK_KEYWORDS(null),
+    TK_TYPE(null),
+    TK_IDENTIFIER(null),
+    TK_NUMBER(null),
+    TK_EQUALS(Instruction.ASSIGN),
+    TK_LESS(Instruction.LESS),
+    TK_GREATER(Instruction.GRTR),
+    TK_LESSEQ(Instruction.LSEQ),
+    TK_GREATEREQ(Instruction.GREQ),
+    TK_LOGAND(Instruction.AND),
+    TK_LOGOR(Instruction.OR);
+
+    private final Instruction instr;
+
+    TokenType(Instruction instr) {
+        this.instr = instr;
+    }
+
+    public Instruction getInstruction() {
+        return this.instr;
+    }
+
+    public String toString() {
+        return this.name();
+    }
 }

@@ -1,20 +1,32 @@
 package ir;
 
+import lexer.TokenType;
+
 public enum Instruction {
     ADD,
     SUB,
     MUL,
     DIV,
+
     ASSIGN,
     LABEL,
     JMP,
     RET,
     CALL,
     NOP,
+    LOAD,
+    BREAK,
+
     INC,
     DEC,
+
     NOT,
-    COND,
-    LOAD,
-    BREAK
+    AND,
+    OR,
+
+    EQUAL,
+    GREQ,
+    LSEQ,
+    GRTR,
+    LESS
 }
