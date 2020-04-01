@@ -118,7 +118,7 @@ public class Lexer {
                                 return tokens;
                             }
                             line = lines[lineNumber];
-                            end = 0;
+                            continue;
                         }
 
                     }
