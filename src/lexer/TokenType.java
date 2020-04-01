@@ -37,7 +37,8 @@ public enum TokenType {
     TK_LESSEQ(Instruction.LSEQ),
     TK_GREATEREQ(Instruction.GREQ),
     TK_LOGAND(Instruction.AND),
-    TK_LOGOR(Instruction.OR);
+    TK_LOGOR(Instruction.OR),
+    TK_BOOL(Instruction.EVAL);
 
     private final Instruction instr;
 

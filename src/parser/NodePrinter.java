@@ -201,6 +201,15 @@ public class NodePrinter implements IVisitor {
         return null;
     }
 
+    @Override
+    public Object visitBoolean(Expression.Boolean bool) {
+        tree.append("Expression[Boolean] <" + bool.bool.str + ">\n");
+
+        iterator(bool);
+
+        return null;
+    }
+
     private void printDepth() {
         for (Boolean printLine : this.depth) {
             if (printLine) {

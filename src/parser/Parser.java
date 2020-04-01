@@ -386,6 +386,18 @@ public class Parser {
             }
         }, Precedence.PRIMARY));
 
+        rules.put(TokenType.TK_BOOL, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        Parser parser = Parser.Instance();
+                        return parser.Boolean();
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                return null;
+            }
+        }, Precedence.PRIMARY));
+
         rules.put(TokenType.TK_IDENTIFIER, new ParseRule(
             new ParseRule.Nud() {
                 Expression exec() {
@@ -421,6 +433,14 @@ public class Parser {
 
         //return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
         return new Expression.Number(Integer.parseInt(previous.str));
+    }
+
+    Expression.Boolean Boolean() {
+        //Expression expr = this.expressionGrammar();
+        //this.previous = this.tokens.remove(0);
+
+        //return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
+        return new Expression.Boolean(previous.str);
     }
 
     Expression.Unary Unary() {

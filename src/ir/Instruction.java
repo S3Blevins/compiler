@@ -28,5 +28,6 @@ public enum Instruction {
     GREQ,
     LSEQ,
     GRTR,
-    LESS
+    LESS,
+    EVAL
 }

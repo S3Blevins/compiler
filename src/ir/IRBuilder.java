@@ -103,6 +103,7 @@ public class IRBuilder implements IVisitor<Token> {
         @Override
         public Token visitNumber(Expression.Number number) {
                 // just returns value token
+
                 return number.value;
         }
 
@@ -153,15 +154,28 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitConditional(Statement.Conditional conditional) {
                 // conditional contains a jump condition and a block
 
-                //TODO: fix else condition
-
                 for (int i = 0; i < conditional.children.size(); i++) {
-                        if(i % 2 == 0) {
+
+                        if(i % 2 == 0 || i == conditional.children.size() - 1) {
                                 IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondName()));
                         }
+
                         conditional.children.get(i).accept(this);
                 }
 
+
+                /*
+                (LABEL, cond0)
+                (RET, 0)
+                (LOAD, mid)
+                (RET, 1)
+
+
+                (EVAL 1, cond0)
+
+
+
+                 */
 
                 return null;
         }
@@ -212,6 +226,8 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitVariable(Declaration.Variable decl) {
                 if(decl.hasChildren()) {
                         IRs.addExpr(new IRExpression(Instruction.LOAD, decl.children.get(0).accept(this), decl.variableID));
+                } else {
+                        IRs.addExpr(new IRExpression(Instruction.LOAD, decl.variableID));
                 }
 
                 return null;
@@ -240,6 +256,11 @@ public class IRBuilder implements IVisitor<Token> {
                 iterator(program);
 
                 return null; // needs to return IR
+        }
+
+        @Override
+        public Token visitBoolean(Expression.Boolean bool) {
+                return null;
         }
 
         public void iterator(Node node) {

@@ -68,6 +68,7 @@ public class Lexer {
         patterns.put(Pattern.compile("^((if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
             "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
             "(volatile)|(enum))[^A-Za-z0-9_]"), TokenType.TK_KEYWORDS);
+        patterns.put(Pattern.compile("^((true)|(false))"), TokenType.TK_BOOL);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
         patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
