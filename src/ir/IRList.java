@@ -22,6 +22,8 @@ public class IRList {
     public String condLabel = "cond";
     public int condID = 0;
 
+    public Token lastCond;
+
     public String itrLabel = "iterator";
     public int itrID = 0;
 
@@ -38,20 +40,19 @@ public class IRList {
         return new Token(newLabel, TokenType.TK_IDENTIFIER);
     }
 
-    public Token getCondName() {
+    public Token getCondLabel() {
         // create a new label and increment afterwards
-        lastBlock = new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
+        lastCond= new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
         condID++;
 
-        return lastBlock;
+        return lastCond;
     }
 
-    public Token getIteratorName() {
+    public Token getCondJmpLabel() {
         // create a new label and increment afterwards
-        lastBlock = new Token(itrLabel + itrID, TokenType.TK_IDENTIFIER);
-        itrID++;
+        lastCond = new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
 
-        return lastBlock;
+        return lastCond;
     }
 
     public void printIR() {
@@ -68,7 +69,4 @@ public class IRList {
         }
     }
 
-    public Token getLastBlockLabel() {
-        return lastBlock;
-    }
 }

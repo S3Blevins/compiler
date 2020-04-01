@@ -26,7 +26,7 @@ public class IRBuilder implements IVisitor<Token> {
         // DONE: visitBreak
         // DONE: visitReturn
         // TODO: visitIterator
-        // TODO: visitConditional
+        // DONE: visitConditional
         // TODO: visitExpressionStatement
         // DONE: visitGoToLabel
         // DONE: visitGoTo
@@ -74,7 +74,7 @@ public class IRBuilder implements IVisitor<Token> {
                         dest = null;
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||
                         binOp == TokenType.TK_GREATEREQ || binOp == TokenType.TK_EQEQUAL) {
-                        dest = IRs.getLastBlockLabel();
+                        dest = IRs.getCondJmpLabel();
                 } else {
                         dest = IRs.getLabelName();
                 }
@@ -144,7 +144,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitIteration(Statement.Iteration statement) {
                 // insert a label and iterate through children
 
-                IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getIteratorName()));
+                //IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getIteratorName()));
                 iterator(statement);
 
                 return null;
@@ -154,29 +154,32 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitConditional(Statement.Conditional conditional) {
                 // conditional contains a jump condition and a block
 
+                // iterate through children
                 for (int i = 0; i < conditional.children.size(); i++) {
 
-                        if(i % 2 == 0 || i == conditional.children.size() - 1) {
-                                IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondName()));
+                        // if the child is a multiple of two, then throw down a label except for if the child is the last element
+                        if(i % 2 == 0 && i != 0) {
+                                IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
                         }
 
-                        conditional.children.get(i).accept(this);
+                        // check for children, if children exist, execute normally,
+                        // if no children then it is a generic value or boolean which uses EVAL instruction
+                        if(conditional.children.get(i).hasChildren()) {
+                                conditional.children.get(i).accept(this);
+                        } else {
+                                IRs.addExpr(new IRExpression(Instruction.EVAL, conditional.children.get(i).accept(this), IRs.getCondJmpLabel()));
+                        }
+
                 }
 
+                // TODO: add error checking in the parse for when a if-else clause is empty to error and add to documentation
+                // this adds a label succeeding the 'else if' on the last iteration if the number of children is even
+                // (When an else is used, the number of children will be odd so the if/else-if needs somewhere to jump to)
+                if(conditional.childSize() % 2 == 0) {
+                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
+                }
 
-                /*
-                (LABEL, cond0)
-                (RET, 0)
-                (LOAD, mid)
-                (RET, 1)
-
-
-                (EVAL 1, cond0)
-
-
-
-                 */
-
+                // no need to return
                 return null;
         }
 
@@ -260,7 +263,7 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitBoolean(Expression.Boolean bool) {
-                return null;
+                return bool.bool;
         }
 
         public void iterator(Node node) {
