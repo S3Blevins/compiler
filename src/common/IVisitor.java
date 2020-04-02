@@ -43,4 +43,6 @@ public interface IVisitor<T> {
     T visitTypeDecl(Declaration.TypeDeclaration decl);
 
     T visitProgram(Program program);
+
+    T visitBoolean(Expression.Boolean bool);
 }

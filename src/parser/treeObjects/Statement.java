@@ -54,6 +54,20 @@ public abstract class Statement extends Node {
             this.statementType = new Token(type, TokenType.TK_KEYWORDS);
         }
 
+        public Iteration(Declaration dec, Expression condition, Block body, String type) {
+
+            // if the condition is null, default it to equivalent of true
+            if (condition == null) {
+                condition = new Expression.Number(1);
+
+            }
+
+            this.addChild(dec);
+            this.addChild(condition);
+            this.addChild(body);
+            this.statementType = new Token(type, TokenType.TK_KEYWORDS);
+        }
+
         @Override
         public <T> T accept(IVisitor visitor) {
             return (T) visitor.visitIteration(this);

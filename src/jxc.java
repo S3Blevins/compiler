@@ -74,6 +74,10 @@ public class jxc {
                     // Split the current IR by spaces.
                     String curLine = in.nextLine();
 
+                    if(curLine.isEmpty()) {
+                        continue;
+                    }
+
                     // Remove unnecessary characters.
                     curLine = curLine.replace("(", "");
                     curLine = curLine.replace(")", "");
