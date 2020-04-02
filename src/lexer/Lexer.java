@@ -83,7 +83,6 @@ public class Lexer {
     public static ArrayList<Token> tokenize(String[] lines) {
 
         ArrayList<Token> tokens = new ArrayList<>();
-        int fileLine = 1; // Used to see where in the file failure occurs.
 
         for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
             String line = lines[lineNumber];
@@ -104,6 +103,7 @@ public class Lexer {
 
                         Matcher endLine = Pattern.compile("\\*/").matcher(line);
 
+                        // keep going until match is found
                         while (!endLine.find()) {
                             lineNumber++;
                             line = lines[lineNumber];
@@ -128,7 +128,7 @@ public class Lexer {
                         break;
                     }
                 } catch (Exception StringIndexOutOfBoundsException) {
-                    System.err.println("ERROR: Multi-Line Comment Mismatch\n");
+                    System.err.println("ERROR: Multi-Line Comment Mismatch on line " + (lineNumber + 1));
                     exit(1);
                 }
 
@@ -151,7 +151,7 @@ public class Lexer {
 
                     if (m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
-                        Token tk = new Token(fileLine);
+                        Token tk = new Token(lineNumber);
                         tk.tokenType = e.getValue();
 
                         /*
@@ -200,12 +200,11 @@ public class Lexer {
                         System.err.println("error: unrecognized token! -- > " + line);
                         System.out.println("'lexer.Token' at position " +
                             (originalLine.indexOf(line.charAt(0)) + 1) +
-                            " on line " + fileLine);
+                            " on line " + (lineNumber + 1));
                         exit(0);
                     }
                 }
             }
-            fileLine++; // Next line; ; meaning line was successfully tokenized.
         }
         return tokens;
     }
