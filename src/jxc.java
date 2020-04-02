@@ -16,7 +16,7 @@ import parser.Parser;
 
 public class jxc {
 
-    //TODO add functionality to t, to, p, po command line options
+    // todo Ir output, symbol table to a file for both.
 
     public static void main(String[] args) {
         // create argument parser for cli library
@@ -126,8 +126,22 @@ public class jxc {
 
         if (line.hasOption("po")) {
             //prints parse tree to output file
-        }
 
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_parse_tree.txt"));
+                writer.write("\n\nPARSER:");
+                NodePrinter printer = new NodePrinter();
+                root.accept(printer);
+
+                writer.write(printer.getTree());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+        //displays symbol table to the commandline.
         if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
             Parser.Instance().printTable();
