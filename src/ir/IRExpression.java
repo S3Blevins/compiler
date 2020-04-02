@@ -64,21 +64,26 @@ public class IRExpression {
 
     public void printInstruction() {
         // null is temporary
-
-        if(inst == null || inst == Instruction.LABEL) {
-            System.out.print("\n");
+/*
+        if(inst != Instruction.LABEL) {
+            System.out.print("\t");
         }
-
+*/
         System.out.print("(" + inst);
 
         if(source1 != null)
             System.out.print(" " + source1.str);
 
         if(source2 != null)
-            System.out.print(", " + source2.str + ",");
+            System.out.print(", " + source2.str);
 
-        if(dest != null )
+        if(dest != null) {
+            if (source1 != null || source2 != null) {
+                System.out.print(",");
+            }
+
             System.out.print(" " + dest.str);
+        }
 
         System.out.println(")");
     }

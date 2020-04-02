@@ -5,6 +5,7 @@ import lexer.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * The wrapper class that will house all of the IR
@@ -14,18 +15,31 @@ public class IRList {
 
     public List<IRExpression> IRExprList = new ArrayList<>();
 
-    public String labelName = "L";
+    // used for intermediate variable labels
     public int labelID = 0;
 
-    public Token lastBlock;
-
-    public String condLabel = "cond";
+    // conditional label used for if/else-if blocks
     public int condID = 0;
-
     public Token lastCond;
 
-    public String itrLabel = "iterator";
+    // iterator label used for for/while loop blocks
     public int itrID = 0;
+    public Token lastTopItr;
+    public Token lastBottomItr;
+
+    // 0 - neither
+    // 1 - cond
+    // 2 - loop
+    public int stateFlag = 0;
+
+    public Stack<Integer> condScope;
+    public Stack<Integer> itrScope;
+
+    public IRList() {
+        condScope = new Stack<>();
+        itrScope = new Stack<>();
+    }
+
 
 
     public boolean addExpr(IRExpression expr) {
@@ -34,26 +48,62 @@ public class IRList {
 
     public Token getLabelName() {
         // create a new label and increment afterwards
-        String newLabel = labelName + labelID;
+        String newLabel = "L"+ labelID;
         labelID++;
 
         return new Token(newLabel, TokenType.TK_IDENTIFIER);
     }
 
+
+    // increment comes first because of scoping (so starts at 1)
+    public Token getCondJmpToLabel() {
+        // ALWAYS CALLED BEFORE getCondLabel
+        // <this> jump label is for the next conditional
+        stateFlag = 1;
+
+        // increment counter at the top of the stack
+        condScope.push(condID++);
+
+        return new Token("cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
+    }
+
     public Token getCondLabel() {
-        // create a new label and increment afterwards
-        lastCond= new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
-        condID++;
+        // ALWAYS CALLED AFTER getCondJmpLabel()
+        // <this> label is for the section of code to jump to
 
-        return lastCond;
+        // print top of the stack and then move back one "scope"
+        Token tmp = new Token("cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
+        condScope.pop();
+
+        return tmp;
     }
 
-    public Token getCondJmpLabel() {
-        // create a new label and increment afterwards
-        lastCond = new Token(condLabel + condID, TokenType.TK_IDENTIFIER);
+    // increment comes first because of scoping (so starts at 1)
+    public Token getItrJmpToTopLabel() {
+        // 'for' or 'while'
+        stateFlag = 2;
 
-        return lastCond;
+        itrScope.push(itrID++);
+        return new Token("loopTop" + itrScope.peek(), TokenType.TK_IDENTIFIER);
     }
+
+    public Token getItrTopLabel() {
+
+        return new Token("loopTop" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+    }
+
+
+    public Token getItrJmpToBottomLabel() {
+        // 'for' or 'while'
+        return new Token("loopBottom" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+    }
+
+    public Token getItrBottomLabel() {
+        Token tmp = new Token("loopBottom" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+        itrScope.pop();
+        return tmp;
+    }
+
 
     public void printIR() {
         for(IRExpression expr: IRExprList) {
@@ -69,4 +119,15 @@ public class IRList {
         }
     }
 
+    // I don't like this flag logic but it works for now... -Sterling
+    public Token getLastBlockLabel() {
+        switch (stateFlag) {
+            case 1:
+                return getCondJmpToLabel();
+            case 2:
+                return getItrJmpToBottomLabel();
+            default:
+                return null;
+        }
+    }
 }
