@@ -2,6 +2,7 @@ import ir.IRBuilder;
 import ir.IRExpression;
 import ir.IRList;
 import ir.Instruction;
+
 import lexer.Lexer;
 import lexer.Token;
 import org.apache.commons.cli.*;
@@ -13,10 +14,11 @@ import java.util.Scanner;
 import parser.Node;
 import parser.NodePrinter;
 import parser.Parser;
+import parser.SymbolTable;
 
 public class jxc {
 
-    //TODO add functionality to t, to, p, po command line options
+    // todo Ir output to a file for both.
 
     public static void main(String[] args) {
         // create argument parser for cli library
@@ -32,6 +34,7 @@ public class jxc {
         commandArgs.addOption("h", "help", false, "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
+        commandArgs.addOption("so", "symbolout", false, "print symbol table to output file");
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f", "file,", true, "File to read in from");
         commandArgs.addOption("i", "ir,", false, "Print out the intermediate representation");
@@ -210,11 +213,31 @@ public class jxc {
 
         if (line.hasOption("po")) {
             //prints parse tree to output file
-        }
 
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_parse_tree.txt"));
+                writer.write("\n\nPARSER:");
+                NodePrinter printer = new NodePrinter();
+                root.accept(printer);
+
+                writer.write(printer.getTree());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+        //displays symbol table to the commandline.
         if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
             Parser.Instance().printTable();
+        }
+
+        //prints symbol table to output file
+        if(line.hasOption("so")){
+            Parser.Instance().printTableFile();
+
         }
 
         if (line.hasOption("O0")) {
@@ -232,6 +255,7 @@ public class jxc {
 
         if (line.hasOption("i")) {
             System.out.println("print out the IR");
+            //IRList.printIR();
         }
     }
 }

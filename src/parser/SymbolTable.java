@@ -3,6 +3,7 @@ package parser;
 import lexer.Token;
 import parser.treeObjects.Declaration;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,5 +100,36 @@ public class SymbolTable {
         }
     }
 
+    // prints symbol table to a file without some printf magic
+    public void printTableFile(int scope, PrintWriter pw) {
 
+        String indent = ":\t".repeat(scope);
+
+        // table header line
+        pw.printf("%s+------------------------------------+\n", indent);
+
+        // name the scope
+        if (scope == 0) {
+            pw.printf("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
+        } else {
+            pw.printf("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope - 1), ": ->", scope, "|\n");
+        }
+
+        // print out the type and associated variable
+        for (Map.Entry<String, String> set : this.ST.entrySet()) {
+            pw.printf("%s| %4s | %-22s %6s\n", indent, set.getValue(), set.getKey(), "|");
+        }
+
+        // indicate the number of children, and print out the table formatting
+        if (this.hasTableChildren()) {
+            pw.printf("%s|------------------------------------|\n", indent);
+            pw.printf("%s| This table has %s inner scope(s) %5s", indent, this.children.size(), "|\n");
+            pw.printf("%s+------------------------------------+\n", indent);
+            for (int i = 0; i < this.children.size(); i++) {
+                this.children.get(i).printTableFile(scope + 1, pw);
+            }
+        } else {
+            pw.printf("%s+------------------------------------+\n", indent);
+        }
+    }
 }

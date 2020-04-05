@@ -4,6 +4,7 @@ import lexer.Token;
 import lexer.TokenType;
 import parser.treeObjects.*;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -1032,6 +1033,15 @@ public class Parser {
 
     public void printTable() {
         table.printTable(0);
+    }
+    public void printTableFile() {
+        try {
+            PrintWriter pw = new PrintWriter(("jxc_symbol_table.txt"));
+            table.printTableFile(0, pw);
+            pw.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
 
