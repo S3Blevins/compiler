@@ -106,6 +106,19 @@ public abstract class Expression extends Node {
         }
     }
 
+    public static class Boolean extends Expression {
+        public Token bool;
+
+        public Boolean(String value) {
+            this.bool = new Token(value, TokenType.TK_BOOL);
+        }
+
+        @Override
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitBoolean(this);
+        }
+    }
+
 
     public static class Identifier extends Expression {
 

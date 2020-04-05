@@ -1,3 +1,4 @@
+/* test */
 typedef enum {
     MON,
     TUE,
@@ -13,8 +14,46 @@ typedef enum {
 
 int tmp;
 
-/* test */
+// another function testing
+int foo(int p) {
+    int q;
+}
+
+int conditionals(int x, int y) {
+
+    if(x < 3) {
+        return 1;
+    } else if(y < 4) {
+        if(j < 9) {
+            7++;
+        }
+        return 7;
+    } else {
+        return 9;
+    }
+
+    if(x < 3) {
+       return 1;
+    } else if(y < 4) {
+        (9<5);
+       return 7;
+    }
+
+    if(x < 3) {
+       return 1;
+    }
+
+    if(x < 3) {
+       return 1;
+    } else {
+       return 7;
+    }
+
+}
+
 int main(int a, int b) {
+
+    int test = 8 + (9 - 2 + 6);
 
     int zdfjhsaldkfjhsdlkafhj;
 
@@ -33,6 +72,11 @@ int main(int a, int b) {
 
     for(int i; j < u; i++) {
         h = 9;
+        (k>h);
+
+        for(int p; k<8; e++) {
+            f++;
+        }
     }
 
     for(; k <= 7; --i) {
@@ -96,24 +140,10 @@ int main(int a, int b) {
     return 1;
 }
 
-// another function testing
-int foo(int p) {
-    int q;
-}
-
-int product(int a, int b)
-{
-    int mid;
-    if (1) {
-       return 1;
-    } else {
-      int mid;
-      return 1;
-   }
-}
-
-int main() {
+int foo() {
 
 	int p;
 	return 0;
 }
+
+

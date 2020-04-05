@@ -23,7 +23,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitUnary(Expression.Unary unary) {
-        tree.append("Expression[Unary]\n");
+        tree.append("Expression[Unary]< " + unary.op.str + " >\n");
 
         iterator(unary);
 
@@ -32,7 +32,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitBinary(Expression.Binary binary) {
-        tree.append("Expression[Binary]\n");
+        tree.append("Expression[Binary]< " + binary.op.str + " >\n");
 
         iterator(binary);
 
@@ -193,19 +193,19 @@ public class NodePrinter implements IVisitor {
     }
 
     @Override
-    public Void visitEnumVar(Declaration.TypeDeclaration.EnumVar decl) {
-        tree.append("TypeDeclaration[EnumerationVar] <" + decl.type.str + " " + decl.enumID.str  + ">\n");
+    public Void visitProgram(Program program) {
+        tree.append("Program <" + program.progName + ">\n");
 
-        iterator(decl);
+        iterator(program);
 
         return null;
     }
 
     @Override
-    public Void visitProgram(Program program) {
-        tree.append("Program <" + program.progName + ">\n");
+    public Object visitBoolean(Expression.Boolean bool) {
+        tree.append("Expression[Boolean] <" + bool.bool.str + ">\n");
 
-        iterator(program);
+        iterator(bool);
 
         return null;
     }

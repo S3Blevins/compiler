@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import static java.lang.System.exit;
+import static java.lang.System.setErr;
 
 public class Lexer {
 
@@ -67,6 +68,7 @@ public class Lexer {
         patterns.put(Pattern.compile("^((if)|(return)|(while)|(for)|(goto)|(break)|(case)|(struct)|(continue)|(default)|" +
             "(do)|(else)|(extern)|(register)|(signed)|(sizeof)|(static)|(switch)|(typedef)|(union)|(unsigned)|" +
             "(volatile)|(enum))[^A-Za-z0-9_]"), TokenType.TK_KEYWORDS);
+        patterns.put(Pattern.compile("^((true)|(false))"), TokenType.TK_BOOL);
         patterns.put(Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*"), TokenType.TK_IDENTIFIER);
         patterns.put(Pattern.compile("^-?[0-9]+"), TokenType.TK_NUMBER);
         // why does -?[0-9]+ work?
@@ -81,9 +83,9 @@ public class Lexer {
     public static ArrayList<Token> tokenize(String[] lines) {
 
         ArrayList<Token> tokens = new ArrayList<>();
-        int fileLine = 1; // Used to see where in the file failure occurs.
 
-        for (String line : lines) {
+        for (int lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+            String line = lines[lineNumber];
 
             /* Keep reference to original string to see which 'token' isn't accepted.*/
             String originalLine = line;
@@ -94,22 +96,40 @@ public class Lexer {
                 // Move the end marker past white-space
                 while (Character.isWhitespace(line.charAt(end))) end++;
 
-                // Checking for comments within '/*' and '*/' to ignore
-                if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
-                    end += 2;
+                try {
+                    // Checking for comments within '/*' and '*/' to ignore
+                    if (line.charAt(end) == '/' && line.charAt(end + 1) == '*') {
+                        end += 2;
 
-                    while (line.charAt(end) != '*' && line.charAt(end + 1) != '/') end++;
+                        Matcher endLine = Pattern.compile("\\*/").matcher(line);
 
-                    end += 2;
+                        // keep going until match is found
+                        while (!endLine.find()) {
+                            lineNumber++;
+                            line = lines[lineNumber];
+                            endLine = Pattern.compile("\\*/").matcher(line);
+                        }
 
-                    if (end == line.length()) {
+                        line = line.substring(endLine.end());
+
+                        if (line.isEmpty()) {
+                            lineNumber++;
+                            if (lineNumber >= lines.length) {
+                                return tokens;
+                            }
+                            line = lines[lineNumber];
+                            continue;
+                        }
+
+                    }
+
+                    // Checking for inline comments after '//'. If encountered, go to next line
+                    if (line.charAt(end) == '/' && line.charAt(end + 1) == '/') {
                         break;
                     }
-                }
-
-                // Checking for inline comments after '//'. If encountered, go to next line
-                if (line.charAt(end) == '/' && line.charAt(end + 1) == '/') {
-                    break;
+                } catch (Exception StringIndexOutOfBoundsException) {
+                    System.err.println("ERROR: Multi-Line Comment Mismatch on line " + (lineNumber + 1));
+                    exit(1);
                 }
 
                 //System.out.println("end = " + end);
@@ -131,7 +151,7 @@ public class Lexer {
 
                     if (m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
-                        Token tk = new Token(fileLine);
+                        Token tk = new Token(lineNumber);
                         tk.tokenType = e.getValue();
 
                         /*
@@ -180,12 +200,11 @@ public class Lexer {
                         System.err.println("error: unrecognized token! -- > " + line);
                         System.out.println("'lexer.Token' at position " +
                             (originalLine.indexOf(line.charAt(0)) + 1) +
-                            " on line " + fileLine);
+                            " on line " + (lineNumber + 1));
                         exit(0);
                     }
                 }
             }
-            fileLine++; // Next line; ; meaning line was successfully tokenized.
         }
         return tokens;
     }

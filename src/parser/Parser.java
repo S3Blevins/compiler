@@ -387,6 +387,18 @@ public class Parser {
             }
         }, Precedence.PRIMARY));
 
+        rules.put(TokenType.TK_BOOL, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        Parser parser = Parser.Instance();
+                        return parser.Boolean();
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                return null;
+            }
+        }, Precedence.PRIMARY));
+
         rules.put(TokenType.TK_IDENTIFIER, new ParseRule(
             new ParseRule.Nud() {
                 Expression exec() {
@@ -422,6 +434,14 @@ public class Parser {
 
         //return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
         return new Expression.Number(Integer.parseInt(previous.str));
+    }
+
+    Expression.Boolean Boolean() {
+        //Expression expr = this.expressionGrammar();
+        //this.previous = this.tokens.remove(0);
+
+        //return new Expression.Number(Integer.parseInt(this.tokens.get(0).str));
+        return new Expression.Boolean(previous.str);
     }
 
     Expression.Unary Unary() {
@@ -520,53 +540,6 @@ public class Parser {
                     Declaration dec = declarationGrammar(parentTable);
                     ((Statement.Block) statement).addDeclaration(dec);
 
-                } else if (tokens.get(0).str.equals("for")) {
-                    // handle the for-loop here so if there happens to be a declaration, the declaration can be added to the parent scope
-                    // but we can use the same structure as a while-loop
-
-                    // remove keyword
-                    tokens.remove(0);
-
-                    // will remove the first parenthesis
-                    tokens.remove(0);
-
-                    // if the token is a type on the first loop, it's a declaration
-                    if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
-                        // a new declaration (should not be possible inside the condition and increment of a for-loop)
-                        Declaration dec = declarationGrammar(parentTable);
-                        System.out.println(tokens.get(0));
-                        ((Statement.Block) statement).addDeclaration(dec);
-
-                    } else if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                        // expression statement in place of a declaration (in theory)
-                        System.out.println(tokens.get(0));
-                        ((Statement.Block) statement).addStatement(statementGrammar(parentTable));
-                    } else {
-                        // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
-                        tokens.remove(0);
-                    }
-
-                    Expression expr = null;
-                    if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                        expr = expressionGrammar();
-                    }
-
-
-                    // remove the semicolon
-                    tokens.remove(0);
-
-                    Statement increment = null;
-                    if (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
-                        increment = statementGrammar(parentTable);
-                    } else {
-                        tokens.remove(0);
-                    }
-
-
-                    Statement forLoopBlock = statementGrammar(parentTable);
-                    forLoopBlock.addChild(increment);
-
-                    statement.addChild(new Statement.Iteration(expr, (Statement.Block) forLoopBlock, "for"));
                 } else {
                     // add a normal for-loop
                     ((Statement.Block) statement).addStatement((Statement) statementGrammar(parentTable));
@@ -601,7 +574,7 @@ public class Parser {
 
                         // remove token, it should be a left parenthesis
                         if (tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
-                            System.out.println("Malformed statement()");
+                            System.out.println("Malformed if-else!");
                             exit(1);
                         }
 
@@ -632,14 +605,64 @@ public class Parser {
                     }
 
                     break;
-                case "while":
+                case "for":
+                    // handle the for-loop here so if there happens to be a declaration, the declaration can be added to the parent scope
+                    // but we can use the same structure as a while-loop
+
+                    // remove keyword
+                    tokens.remove(0);
+
+                    // will remove the first parenthesis
+                    // remove token, it should be a left parenthesis
+                    if (tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
+                        System.err.println("ERROR: Malformed for-loop() " + tokens.get(0).tokError());
+                        exit(1);
+                    }
+
+                    Declaration dec = null;
+                    // if the token is a type on the first loop, it's a declaration
+                    if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
+                        dec = declarationGrammar(parentTable);
+                    } else if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
+                    // expression statement in place of a declaration (in theory)
+                        ((Statement.Block) statement).addStatement(statementGrammar(parentTable));
+                    } else {
+                        // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
+                        tokens.remove(0);
+                    }
+
+                    Expression expr = null;
+                    if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
+                        expr = expressionGrammar();
+                    }
+
+                    // remove the semicolon
+                    tokens.remove(0);
+
+                    Statement increment = null;
+                    if (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
+                        increment = statementGrammar(parentTable);
+                    } else {
+                        tokens.remove(0);
+                    }
+
+                    // recursively call to build block of for-loop
+                    Statement forLoopBlock = statementGrammar(parentTable);
+
+                    // add the increment, if it exists (handled internally)
+                    forLoopBlock.addChild(increment);
+
+                    // create new statement with declaration, expression, and for-loop block
+                    statement = new Statement.Iteration(dec, expr, (Statement.Block) forLoopBlock, "for");
+                    break;
+            case "while":
 
                     // remove keyword
                     tokens.remove(0);
 
                     // remove token, it should be a left parenthesis
                     if (tokens.remove(0).tokenType != TokenType.TK_LPAREN) {
-                        System.err.println("ERROR: Malformed statementGrammar() " + tokens.get(0).tokError());
+                        System.err.println("ERROR: Malformed while-loop() " + tokens.get(0).tokError());
                         exit(1);
                     }
 
@@ -808,11 +831,6 @@ public class Parser {
             Declaration.varDeclaration varDecEnum = new Declaration.varDeclaration();
             Token Int = new Token("int", TokenType.TK_TYPE);
 
-                    /* TODO: Add enumerationDec to ENUM Symbol Table so we can reference
-                             this enum to a variable name later when the developer
-                             assigns something.
-                    */
-
             enumVal.str = "0"; // Reset enumVal to 0 if we have multiple enums.
 
             /* This section handles typedef */
@@ -854,7 +872,7 @@ public class Parser {
                 } while (tokens.get(0).tokenType != TokenType.TK_RBRACE);
 
                 /* Add all of the enum vars to tree. */
-                enumerationDec.addEnumVar(varDecEnum);
+                enumerationDec.addEnumVars(varDecEnum);
 
                 tokens.remove(0); // remove RBRACE
                 enumerationDec.enumType = tokens.remove(0); // Get Enum type
@@ -885,7 +903,7 @@ public class Parser {
         else {
 
             Declaration.varDeclaration varDeclaration = new Declaration.varDeclaration();
-            //parentTable.addSymbol(typeSpec, decID);
+
             do {
                 if (previous.tokenType == TokenType.TK_EQUALS) {
                     varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
@@ -961,7 +979,6 @@ public class Parser {
 
         return varDeclaration;
     }
-
     public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID, boolean inEnum) {
 
         // We set decID outside after first pass so we need to get rid of the redundant token.

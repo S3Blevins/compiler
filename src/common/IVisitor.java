@@ -42,7 +42,7 @@ public interface IVisitor<T> {
 
     T visitTypeDecl(Declaration.TypeDeclaration decl);
 
-    T visitEnumVar(Declaration.TypeDeclaration.EnumVar decl);
-
     T visitProgram(Program program);
+
+    T visitBoolean(Expression.Boolean bool);
 }
