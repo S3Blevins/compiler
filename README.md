@@ -45,8 +45,11 @@ Our current iteration of the program supports the following arguments in additio
 **-p** | **-parse** | parse tree from c-program is displayed in the terminal
 **-po** | **-parseout** | parse tree from c-program is written to a file.
 **-f** | **-file** | input .c file to compile from
-
-**Note** `-po` is currently not supported.
+**-s** | **-symbol** | displays symbol table to command line
+**-so** | **-symbolout** | prints Symbol table to output file.
+**-i** | **-irprint** | print out the Intermediate representation
+**-io** | **-irout** | prints IR to output file
+**-r** | **-readir** | read in Intermediate representation
 
 [You can check here for our functionality and limitations of the program.](docs/design_spec.md#functionality-and-limitations)
 
@@ -54,7 +57,7 @@ Our current iteration of the program supports the following arguments in additio
 The compiler is broken up into three parts (Front End, Intermediate/Optimizer, and Back End), each with their own set of stages. Below is a brief explanation of the current implementation.
 
 ## [Assignment 1 *(Front End)*](docs/design_spec.md)
-In our current standing, JxC is capable of reading in a file and tokenizing much of the alphabet supported by the *C- language*, in addition to using a modified *C-* grammar to parse the C-program into a custom parse-tree. No additional processing of the C-program has been completed at this time.
+The compiler, JxC is capable of reading in a file and tokenizing much of the alphabet supported by the *C- language*, in addition to using a modified *C-* grammar to parse the C-program into a custom parse-tree.
 
 >### Stage 0: Command Line Arguments
 >The processing of command line arguments for our compiler has been delegated to the use of a library with support for reading in a file, outputting the tokens, and a displaying a parse-tree to the user. See [here](docs/design_spec.md#stage-0-command-line-interface) for a more indepth description.
@@ -62,8 +65,22 @@ In our current standing, JxC is capable of reading in a file and tokenizing much
 >### Stage 1: Tokenizing the C-Language
 >Tokenizing the C-Language alphabet is implemented using a character-by-character approach, using an ordered set of regular expressions to classify and save the tokens into a list. See [here](docs/design_spec.md#stage-1-scanner) for a more indepth description.
 
->### Stage 2: Building the Parser
+>### Stage 2.A: Building the Parser
 >The program's tokens are then fed into our parser, which uses a top-down recursive approach to structure the C-program into a tree based on a modified `C-` grammar. See [here](docs/design_spec.md#stage-2-parser) for a more indepth description.
+
+
+## [Assignment 2 *(Intermediate Representation (IR) Generation)*](docs/design_spec.md)
+The compiler in it's current standing is capable of storing variables in a symbol table (with respective scoping) in addition to generating an intermediate representation of the *C-code* by traversing the custom parse tree generated in the previous stage.
+
+>### Stage 2.B: Building the Symbol Table
+The symbol table contains a record of all declared variables within the *C-program* code. Acting as a variable reference table, the symbol table is used for error checking on compilation time and in assembly generation (see Assignment 3 to be completed).
+
+>### Stage 3: Building the IR
+>JxC constructs IR based on the output of the parse tree constructed in Assignment 1. As the compiler traverses the parse tree, it recognizes each node's "object type" and has a corresponding method to construct the IR accordingly. Each new IR expression is constructed and sent to a master list that the compiler sends to the next stage (Assignment 3) of the compiler to generate x86 compliant assembly.
+
+## [Assignment 3 *(x86 Assembly Generation)*](docs/design_spec.md)
+>To be implemented before May 1st, 2020
+
 
 # Dependencies and Attributions
 No need to install these libraries, they are already included in our build:
