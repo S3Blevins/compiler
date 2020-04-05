@@ -18,7 +18,7 @@ import parser.SymbolTable;
 
 public class jxc {
 
-    // todo Ir output to a file for both.
+    // TODO add optional arguments for file outputs
 
     public static void main(String[] args) {
         // create argument parser for cli library
@@ -34,13 +34,12 @@ public class jxc {
         commandArgs.addOption("h", "help", false, "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
-        commandArgs.addOption("so", "symbolout", false, "print symbol table to output file");
+        commandArgs.addOption("so", "symbolout", true, "print symbol table to output file");
         commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
         commandArgs.addOption("f", "file,", true, "File to read in from");
-        commandArgs.addOption("i", "ir,", false, "Print out the intermediate representation");
-        commandArgs.addOption("r", "ri", true, "Read in an intermediate representation");
-        commandArgs.addOption("O0", "no-opt,", false, "Compile with no optimization");
-        commandArgs.addOption("O1", "with-opt,", false, "Compile with optimization");
+        commandArgs.addOption("i", "irprint,", false, "Print out the intermediate representation");
+        commandArgs.addOption("r", "readir", true, "Read in an intermediate representation");
+        commandArgs.addOption("io", "irout", true, "print IR to output file");
 
         //parse command line options
         CommandLine line = null;
@@ -188,6 +187,11 @@ public class jxc {
         if (line.hasOption("to")) {
             //displays token to command line and outputs to a file
             // initialize writer to write tokens out to a file
+            if(line.getOptionValue("to") == null){
+                System.out.printf("test\n");
+            }else{
+                System.out.printf("test2\n");
+            }
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
                 writer.write(str.toString());
@@ -240,22 +244,12 @@ public class jxc {
 
         }
 
-        if (line.hasOption("O0")) {
-            System.out.println("compile with no optimization");
-
-            IRBuilder irBuilder = new IRBuilder();
-            root.accept(irBuilder);
-
-            irBuilder.IRs.printIR();
-        }
-
-        if (line.hasOption("O1")) {
-            System.out.println("compile with optimization");
-        }
+        IRBuilder irBuilder = new IRBuilder();
+        root.accept(irBuilder);
 
         if (line.hasOption("i")) {
             System.out.println("print out the IR");
-            //IRList.printIR();
+            irBuilder.IRs.printIR();
         }
     }
 }
