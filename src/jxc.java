@@ -1,4 +1,5 @@
 import ir.IRBuilder;
+import ir.IRList;
 import lexer.Lexer;
 import lexer.Token;
 import org.apache.commons.cli.*;
@@ -168,6 +169,7 @@ public class jxc {
 
         if (line.hasOption("i")) {
             System.out.println("print out the IR");
+            IRList.printIR();
         }
 
     }

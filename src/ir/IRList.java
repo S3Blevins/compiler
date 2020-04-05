@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class IRList {
 
-    public List<IRExpression> IRs = new ArrayList<>();
+    public static List<IRExpression> IRs = new ArrayList<>();
 
     public String label_name;
     public int label_id;
@@ -27,7 +27,7 @@ public class IRList {
         return newLabel;
     }
 
-    public void printIR() {
+    public static void printIR() {
         for(IRExpression expr: IRs) {
             expr.printInstruction();
         }
