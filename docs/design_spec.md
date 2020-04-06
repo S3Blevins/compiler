@@ -43,33 +43,7 @@ The symbol table involves a set of hash-maps with the unique variable name as a 
 The symbol table logic includes functions that add a new table, add a new key/value pair to the current table, retrieve the size of one of the tables, error checks to make sure already declared variables in outer scopes are not re-declared in inner scopes.
 ### Stage 3: IR Generation
     Instruction.java
-The compiler holds an enumerated class that keeps track of instructions that are x86 compliant. This is utilized when building an IR object (the first parameter of the IR object). The instructions supported include:
-
-| Instruction | Meaning |
-|:----------:|:----------|
-|**ADD**|Add two values and store into a variable|
-|**SUB**|Subtract two values and store into a variable|
-|**MUL**|Multiple two values and store into a variable|
-|**DIV**|Divide two values and store into a variable|
-|**ASSIGN**|Assign a value into a variable|
-|**LABEL**|Create a label for jumping|
-|**JMP**|Jump to label operation|
-|**RET**|Return the final value specified|
-|**CALL**|Call a function|
-|**NOP**|No operation|
-|**LOAD**|Load a variable or parameter|
-|**BREAK**|Break out of loop|
-|**INC**|Increment a value by one|
-|**DEC**|Decrement a value by one|
-|**NOT**|Logical `NOT` a variable|
-|**AND**|Logical `AND` a variable|
-|**OR**|Logical `OR` a variable|
-|**EQUAL**|Evaluate two values if equivalent and jump to label|
-|**GREQ**|Evaluate a greater-than-equal-to condition and jump to label|
-|**LSEQ**|Evaluate a less-than-equal-to condition and jump to label|
-|**GRTR**|Evaluate a greater-than condition and jump to label|
-|**LESS**|Evaluate a less-than condition and jump to label|
-|**EVAL**|Evaluate to boolean values and jump to label|
+The compiler holds an enumerated class that keeps track of instructions that are x86 compliant. This is utilized when building an IR object (the first parameter of the IR object). The instructions supported can be seen [here.](language_spec.md#intermediate-representation-instructions)
 
     IRList.java
 IRList behaves as a wrapper class that keeps track of every IR object created in addition to generating new labels when necessary. It keeps track of an ArrayList which represents our IR in a linear fashion which will be also help optimize the IRList in the next stage.
@@ -84,6 +58,10 @@ IRExpression serves as the basis for our IR object creation. The object can cons
 `(INSTRUCTION DESTINATION)`
 
 `(INSTRUCTION)`
+
+Below is an example of how the code is converted to an intermediate representation. The IR is almost assembly like in form.
+
+![](doc_images/ir_code.png)
 
     IRBuilder.java
 The IRBuilder class utilizes the visitor pattern to traverse the parse tree in a similar fashion to how the parse tree is printed. Each node type has an associated method which creates an IR expression from the IR expression class and then adds it to the linear IR expression list. Most expression nodes return the temporary variable of where the expression previously had been evaluated into.

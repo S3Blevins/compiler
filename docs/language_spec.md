@@ -11,21 +11,21 @@ Each of the developed stages relevant to the compilation process are provided a 
 
 ### Required Support Status
 
-Feature | Full Support | Stage 1: Tokenize | Stage 2: Parse
---- | :---: | :---: | :---:
-Identifiers | **NO** | **complete** | developing
-Variables | **NO** | **complete** | developing
-Functions | **NO** | **complete** | developing
-Keywords | **NO** | **complete** | developing
-Arithmetic Exp. | **NO** | **complete** | developing
-Assignments | **NO** | **complete** | developing
-Boolean Exp. | **NO** | *pending* |
-goto Statements | **NO** | **complete** | *pending*
-If/Else Control Flow | **NO** | **complete** | developing
-Unary Operators | **NO** | **complete** | developing
-Return Statements | **NO** | **complete** | developing
-Break Statements | **NO** | **complete** | developing
-While Loop | **NO** | **complete** | developing
+Feature | Full Support | Stage 1: Tokenize | Stage 2: Parse | Stage 3: IR Generation
+--- | :---: | :---: | :---: | :---:
+Identifiers | **YES** | **complete** | **complete** | **complete**
+Variables | **NO** | **complete** | **complete** | **complete**
+Functions | **NO** | **complete** | **complete** | **complete**
+Keywords | **YES** | **complete** | **complete** | **complete**
+Arithmetic Exp. | **YES** | **complete** | **complete** | **complete**
+Assignments | **YES** | **complete** | **complete** | **complete**
+Boolean Exp. | **YES** | **complete** | **complete** | **complete**
+goto Statements | **YES** | **complete** | **complete** | **complete**
+If/Else Control Flow | **YES** | **complete** | **complete** | **complete**
+Unary Operators | **YES** | **complete** | **complete** | **complete**
+Return Statements | **YES** | **complete** | **complete** | **complete**
+Break Statements | **YES** | **complete** | **complete** | **complete**
+While Loop | **YES** | **complete** | **complete** | **complete**
 
 ### Optional Support Status
 In the case of optional feature support, *N/A* indicates not-attempted but does not mean will not attempt. We may attempt an implementation at our discretion.
@@ -163,3 +163,30 @@ Our grammar is classed into production rule categories. The production rules loc
 >argList &rightarrow; argList **,** expression | expression
 
 >constant &rightarrow; **NUMCONST**
+
+# Intermediate Representation Instructions
+| Instruction | Meaning |
+|:----------:|:----------|
+|**ADD**|Add two values and store into a variable|
+|**SUB**|Subtract two values and store into a variable|
+|**MUL**|Multiple two values and store into a variable|
+|**DIV**|Divide two values and store into a variable|
+|**ASSIGN**|Assign a value into a variable|
+|**LABEL**|Create a label for jumping|
+|**JMP**|Jump to label operation|
+|**RET**|Return the final value specified|
+|**CALL**|Call a function|
+|**NOP**|No operation|
+|**LOAD**|Load a variable or parameter|
+|**BREAK**|Break out of loop|
+|**INC**|Increment a value by one|
+|**DEC**|Decrement a value by one|
+|**NOT**|Logical `NOT` a variable|
+|**AND**|Logical `AND` a variable|
+|**OR**|Logical `OR` a variable|
+|**EQUAL**|Evaluate two values if equivalent and jump to label|
+|**GREQ**|Evaluate a greater-than-equal-to condition and jump to label|
+|**LSEQ**|Evaluate a less-than-equal-to condition and jump to label|
+|**GRTR**|Evaluate a greater-than condition and jump to label|
+|**LESS**|Evaluate a less-than condition and jump to label|
+|**EVAL**|Evaluate to boolean values and jump to label|
