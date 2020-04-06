@@ -65,7 +65,7 @@ public class IRList {
         // increment counter at the top of the stack
         condScope.push(condID++);
 
-        return new Token("cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
+        return new Token("_cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
     }
 
     public Token getCondLabel() {
@@ -73,7 +73,7 @@ public class IRList {
         // <this> label is for the section of code to jump to
 
         // print top of the stack and then move back one "scope"
-        Token tmp = new Token("cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
+        Token tmp = new Token("_cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
         condScope.pop();
 
         return tmp;
@@ -85,22 +85,22 @@ public class IRList {
         stateFlag = 2;
 
         itrScope.push(itrID++);
-        return new Token("loopTop" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+        return new Token("_loopExpr" + itrScope.peek(), TokenType.TK_IDENTIFIER);
     }
 
     public Token getItrTopLabel() {
 
-        return new Token("loopTop" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+        return new Token("_loopExpr" + itrScope.peek(), TokenType.TK_IDENTIFIER);
     }
 
 
     public Token getItrJmpToBottomLabel() {
         // 'for' or 'while'
-        return new Token("loopBottom" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+        return new Token("_loopExit" + itrScope.peek(), TokenType.TK_IDENTIFIER);
     }
 
     public Token getItrBottomLabel() {
-        Token tmp = new Token("loopBottom" + itrScope.peek(), TokenType.TK_IDENTIFIER);
+        Token tmp = new Token("_loopExit" + itrScope.peek(), TokenType.TK_IDENTIFIER);
         itrScope.pop();
         return tmp;
     }

@@ -215,7 +215,7 @@ public class IRBuilder implements IVisitor<Token> {
 
                 // stateFlag turned on for very first label
                 IRs.stateFlag = 1;
-                Token endLabel = new Token("condEnd" + IRs.getEndID(), TokenType.TK_IDENTIFIER);
+                Token endLabel = new Token("_condEnd" + IRs.getEndID(), TokenType.TK_IDENTIFIER);
 
                 // iterate through children
                 for (int i = 0; i < conditional.children.size(); i++) {
