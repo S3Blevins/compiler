@@ -62,30 +62,32 @@ public class IRExpression {
         source2 = null;
     }
 
-    public void printInstruction() {
-        // null is temporary
-/*
+    public StringBuilder printInstruction() {
+
+        StringBuilder irString = new StringBuilder();
+
         if(inst != Instruction.LABEL) {
-            System.out.print("\t");
+            irString.append("\t");
         }
-*/
-        System.out.print("(" + inst);
+
+        irString.append("(" + inst);
 
         if(source1 != null)
-            System.out.print(" " + source1.str);
+            irString.append(" " + source1.str);
 
         if(source2 != null)
-            System.out.print(", " + source2.str);
+            irString.append(", " + source2.str);
 
         if(dest != null) {
             if (source1 != null || source2 != null) {
-                System.out.print(",");
+                irString.append(",");
             }
 
-            System.out.print(" " + dest.str);
+            irString.append(" " + dest.str);
         }
 
-        System.out.println(")");
+        irString.append(")\n");
+        return irString;
     }
 
 

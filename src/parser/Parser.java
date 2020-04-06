@@ -1034,9 +1034,10 @@ public class Parser {
     public void printTable() {
         table.printTable(0);
     }
-    public void printTableFile() {
+
+    public void printTableFile(String fileName) {
         try {
-            PrintWriter pw = new PrintWriter(("jxc_symbol_table.txt"));
+            PrintWriter pw = new PrintWriter((fileName));
             table.printTableFile(0, pw);
             pw.flush();
         } catch (FileNotFoundException e) {

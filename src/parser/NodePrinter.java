@@ -23,7 +23,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitUnary(Expression.Unary unary) {
-        tree.append("Expression[Unary]< " + unary.op.str + " >\n");
+        tree.append("Expression[Unary] <" + unary.op.str + ">\n");
 
         iterator(unary);
 
@@ -32,7 +32,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitBinary(Expression.Binary binary) {
-        tree.append("Expression[Binary]< " + binary.op.str + " >\n");
+        tree.append("Expression[Binary] <" + binary.op.str + ">\n");
 
         iterator(binary);
 
@@ -59,7 +59,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitNumber(Expression.Number number) {
-        tree.append("Expression[Number]" + "<" + number.value.str + ">\n");
+        tree.append("Expression[Number] <" + number.value.str + ">\n");
 
         iterator(number);
 
@@ -68,7 +68,7 @@ public class NodePrinter implements IVisitor {
 
     @Override
     public Void visitIdentifier(Expression.Identifier identifier) {
-        tree.append("Expression[Identifier]" + "<" + identifier.value.str + ">\n");
+        tree.append("Expression[Identifier] <" + identifier.value.str + ">\n");
 
         iterator(identifier);
 
