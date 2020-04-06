@@ -30,12 +30,27 @@ public class jxc {
 
         // Adding command line options.
         commandArgs.addOption("t", "token", false, "Display tokens to command line");
-        commandArgs.addOption("to", "tokenout", false, "Displays tokens to command line and output file");
+        Option optionalargument = Option.builder("to")
+                .optionalArg(true)
+                .numberOfArgs(1)
+                .desc("tokens in the c-program are written to a file specified by user or to default file")
+                .build();
+        commandArgs.addOption(optionalargument);
         commandArgs.addOption("h", "help", false, "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
-        commandArgs.addOption("so", "symbolout", true, "print symbol table to output file");
-        commandArgs.addOption("po", "parseout", false, "Prints parse tree to output file.");
+        optionalargument = Option.builder("so")
+                .optionalArg(true)
+                .numberOfArgs(1)
+                .desc("print symbol table to output file specified by user or to default file")
+                .build();
+        commandArgs.addOption(optionalargument);
+        optionalargument = Option.builder("po")
+                .optionalArg(true)
+                .numberOfArgs(1)
+                .desc("Prints parse tree to output file specified by user or to default file.")
+                .build();
+        commandArgs.addOption(optionalargument);
         commandArgs.addOption("f", "file,", true, "File to read in from");
         commandArgs.addOption("i", "irprint,", false, "Print out the intermediate representation");
         commandArgs.addOption("r", "readir", true, "Read in an intermediate representation");
@@ -188,17 +203,23 @@ public class jxc {
             //displays token to command line and outputs to a file
             // initialize writer to write tokens out to a file
             if(line.getOptionValue("to") == null){
-                System.out.printf("test\n");
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
+                    writer.write(str.toString());
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }else{
-                System.out.printf("test2\n");
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("to")));
+                    writer.write(str.toString());
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
-                writer.write(str.toString());
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
 
         //parse tree options
@@ -218,20 +239,33 @@ public class jxc {
         if (line.hasOption("po")) {
             //prints parse tree to output file
 
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_parse_tree.txt"));
-                writer.write("\n\nPARSER:");
-                NodePrinter printer = new NodePrinter();
-                root.accept(printer);
+            if(line.getOptionValue("po") == null){
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_parse_tree.txt"));
+                    writer.write("\n\nPARSER:");
+                    NodePrinter printer = new NodePrinter();
+                    root.accept(printer);
 
-                writer.write(printer.getTree());
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    writer.write(printer.getTree());
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("po")));
+                    writer.write("\n\nPARSER:");
+                    NodePrinter printer = new NodePrinter();
+                    root.accept(printer);
+
+                    writer.write(printer.getTree());
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-
-
         }
+
         //displays symbol table to the commandline.
         if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
@@ -240,8 +274,11 @@ public class jxc {
 
         //prints symbol table to output file
         if(line.hasOption("so")){
-            Parser.Instance().printTableFile();
-
+            if(line.getOptionValue("so") == null){
+                Parser.Instance().printTableFile("symbol_table_out.txt");
+            }else{
+                Parser.Instance().printTableFile(line.getOptionValue("so"));
+            }
         }
 
         IRBuilder irBuilder = new IRBuilder();
