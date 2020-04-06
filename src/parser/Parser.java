@@ -1034,6 +1034,7 @@ public class Parser {
     public void printTable() {
         table.printTable(0);
     }
+
     public void printTableFile(String fileName) {
         try {
             PrintWriter pw = new PrintWriter((fileName));

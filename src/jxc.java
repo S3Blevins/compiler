@@ -202,33 +202,35 @@ public class jxc {
                 System.out.print(token.str + " ");
             System.out.println();
         }
+
+        /** TOKEN ARGUMENTS **/
+
         if (line.hasOption("to")) {
             //displays token to command line and outputs to a file
             // initialize writer to write tokens out to a file
-            if(line.getOptionValue("to") == null){
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_tokens.txt"));
-                    writer.write(str.toString());
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("to")));
-                    writer.write(str.toString());
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+            String fileName = "jxc_tokens.txt";
+
+            if(line.getOptionValue("to") != null) {
+                fileName = line.getOptionValue("to");
+            }
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                writer.write(str.toString());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
         }
 
+        root = Parser.Instance().Parse(tokens, file.getName());
+
+        /** PARSE TREE ARGUMENTS **/
+
         //parse tree options
         if (line.hasOption("p")) {
-
-            root = Parser.Instance().Parse(tokens, file.getName());
 
             //display parse tree to command line
             System.out.println("\n\nPARSER:");
@@ -242,32 +244,26 @@ public class jxc {
         if (line.hasOption("po")) {
             //prints parse tree to output file
 
-            if(line.getOptionValue("po") == null){
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter("jxc_parse_tree.txt"));
-                    writer.write("\n\nPARSER:");
-                    NodePrinter printer = new NodePrinter();
-                    root.accept(printer);
+            String fileName = "jxc_parse_tree.txt";
 
-                    writer.write(printer.getTree());
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                try {
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(line.getOptionValue("po")));
-                    writer.write("\n\nPARSER:");
-                    NodePrinter printer = new NodePrinter();
-                    root.accept(printer);
+            if(line.getOptionValue("po") != null){
+                fileName = line.getOptionValue("po");
+            }
 
-                    writer.write(printer.getTree());
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                writer.write("\n\nPARSER:");
+                NodePrinter printer = new NodePrinter();
+                root.accept(printer);
+
+                writer.write(printer.getTree());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+
+        /** SYMBOL TABLE ARGUMENTS **/
 
         //displays symbol table to the commandline.
         if (line.hasOption("s")) {
@@ -287,9 +283,30 @@ public class jxc {
         IRBuilder irBuilder = new IRBuilder();
         root.accept(irBuilder);
 
+        /** IR BUILDER ARGUMENTS **/
+
         if (line.hasOption("i")) {
-            System.out.println("print out the IR");
-            irBuilder.IRs.printIR();
+            System.out.println("\nIntermediate Representation");
+            System.out.println(irBuilder.IRs.printIR());
+        }
+
+        if(line.hasOption("io")) {
+
+            String fileName = "jxc_IR_expressions.txt";
+
+            if (line.getOptionValue("io") != null) {
+                fileName = line.getOptionValue("io");
+            }
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                NodePrinter printer = new NodePrinter();
+
+                writer.write(irBuilder.IRs.printIR());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

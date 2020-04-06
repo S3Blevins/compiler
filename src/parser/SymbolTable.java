@@ -102,7 +102,6 @@ public class SymbolTable {
 
     // prints symbol table to a file without some printf magic
     public void printTableFile(int scope, PrintWriter pw) {
-
         String indent = ":\t".repeat(scope);
 
         // table header line

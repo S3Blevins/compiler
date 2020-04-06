@@ -106,10 +106,13 @@ public class IRList {
     }
 
 
-    public void printIR() {
+    public String printIR() {
+        StringBuilder IRString = new StringBuilder();
         for(IRExpression expr: IRExprList) {
-            expr.printInstruction();
+            IRString.append(expr.printInstruction());
         }
+
+        return IRString.toString();
     }
 
     public Token getLastLabel() {
