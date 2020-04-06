@@ -16,6 +16,8 @@ import parser.NodePrinter;
 import parser.Parser;
 import parser.SymbolTable;
 
+import static java.lang.System.exit;
+
 public class jxc {
 
     // TODO add optional arguments for file outputs
@@ -30,38 +32,44 @@ public class jxc {
 
         // Adding command line options.
         commandArgs.addOption("t", "token", false, "Display tokens to command line");
-        Option optionalargument = Option.builder("to")
+        Option optionalArgument = Option.builder("to")
                 .optionalArg(true)
                 .numberOfArgs(1)
-                .desc("tokens in the c-program are written to a file specified by user or to default file")
+                .desc("Tokens in the c-program are written to a file specified by user or to default file")
                 .build();
-        commandArgs.addOption(optionalargument);
+        commandArgs.addOption(optionalArgument);
         commandArgs.addOption("h", "help", false, "Displays help options.");
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
-        optionalargument = Option.builder("so")
+        optionalArgument = Option.builder("so")
                 .optionalArg(true)
                 .numberOfArgs(1)
-                .desc("print symbol table to output file specified by user or to default file")
+                .desc("Print symbol table to output file specified by user or to default file")
                 .build();
-        commandArgs.addOption(optionalargument);
-        optionalargument = Option.builder("po")
+        commandArgs.addOption(optionalArgument);
+        optionalArgument = Option.builder("po")
                 .optionalArg(true)
                 .numberOfArgs(1)
                 .desc("Prints parse tree to output file specified by user or to default file.")
                 .build();
-        commandArgs.addOption(optionalargument);
+        commandArgs.addOption(optionalArgument);
         commandArgs.addOption("f", "file,", true, "File to read in from");
         commandArgs.addOption("i", "irprint,", false, "Print out the intermediate representation");
         commandArgs.addOption("r", "readir", true, "Read in an intermediate representation");
-        commandArgs.addOption("io", "irout", true, "print IR to output file");
+        optionalArgument = Option.builder("io")
+                .optionalArg(true)
+                .numberOfArgs(1)
+                .desc("Print IR to output file")
+                .build();
+        commandArgs.addOption(optionalArgument);
 
         //parse command line options
         CommandLine line = null;
         try {
             line = commandParser.parse(commandArgs, args);
         } catch (ParseException exp) {
-            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            System.err.println("ERROR: " + exp.getMessage());
+            exit(1);
         }
 
         StringBuilder str = new StringBuilder();
@@ -71,15 +79,15 @@ public class jxc {
         if (line.hasOption("r")) {
             /* Up to stage 2 of the compile, the command line cannot have the supported
              *  flags since those flags generate the step being read in now. */
+            if(line.hasOption("f")) {
+                System.err.println("ERROR: The -r flag cannot be used in conjunction with the -f flag");
+                exit(1);
+            }
+
             System.out.println("read in an ir");
 
             // Where we house the IRs
             IRList irList = new IRList();
-
-            if (line.getOptions().length > 1) {
-                System.err.println("Cannot utilize (-r/-ri) w/ flags -O0 -O1 -s -po -p -i -to -t -h -f");
-                System.exit(1);
-            }
 
             // Else, parse the input file.
             try {
@@ -147,10 +155,7 @@ public class jxc {
 
             System.out.println("Input read in\n");
             irList.printIR();
-        }
-
-        //get file name
-        if (line.hasOption("f")) {
+        } else if (line.hasOption("f")) {
             try {
                 file = new File(line.getOptionValue("f"));
                 Scanner readScanner = new Scanner(file);
@@ -173,10 +178,8 @@ public class jxc {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
-
-        } else if (line.hasOption("r") || line.hasOption("ri")) {
 
         } else {
             System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
