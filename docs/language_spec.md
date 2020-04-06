@@ -16,7 +16,7 @@ Feature | Full Support | Stage 1: Tokenize | Stage 2: Parse | Stage 3: IR Genera
 Identifiers | **YES** | **complete** | **complete** | **complete**
 Variables | **NO** | **complete** | **complete** | **complete**
 Functions | **NO** | **complete** | **complete** | **complete**
-Keywords | **YES** | **complete** | **complete** | **complete**
+Keywords | **NO** | **complete** | **complete** | **complete**
 Arithmetic Exp. | **YES** | **complete** | **complete** | **complete**
 Assignments | **YES** | **complete** | **complete** | **complete**
 Boolean Exp. | **YES** | **complete** | **complete** | **complete**
@@ -30,13 +30,14 @@ While Loop | **YES** | **complete** | **complete** | **complete**
 ### Optional Support Status
 In the case of optional feature support, *N/A* indicates not-attempted but does not mean will not attempt. We may attempt an implementation at our discretion.
 
-Feature | Full Support | Stage 1: Tokenize | Stage 2: Parse
---- | :---: | :---: | :---:
-Other Types | **NO** | *N/A* | *N/A*
-++, -=, +=, *=, /= | **NO** | **complete** | *pending*
-for-loops | **NO** | **complete** | developing
-binary-operators | **NO** | *N/A* | *N/A*
-switch-statements | **NO** | *N/A* | *N/A*
+Feature | Full Support | Stage 1: Tokenize | Stage 2: Parse | Stage 3: IR Generation
+--- | :---: | :---: | :---: |  :---:
+Other Types | **NO** | *N/A* | *N/A* | *N/A*
+++, -=, +=, *=, /= | **YES** | **complete** | **complete** | **complete**
+for-loops | **YES** | **complete** | **complete** | **complete**
+binary-operators | **YES** | **complete** | **complete** | **complete**
+switch-statements | **NO** | *N/A* | *N/A* | *N/A*
+type-declarations (Enumerations) | **YES** | **complete** | **complete** | *pending*
 
 # Supported Tokens
 Below is a table containing tokens supported by the lexer/scanner component of the compiler. Although a token may be supported this ***DOES NOT*** mean that we will full support or implement the C- language feature associated with that token. We reserve the right to remove or ignore support for tokens at our discretion although within the bounds of the assignment requirement.
