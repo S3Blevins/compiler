@@ -18,7 +18,7 @@ import static java.lang.System.exit;
 public class IRBuilder implements IVisitor<Token> {
         // DONE: visitUnary
         // DONE: visitBinary
-        // TODO: visitTernary
+        // DONE: visitTernary
         // DONE: visitGroup
         // DONE: visitNumber
         // DONE: visitIdentifier
@@ -215,34 +215,38 @@ public class IRBuilder implements IVisitor<Token> {
 
                 // stateFlag turned on for very first label
                 IRs.stateFlag = 1;
+                Token endLabel = new Token("condEnd" + IRs.getEndID(), TokenType.TK_IDENTIFIER);
 
                 // iterate through children
                 for (int i = 0; i < conditional.children.size(); i++) {
                         // turn back on for each loop
 
                         // if the child is a multiple of two, then throw down a label except for if the child is the last element
+                        // this means there is an expression which may need to jump to the next labeled expression if evaluated to false
                         if(i % 2 == 0 && i != 0) {
                                 // change state required for 'else' clause
                                 IRs.stateFlag = 1;
                                 IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
                         }
 
-                        // check for children, if children exist, execute normally,
-                        // if no children then it is a generic value or boolean which uses EVAL instruction
+                        // check for children, if children exist it may be an expression or block statement which executes normally
+                        // if no children then it is a simple value or boolean expression which uses the EVAL instruction
                         if(conditional.children.get(i).hasChildren()) {
                                 conditional.children.get(i).accept(this);
                         } else {
                                 IRs.addExpr(new IRExpression(Instruction.EVAL, conditional.children.get(i).accept(this), IRs.getCondJmpToLabel()));
                         }
 
+                        // add the jump to the label for the end of the conditional clause chain after block statements
+                        // block statements only occur when the child is of an odd index except in the case of 'else' but
+                        // then the label is just a fall through
+                        if(i % 2 != 0) {
+                                IRs.addExpr(new IRExpression(Instruction.JMP, endLabel));
+                        }
+
                 }
 
-                // TODO: add error checking in the parse for when a if-else clause is empty to error and add to documentation
-                // this adds a label succeeding the 'else if' on the last iteration if the number of children is even
-                // (When an else is used, the number of children will be odd so the if/else-if needs somewhere to jump to)
-                if(conditional.childSize() % 2 == 0) {
-                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
-                }
+                IRs.addExpr(new IRExpression(Instruction.LABEL, endLabel));
 
                 IRs.stateFlag = 0;
 

@@ -20,12 +20,10 @@ public class IRList {
 
     // conditional label used for if/else-if blocks
     public int condID = 0;
-    public Token lastCond;
+    public int endID = 0;
 
     // iterator label used for for/while loop blocks
     public int itrID = 0;
-    public Token lastTopItr;
-    public Token lastBottomItr;
 
     // 0 - neither
     // 1 - cond
@@ -54,6 +52,9 @@ public class IRList {
         return new Token(newLabel, TokenType.TK_IDENTIFIER);
     }
 
+    public int getEndID() {
+        return endID++;
+    }
 
     // increment comes first because of scoping (so starts at 1)
     public Token getCondJmpToLabel() {
