@@ -133,4 +133,16 @@ public abstract class Expression extends Node {
             return (T) visitor.visitIdentifier(this);
         }
     }
+
+    public static class funCall extends Expression {
+        public Token functionName;
+
+        public funCall(String functionName) {
+            this.functionName = new Token(functionName, TokenType.TK_IDENTIFIER);
+        }
+
+        public <T> T accept(IVisitor visitor) {
+            return (T) visitor.visitfunCall(this);
+        }
+    }
 }

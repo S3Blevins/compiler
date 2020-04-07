@@ -45,4 +45,6 @@ public interface IVisitor<T> {
     T visitProgram(Program program);
 
     T visitBoolean(Expression.Boolean bool);
+
+    T visitfunCall(Expression.funCall call);
 }

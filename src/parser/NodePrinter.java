@@ -202,10 +202,18 @@ public class NodePrinter implements IVisitor {
     }
 
     @Override
-    public Object visitBoolean(Expression.Boolean bool) {
+    public Void visitBoolean(Expression.Boolean bool) {
         tree.append("Expression[Boolean] <" + bool.bool.str + ">\n");
 
         iterator(bool);
+
+        return null;
+    }
+
+    public Void visitfunCall(Expression.funCall call) {
+        tree.append("Expression[funCall] <" + call.functionName.str + ">\n");
+
+        iterator(call);
 
         return null;
     }

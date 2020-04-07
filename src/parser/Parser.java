@@ -109,9 +109,22 @@ public class Parser {
                     return new Expression.Group(expr);
                 }
             }, new ParseRule.Led() {
-            Expression exec(Expression left) {
-                return null;
-            }
+                Expression exec(Expression left) {
+                    Parser parser = Parser.Instance();
+
+                    Expression.Identifier expr = (Expression.Identifier) left;
+
+                    Expression functionCall = new Expression.funCall(expr.value.str);
+
+                    while(parser.previous.tokenType != TokenType.TK_RPAREN) {
+                        // consume the argument and add it to the functionCall node as children
+                        functionCall.addChild(ParsePrecedence(Precedence.PRIMARY));
+                        // consume either the comma or the right parenthesis
+                        parser.previous = parser.tokens.remove(0);
+                    }
+
+                    return functionCall;
+                }
         }, Precedence.CALL));
 
         rules.put(TokenType.TK_RPAREN, new ParseRule(
@@ -120,7 +133,7 @@ public class Parser {
                     return null;
                 }
             }, new ParseRule.Led() {
-            Expression exec(Expression left) {
+                Expression exec(Expression left) {
                 return null;
             }
         }, Precedence.NONE));
@@ -382,9 +395,9 @@ public class Parser {
                     return parser.Number();
                 }
             }, new ParseRule.Led() {
-            Expression exec(Expression left) {
-                return null;
-            }
+                Expression exec(Expression left) {
+                    return null;
+                }
         }, Precedence.PRIMARY));
 
         rules.put(TokenType.TK_BOOL, new ParseRule(
@@ -394,21 +407,21 @@ public class Parser {
                         return parser.Boolean();
                     }
                 }, new ParseRule.Led() {
-            Expression exec(Expression left) {
-                return null;
-            }
+                    Expression exec(Expression left) {
+                        return null;
+                }
         }, Precedence.PRIMARY));
 
         rules.put(TokenType.TK_IDENTIFIER, new ParseRule(
             new ParseRule.Nud() {
                 Expression exec() {
                     Parser parser = Parser.Instance();
-                    return parser.Identifier();
+                        return parser.Identifier();
                 }
             }, new ParseRule.Led() {
-            Expression exec(Expression left) {
-                return null;
-            }
+                Expression exec(Expression left) {
+                    return null;
+                }
         }, Precedence.PRIMARY));
 
         rules.put(TokenType.TK_KEYWORDS, new ParseRule(
@@ -424,7 +437,6 @@ public class Parser {
     }
 
     Expression.Identifier Identifier() {
-
         return new Expression.Identifier(previous.str);
     }
 

@@ -83,6 +83,10 @@ public class IRBuilder implements IVisitor<Token> {
                 return dest;
         }
 
+        public Token visitfunCall(Expression.funCall call) {
+                return null;
+        }
+
         @Override
         public Token visitTernary(Expression.Ternary ternary) {
                 // ternary is a container for other expression

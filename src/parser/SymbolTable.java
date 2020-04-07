@@ -70,7 +70,7 @@ public class SymbolTable {
 
     // prints symbol table with some printf magic
     public void printTable(int scope) {
-        String indent = ":\t".repeat(scope);
+        String indent = ":   ".repeat(scope);
 
         // table header line
         System.out.printf("%s+------------------------------------+\n", indent);
@@ -102,7 +102,7 @@ public class SymbolTable {
 
     // prints symbol table to a file without some printf magic
     public void printTableFile(int scope, PrintWriter pw) {
-        String indent = ":\t".repeat(scope);
+        String indent = ":   ".repeat(scope);
 
         // table header line
         pw.printf("%s+------------------------------------+\n", indent);
