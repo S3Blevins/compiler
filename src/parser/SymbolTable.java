@@ -10,11 +10,14 @@ import java.util.Map;
 //TODO add new scope levels for if else and for loops(done in parser.java)
 
 public class SymbolTable {
-    //Create a new HasMap <ID, Type>
+    //Create a new HashMap <ID, Type>
     HashMap<String, String> ST;
 
     //Creates a new array of hash maps
     ArrayList<SymbolTable> children;
+
+    // Keep track of functions
+    public Map<String, Token> funTracker;
 
     public SymbolTable() {
         this.ST = new HashMap<String, String>();
@@ -50,6 +53,19 @@ public class SymbolTable {
         }
 
         this.ST.put(ID.str, type.str);
+    }
+
+    public void addFun(Token function) {
+        if (funTracker == null) {
+            funTracker = new HashMap<>();
+        }
+
+        if (funTracker.containsKey(function.str)) {
+            System.err.println("Function " + function.str + " has already been declared on line " + function.lineNumber + ".");
+            System.exit(1);
+        }
+
+        this.funTracker.put(function.str, function);
     }
 
     //checks the size of a child table
