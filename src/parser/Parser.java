@@ -271,12 +271,77 @@ public class Parser {
 
         }, Precedence.ASSIGNMENT));
 
+        rules.put(TokenType.TK_STAREQ, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        return null;
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                Parser parser = Parser.Instance();
+                return parser.Binary(left);
+            }
+
+        }, Precedence.ASSIGNMENT));
+
+        rules.put(TokenType.TK_MINUSEQ, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        return null;
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                Parser parser = Parser.Instance();
+                return parser.Binary(left);
+            }
+
+        }, Precedence.ASSIGNMENT));
+
+        rules.put(TokenType.TK_PLUSEQ, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        return null;
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                Parser parser = Parser.Instance();
+                return parser.Binary(left);
+            }
+
+        }, Precedence.ASSIGNMENT));
+
+        rules.put(TokenType.TK_SLASHEQ, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        return null;
+                    }
+                }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                Parser parser = Parser.Instance();
+                return parser.Binary(left);
+            }
+
+        }, Precedence.ASSIGNMENT));
+
         rules.put(TokenType.TK_EQEQUAL, new ParseRule(
             new ParseRule.Nud() {
                 Expression exec() {
                     return null;
                 }
             }, new ParseRule.Led() {
+            Expression exec(Expression left) {
+                Parser parser = Parser.Instance();
+                return parser.Binary(left);
+            }
+
+        }, Precedence.EQUALITY));
+
+        rules.put(TokenType.TK_NEQUAL, new ParseRule(
+                new ParseRule.Nud() {
+                    Expression exec() {
+                        return null;
+                    }
+                }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
                 return parser.Binary(left);
@@ -977,7 +1042,7 @@ public class Parser {
     public Declaration.varDeclaration varDecInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
 
         // Used for regular var init
-        if (tokens.get(0).tokenType == TokenType.TK_IDENTIFIER) {
+        if (tokens.get(1).tokenType == TokenType.TK_EQUALS) {
             tokens.remove(0); // remove ID
             tokens.remove(0); // remove '='
 

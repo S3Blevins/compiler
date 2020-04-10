@@ -49,8 +49,11 @@ public class IRBuilder implements IVisitor<Token> {
 
                 Token expr = unary.getExpr().accept(this);
                 Instruction unInstr = unary.op.tokenType.getInstruction();
-
-                IRs.addExpr(new IRExpression(unInstr, expr));
+                if(unary.op.tokenType == TokenType.TK_MINUS) {
+                        IRs.addExpr(new IRExpression(unInstr, expr, IRs.getLabelName()));
+                } else {
+                        IRs.addExpr(new IRExpression(unInstr, expr));
+                }
 
                 return IRs.getLastLabel();
         }
@@ -68,9 +71,9 @@ public class IRBuilder implements IVisitor<Token> {
                 // if no destination, it is placed into right side's expression
                 if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
                         binOp == TokenType.TK_SLASHEQ || binOp == TokenType.TK_EQUALS) {
-                        dest = null;
+                        dest = left;
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||
-                        binOp == TokenType.TK_GREATEREQ || binOp == TokenType.TK_EQEQUAL) {
+                        binOp == TokenType.TK_GREATEREQ || binOp == TokenType.TK_EQEQUAL || binOp == TokenType.TK_NEQUAL) {
                         dest = IRs.getLastBlockLabel();
 
                         if(dest == null)

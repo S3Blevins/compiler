@@ -46,6 +46,7 @@ public class Lexer {
         patterns.put(Pattern.compile("^\\*"), TokenType.TK_STAR);
         patterns.put(Pattern.compile("^/"), TokenType.TK_SLASH);
         patterns.put(Pattern.compile("^[=]"), TokenType.TK_EQUALS);
+        patterns.put(Pattern.compile("^!="), TokenType.TK_NEQUAL);
         patterns.put(Pattern.compile("^;"), TokenType.TK_SEMICOLON);
         patterns.put(Pattern.compile("^:"), TokenType.TK_COLON);
         patterns.put(Pattern.compile("^\\?"), TokenType.TK_QMARK);

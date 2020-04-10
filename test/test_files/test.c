@@ -63,6 +63,14 @@ int main(int a, int b, int y) {
     (1 + 2 - -3 / 6);
     x = 3;
 
+    if(a != b) {
+        a *= b;
+        b /= a;
+        b -= a;
+        a += b;
+    }
+
+
     for(int i; i < y; i++) {
         int h = 9;
         (a > h);
