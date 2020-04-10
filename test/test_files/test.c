@@ -27,7 +27,7 @@ int conditionals(int x, int y) {
         return 1;
     } else if(y < 4) {
         if(j < 9) {
-            7++;
+            j++;
         }
         return 7;
     } else {

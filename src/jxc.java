@@ -92,6 +92,12 @@ public class jxc {
             // Else, parse the input file.
             try {
                 file = new File(line.getOptionValue("r"));
+
+                if(!file.exists()) {
+                    System.err.println("ERROR: file '" + file + "' does not exist!");
+                    exit(1);
+                }
+
                 Scanner in = new Scanner(file);
 
                 while (in.hasNextLine()) {
@@ -158,6 +164,12 @@ public class jxc {
         } else if (line.hasOption("f")) {
             try {
                 file = new File(line.getOptionValue("f"));
+
+                if(!file.exists()) {
+                    System.err.println("ERROR: file '" + file + "' does not exist!");
+                    exit(1);
+                }
+
                 Scanner readScanner = new Scanner(file);
                 ArrayList<String> fileLines = new ArrayList<String>();
 

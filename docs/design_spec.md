@@ -26,6 +26,8 @@ We decided that the parser, designed with a top-down recursive approach made pra
 
 Utilizing the Pratt Parsing approach, we provide the a precedence to tokens when processing an expression. A `Left Denotative` and `Null Denotative` consideration is given to each relevant token, handling through delegate classes through Java anonymous functions (no function pointers here) for handling the processing.
 
+See [here](https://books.google.com/books?id=gJrmszNHQV4C&lpg=PA134&ots=rNW-wxV7lg&dq=null%20denotative%20vs%20left%20denotative&pg=PA134#v=onepage&q=null%20denotative%20vs%20left%20denotative&f=false) for more information on the Pratt Parser structure.
+
 The parser uses a visitor pattern for printing by allowing us to traverse the parse tree generically. This visitor pattern is again utilized in the IRBuilder classes for Assignment 2.
 
 See below for functionality and limitations.
@@ -41,33 +43,44 @@ A more in-depth explanation of the implementation of the intermediate representa
 The symbol table involves a set of hash-maps with the unique variable name as a key, and the respective variable type serving as the value. The structure is built as a wrapper class with "pointers" to lower scoped symbol tables. With each block statement (encompassed in braces `{` and `}`), a new table is created as a child of the outer block's symbol table.
 
 The symbol table logic includes functions that add a new table, add a new key/value pair to the current table, retrieve the size of one of the tables, error checks to make sure already declared variables in outer scopes are not re-declared in inner scopes.
+
 ### Stage 3: IR Generation
-    Instruction.java
-The compiler holds an enumerated class that keeps track of instructions that are x86 compliant. This is utilized when building an IR object (the first parameter of the IR object). The instructions supported can be seen [here.](language_spec.md#intermediate-representation-instructions)
 
-    IRList.java
-IRList behaves as a wrapper class that keeps track of every IR object created in addition to generating new labels when necessary. It keeps track of an ArrayList which represents our IR in a linear fashion which will be also help optimize the IRList in the next stage.
+The compiler holds an enumerated class that keeps track of instructions that are x86 compliant. This is utilized when building an IR object (the first parameter of the IR object).
 
-    IRExpression.java
-IRExpression serves as the basis for our IR object creation. The object can consist up to four parameters `INSTRUCTION`, `SOURCE1`, `SOURCE2`, `DESTINATION`. The different structures can be created as:
+IR Expressions serve as the basis for our IR object creation. Most IR expressions can consist up to four parameters `INSTRUCTION`, `SOURCE1`, `SOURCE2`, `DESTINATION`, with the exception of the `CALL` instruction which can support up to 8 (our own restriction) source value for parameters. The different IR expressions can be represented in the following format:
 
-`(INSTRUCTION SOURCE1, SOURCE2, DESTINATION)`
+```
+(INSTRUCTION SOURCE1, SOURCE2, DESTINATION)
 
-`(INSTRUCTION SOURCE1, DESTINATION)`
+(INSTRUCTION SOURCE1, DESTINATION)
 
-`(INSTRUCTION DESTINATION)`
+(INSTRUCTION DESTINATION)
 
-`(INSTRUCTION)`
+(INSTRUCTION)
+```
 
-Below is an example of how the code is converted to an intermediate representation. The IR is almost assembly like in form.
+The instructions supported can be seen [here.](language_spec.md#intermediate-representation-instructions)
+
+The IR expressions are made using the IRBuilder class, which utilizes the visitor pattern to traverse the parse tree in a similar fashion to how the parse tree is printed. Each node type has an associated method which creates an IR expression from the IR expression class and then adds it to the linear IR expression list (described below). Most expression nodes return the temporary variable of where the expression previously had been evaluated into.
+
+The IRList class behaves as a wrapper class that keeps track of every IR expression object created in addition to generating new labels when necessary. It keeps track of an ArrayList which represents our IR in a linear fashion which will be also help optimize the IRList in the next stage.
+
+Below is an example of some nonsensical code with our equivalent intermediate representation. The IR is almost assembly like in form.
 
 ![](doc_images/ir_code.png)
 
-    IRBuilder.java
-The IRBuilder class utilizes the visitor pattern to traverse the parse tree in a similar fashion to how the parse tree is printed. Each node type has an associated method which creates an IR expression from the IR expression class and then adds it to the linear IR expression list. Most expression nodes return the temporary variable of where the expression previously had been evaluated into.
-
-
 # Functionality and Limitations
-The compiler is insofar built to only read in a file, and provide a list of tokens, and a basic modified parse tree to the user. All of the required `C-` functions are not fully implemented, though most of them are capable of being recognized as tokens such as keywords, and symbols.
+The compiler is built read in a `c` file, and an IR file containing a series of IR expressions ready to be converted to assembly in the next assignment.
 
-We can support variable declarations (not definitions/initializations), while loops, if, if-else, and return statements and that is about it.
+Currently our compiler allows for the print out (to console) and write out (to file) of the tokens list, parse tree, symbol table, and IR expression list.
+
+Some restrictions we place on the `C-code` compiled by our program:
+* Function calls are limited to 8 parameters
+* Function prototypes are **NOT** unsupported
+* The only supported type is `int`, and pointers are not supported
+* Braces are required for all blocks (even one line blocks)
+* Imports and macros are **NOT** supported.
+* switch statements, and binary operators are **NOT** supported
+
+Although somewhat limited, our compiler should meet most of the required specifications, albeit with the occasional hiccup.

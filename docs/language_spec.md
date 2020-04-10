@@ -40,7 +40,7 @@ switch-statements | **NO** | *N/A* | *N/A* | *N/A*
 type-declarations (Enumerations) | **YES** | **complete** | **complete** | *pending*
 
 # Supported Tokens
-Below is a table containing tokens supported by the lexer/scanner component of the compiler. Although a token may be supported this ***DOES NOT*** mean that we will full support or implement the C- language feature associated with that token. We reserve the right to remove or ignore support for tokens at our discretion although within the bounds of the assignment requirement.
+Below is a table containing tokens supported by the lexer/scanner component of the compiler. Although a token may be supported this ***DOES NOT*** mean that we will full support or implement the `C- language` feature associated with that token. We reserve the right to remove or ignore support for tokens at our discretion although within the bounds of the assignment requirement.
 
 *ID*  | *Token*
 --- | :---:
@@ -49,6 +49,9 @@ Below is a table containing tokens supported by the lexer/scanner component of t
 **TK_STAREQ** | *=
 **TK_SLASHEQ** | /=
 **TK_EQEQUAL** | ==
+**TK_NEQUAL** | !=
+**TK_PPLUS** | ++
+**TK_MMINUS**| --
 **TK_RPAREN** | )
 **TK_LPAREN** | (
 **TK_RBRACE** | }
@@ -75,12 +78,15 @@ Below is a table containing tokens supported by the lexer/scanner component of t
 **TK_GREATER** | >
 **TK_LESSEQ** |<=
 **TK_GREATEREQ** | >=
+**TK_LOGOR** | \|\|
+**TK_LOGAND** | &&
+**TK_BOOL** | true, false
 
 ##### Comment Support:
 Comments are supported in both their multi-line `/*...*/` and single line `//...` implementation.
 
-# Compiler Grammar <sup>*(as of 2/16/2020)*</sup>
-Our grammar is classed into production rule categories. The production rules located here are a reflection of what we deem to be implemented, but are **NOT** finalized <sup>*(yet)*</sup>.
+# Compiler Grammar
+Our grammar is classed into production rule categories. The production rules located here are a reflection of what we deem to be implemented.
 
 **BOLD** terms are terminal/tokens.
 
@@ -90,6 +96,8 @@ Our grammar is classed into production rule categories. The production rules loc
 >declarationList &rightarrow; declarationList | declaration
 
 >declaration &rightarrow; varDeclaration | funDeclaration
+
+>enum &rightarrow; **ID**, enum | **ID** = constant, enum | **ε**
 
 ---
 
@@ -101,13 +109,13 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >scopedVarDeclaration &rightarrow; typeSpecifier varDecList
 
->varDecList &rightarrow; varDecList **,** varDecId | varDecId
+>varDecList &rightarrow; varDecList **,** varDecID | varDecID
 
->varDecInit &rightarrow; varDecId | varDecId **=** expression
+>varDecInit &rightarrow; varDecID | varDecID **=** expression
 
->varDecId &rightarrow; **ID**
+>varDecID &rightarrow; **ID**
 
->typeSpecifier &rightarrow; **int** | **bool** | **char**
+>typeSpecifier &rightarrow; **int**
 
 #### funDeclaration
 
@@ -117,11 +125,11 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >paramList &rightarrow; paramlist **;** paramTypeList | paramTypeList
 
->paramTypeList &rightarrow; typeSpecifier paramIdList
+>paramTypeList &rightarrow; typeSpecifier paramIDList
 
->paramIdList &rightarrow; paramIdList **,** paramId | paramId
+>paramIDList &rightarrow; paramIDList **,** paramID | paramID
 
->paramId &rightarrow; **ID** | **ID** [constant]
+>paramID &rightarrow; **ID**
 
 ---
 ### Statement
@@ -151,11 +159,11 @@ Our grammar is classed into production rule categories. The production rules loc
 
 >BinExpression &rightarrow; expression binOp expression
 
->binOp &rightarrow; <b> + | - | * | / | % </b>
+>binOp &rightarrow; <b> + | - | * | / | = | == | += | -= | *= | /=  </b>
 
 >unaryExpression &rightarrow; unaryop expression
 
->unaryOp &rightarrow; **- | * | ?**
+>unaryOp &rightarrow; **- | * | ? | ++ | --**
 
 >call &rightarrow; **ID** ( args )
 
@@ -166,28 +174,31 @@ Our grammar is classed into production rule categories. The production rules loc
 >constant &rightarrow; **NUMCONST**
 
 # Intermediate Representation Instructions
-| Instruction | Meaning |
-|:----------:|:----------|
-|**ADD**|Add two values and store into a variable|
-|**SUB**|Subtract two values and store into a variable|
-|**MUL**|Multiple two values and store into a variable|
-|**DIV**|Divide two values and store into a variable|
-|**ASSIGN**|Assign a value into a variable|
-|**LABEL**|Create a label for jumping|
-|**JMP**|Jump to label operation|
-|**RET**|Return the final value specified|
-|**CALL**|Call a function|
-|**NOP**|No operation|
-|**LOAD**|Load a variable or parameter|
-|**BREAK**|Break out of loop|
-|**INC**|Increment a value by one|
-|**DEC**|Decrement a value by one|
-|**NOT**|Logical `NOT` a variable|
-|**AND**|Logical `AND` a variable|
-|**OR**|Logical `OR` a variable|
-|**EQUAL**|Evaluate two values if equivalent and jump to label|
-|**GREQ**|Evaluate a greater-than-equal-to condition and jump to label|
-|**LSEQ**|Evaluate a less-than-equal-to condition and jump to label|
-|**GRTR**|Evaluate a greater-than condition and jump to label|
-|**LESS**|Evaluate a less-than condition and jump to label|
-|**EVAL**|Evaluate to boolean values and jump to label|
+
+For example sources, ie. `SRCN`, the `N` denotes the number position of the source value. If the instruction can have variable number of sources, the `SRC[N]` denotes an optional number of sources, where `N` denotes the number of option sources (zero to `N`).
+
+| Instruction | Meaning | Example
+|:---:|:---|:---|
+|**ADD**|Add two values and store into a variable| `ADD SRC1, SRC2, DEST`
+|**SUB**|Subtract two values and store| `SUB SRC1, SRC[1], DEST`
+|**MUL**|Multiple two values and store| `MUL SRC1, SRC2, DEST`
+|**DIV**|Divide two values and store| `DIV SRC1, SRC2, DEST`
+|**ASSIGN**|Assign a value into a variable| `ASSIGN SRC1, DEST`
+|**LABEL**|Create a label for jumping| `LABEL DEST`
+|**JMP**|Jump to label operation| `JMP DEST`
+|**RET**|Return the final value specified| `RET dest`
+|**CALL**|Call a function| `CALL func SRC[8], DEST`
+|**NOP**|No operation| `NOP`
+|**LOAD**|Load a variable or parameter| `LOAD SRC1`
+|**BREAK**|Break out of loop| `BREAK`
+|**INC**|Increment a value by one| `INC SRC1`
+|**DEC**|Decrement a value by one| `DEC SRC1`
+|**NOT**|Logical `NOT` a variable| `NOT SRC1`
+|**AND**|Logical `AND` a variable| `AND SRC1, SRC2, DEST`
+|**OR**|Logical `OR` a variable| `OR SRC1, SRC2, DEST`
+|**EQUAL**|Check equivalent cond. and jump to label| `EQUAL SRC1, SRC2, DEST`
+|**GREQ**|Check a grtr-than-equal and jump to label| `GREQ SRC1, SRC2, DEST`
+|**LSEQ**|Check a less-than-equal cond. and jump to label| `LSEQ SRC1, SRC2, DEST`
+|**GRTR**|Check a grtr-than cond. and jump to label| `GRTR SRC1, SRC2, DEST`
+|**LESS**|Check a less-than cond. and jump to label| `LESS SRC1, SRC2, DEST`
+|**EVAL**|Check to boolean values and jump to label| `EVAL SRC1, SRC2, DEST`
