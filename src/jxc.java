@@ -192,7 +192,8 @@ public class jxc {
             formatter.printHelp("ant", commandArgs);
         }
 
-        //token options
+        /** TOKEN ARGUMENTS **/
+
         if (line.hasOption("t")) {
             //displays tokens to command line
             System.out.println(str);
@@ -202,8 +203,6 @@ public class jxc {
                 System.out.print(token.str + " ");
             System.out.println();
         }
-
-        /** TOKEN ARGUMENTS **/
 
         if (line.hasOption("to")) {
             //displays token to command line and outputs to a file
@@ -268,22 +267,31 @@ public class jxc {
         //displays symbol table to the commandline.
         if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
-            Parser.Instance().printTable();
+            System.out.println(Parser.Instance().getTable());
         }
 
         //prints symbol table to output file
         if(line.hasOption("so")){
-            if(line.getOptionValue("so") == null){
-                Parser.Instance().printTableFile("symbol_table_out.txt");
-            }else{
-                Parser.Instance().printTableFile(line.getOptionValue("so"));
+            String fileName = "jxc_symbol_table.txt";
+
+            if(line.getOptionValue("so") != null){
+                fileName = line.getOptionValue("so");
+            }
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+
+                writer.write(Parser.Instance().getTable());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
+        /** IR BUILDER ARGUMENTS **/
+
         IRBuilder irBuilder = new IRBuilder();
         root.accept(irBuilder);
-
-        /** IR BUILDER ARGUMENTS **/
 
         if (line.hasOption("i")) {
             System.out.println("\nIntermediate Representation");

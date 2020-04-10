@@ -1,45 +1,70 @@
 package parser;
 
 import lexer.Token;
+import lexer.TokenType;
 import parser.treeObjects.Declaration;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 //TODO add new scope levels for if else and for loops(done in parser.java)
 
 public class SymbolTable {
-    //Create a new HashMap <ID, Type>
-    HashMap<String, String> ST;
+    //Create a stack of HashMaps <ID, Type>
+    Stack<HashMap<String, String>>symbolStack;
 
-    //Creates a new array of hash maps
-    ArrayList<SymbolTable> children;
+    // symbol table record for printing
+    StringBuilder symbolString;
+    Formatter stringFormat;
 
-    // Keep track of functions
-    public Map<String, Token> funTracker;
+    boolean parentFlag = false;
 
     public SymbolTable() {
-        this.ST = new HashMap<String, String>();
+        symbolStack = new Stack<>();
+        symbolString = new StringBuilder();
+        stringFormat = new Formatter(symbolString);
     }
 
-    //create a new hash map
-    public void addChildTable(SymbolTable child) {
-        if (this.children == null) {
-            this.children = new ArrayList<>();
+    public void addSymbolTable() {
+        symbolStack.push(new HashMap<>());
+    }
+
+    public void addSymbolTable(boolean flag) {
+        parentFlag = flag;
+        symbolStack.push(new HashMap<>());
+    }
+
+    public void removeSymbolTable() {
+        if(!symbolStack.empty()) {
+            tablePrinter();
+            symbolStack.pop();
         }
-        this.children.add(child);
+    }
+
+    public void checkExistence(Token ID) {
+        // iterate through parent scopes
+        for(HashMap map: symbolStack) {
+            if (map.containsKey(ID.str)) {
+                return;
+            }
+        }
+
+        System.err.println("ERROR: '" + ID.str + "' is undefined on line " + ID.lineNumber + ".");
+        System.exit(1);
     }
 
     //add a new element to current hash map
     public void addSymbol(Token type, Token ID) {
-
-        if (ST.containsKey(ID.str)) {
-            System.err.println("This variable already exists : " + ID.tokError());
-            System.exit(1);
+        // iterate through parent scopes
+        for(HashMap map: symbolStack) {
+            if (map.containsKey(ID.str)) {
+                // if a match is found, check to see if the type is the same (function or int) and if it is, error and exit
+                if(type.str.equals(map.get(ID.str))) {
+                    System.err.println("ERROR: The declaration of '" + type.str + " " + ID.str + "' has already been declared on line " + ID.lineNumber + "." );
+                    System.exit(1);
+                }
+            }
         }
 
-        this.ST.put(ID.str, type.str);
+        this.symbolStack.peek().put(ID.str, type.str);
     }
 
     public void addSymbol(Declaration.varDeclaration varDec) {
@@ -47,104 +72,48 @@ public class SymbolTable {
 
         Token type = var.getType();
         Token ID = var.getVariableID();
-        if (ST.containsKey(ID.str)) {
-            System.err.println("This variable already exists : " + ID.tokError());
-            System.exit(1);
-        }
-
-        this.ST.put(ID.str, type.str);
+        addSymbol(type, ID);
     }
+
 
     public void addFun(Token function) {
-        if (funTracker == null) {
-            funTracker = new HashMap<>();
-        }
-
-        if (funTracker.containsKey(function.str)) {
-            System.err.println("Function " + function.str + " has already been declared on line " + function.lineNumber + ".");
-            System.exit(1);
-        }
-
-        this.funTracker.put(function.str, function);
+        addSymbol(new Token("function", TokenType.TK_IDENTIFIER), function);
     }
 
-    //checks the size of a child table
-    public int childTableSize() {
-        if (this.children == null) {
-            return 0;
+    public boolean isParent() {
+        if(parentFlag) {
+            parentFlag = false;
+            return true;
         }
-        return this.children.size();
-    }
-
-    //Checks if a table has a child table or not
-    public boolean hasTableChildren() {
-        if (this.children == null) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     // prints symbol table with some printf magic
-    public void printTable(int scope) {
+    public void tablePrinter() {
+        int scope = symbolStack.size() - 1;
         String indent = ":   ".repeat(scope);
 
+        // don't build on string if scope is empty
+        if(symbolStack.peek().isEmpty()) {
+            return;
+        }
+
         // table header line
-        System.out.printf("%s+------------------------------------+\n", indent);
+        stringFormat.format("%s+------------------------------------+\n", indent);
 
         // name the scope
         if (scope == 0) {
-            System.out.printf("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
+            stringFormat.format("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
         } else {
-            System.out.printf("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope - 1), ": ->", scope, "|\n");
+            stringFormat.format("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope - 1), ": ->", scope, "|\n");
         }
 
         // print out the type and associated variable
-        for (Map.Entry<String, String> set : this.ST.entrySet()) {
-            System.out.printf("%s| %4s | %-22s %6s\n", indent, set.getValue(), set.getKey(), "|");
+        for (Map.Entry<String, String> set : symbolStack.peek().entrySet()) {
+            stringFormat.format("%s| %8s | %-22s %2s\n", indent, set.getValue(), set.getKey(), "|");
         }
 
-        // indicate the number of children, and print out the table formatting
-        if (this.hasTableChildren()) {
-            System.out.printf("%s|------------------------------------|\n", indent);
-            System.out.printf("%s| This table has %s inner scope(s) %5s", indent, this.children.size(), "|\n");
-            System.out.printf("%s+------------------------------------+\n", indent);
-            for (int i = 0; i < this.children.size(); i++) {
-                this.children.get(i).printTable(scope + 1);
-            }
-        } else {
-            System.out.printf("%s+------------------------------------+\n", indent);
-        }
-    }
+        stringFormat.format("%s+------------------------------------+\n", indent);
 
-    // prints symbol table to a file without some printf magic
-    public void printTableFile(int scope, PrintWriter pw) {
-        String indent = ":   ".repeat(scope);
-
-        // table header line
-        pw.printf("%s+------------------------------------+\n", indent);
-
-        // name the scope
-        if (scope == 0) {
-            pw.printf("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
-        } else {
-            pw.printf("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope - 1), ": ->", scope, "|\n");
-        }
-
-        // print out the type and associated variable
-        for (Map.Entry<String, String> set : this.ST.entrySet()) {
-            pw.printf("%s| %4s | %-22s %6s\n", indent, set.getValue(), set.getKey(), "|");
-        }
-
-        // indicate the number of children, and print out the table formatting
-        if (this.hasTableChildren()) {
-            pw.printf("%s|------------------------------------|\n", indent);
-            pw.printf("%s| This table has %s inner scope(s) %5s", indent, this.children.size(), "|\n");
-            pw.printf("%s+------------------------------------+\n", indent);
-            for (int i = 0; i < this.children.size(); i++) {
-                this.children.get(i).printTableFile(scope + 1, pw);
-            }
-        } else {
-            pw.printf("%s+------------------------------------+\n", indent);
-        }
     }
 }
