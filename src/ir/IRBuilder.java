@@ -6,7 +6,7 @@ import lexer.TokenType;
 import parser.Node;
 import parser.treeObjects.*;
 
-import static java.lang.System.exit;
+import java.util.ArrayList;
 
 /**
  * This class handles all of the routines and details of
@@ -72,6 +72,10 @@ public class IRBuilder implements IVisitor<Token> {
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||
                         binOp == TokenType.TK_GREATEREQ || binOp == TokenType.TK_EQEQUAL) {
                         dest = IRs.getLastBlockLabel();
+
+                        if(dest == null)
+                                dest = IRs.getLabelName();
+
                         // stateFlag turns off so that any evaluations which don't return do not contain a label
                         IRs.stateFlag = 0;
                 } else {
@@ -84,7 +88,20 @@ public class IRBuilder implements IVisitor<Token> {
         }
 
         public Token visitfunCall(Expression.funCall call) {
-                return null;
+                Token functionCallLabel = IRs.getLabelName();
+
+                ArrayList<Token> arguments = new ArrayList<>();
+                arguments.add(call.functionName);
+
+                if(call.hasChildren()) {
+                        for (int i = 0; i < call.children.size(); i++) {
+                                arguments.add(call.children.get(i).accept(this));
+                        }
+                }
+
+                IRs.addExpr(new IRExpression(Instruction.CALL, functionCallLabel, arguments));
+
+                return functionCallLabel;
         }
 
         @Override
@@ -106,8 +123,6 @@ public class IRBuilder implements IVisitor<Token> {
 
                 // if just a number/boolean, nothing happens
                 ternary.children.get(2).accept(this);
-
-
 
                 return null;
         }

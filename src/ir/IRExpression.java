@@ -3,6 +3,7 @@ package ir;
 import lexer.Token;
 import lexer.TokenType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,36 +13,42 @@ import java.util.List;
  */
 public class IRExpression {
     public Instruction inst;
-    public Token source1;
-    public Token source2;
+    public ArrayList<Token> sources = null;
     public Token dest;
 
     public IRExpression(Instruction instruction, Token src1, Token src2, Token dest) {
         this.inst = instruction;
-        this.source1 = src1;
-        this.source2 = src2;
         this.dest = dest;
+
+        this.sources = new ArrayList<>();
+        sources.add(src1);
+        sources.add(src2);
     }
 
     public IRExpression(Instruction inst, Token src1, Token dest) {
         this.inst = inst;
-        source1 = src1;
         this.dest = dest;
-        source2 = null;
+
+        this.sources = new ArrayList<>();
+        sources.add(src1);
+    }
+
+    public IRExpression(Instruction inst, Token dest, ArrayList<Token> sources) {
+        this.inst = inst;
+        this.dest = dest;
+
+        this.sources = sources;
     }
 
     public IRExpression(Instruction inst, Token dest) {
         this.inst = inst;
         this.dest = dest;
-        source1 = null;
-        source2 = null;
+
     }
 
     public IRExpression(Instruction inst) {
         this.inst = inst;
         this.dest = null;
-        source1 = null;
-        source2 = null;
     }
 
     public IRExpression(String inst) {
@@ -58,8 +65,6 @@ public class IRExpression {
         }
 
         this.dest = null;
-        source1 = null;
-        source2 = null;
     }
 
     public StringBuilder printInstruction() {
@@ -72,14 +77,20 @@ public class IRExpression {
 
         irString.append("(" + inst);
 
-        if(source1 != null)
-            irString.append(" " + source1.str);
+        if(sources != null) {
+            if(sources.get(0) != null) {
+                irString.append(" " + sources.get(0).str);
+            }
 
-        if(source2 != null)
-            irString.append(", " + source2.str);
+            for (int i = 1; i < sources.size(); i++) {
+                if (sources.get(i) != null) {
+                    irString.append(", " + sources.get(i).str);
+                }
+            }
+        }
 
         if(dest != null) {
-            if (source1 != null || source2 != null) {
+            if(sources != null) {
                 irString.append(",");
             }
 
