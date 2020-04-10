@@ -151,7 +151,7 @@ public class Lexer {
 
                     if (m.find()) {
                         // if sequence found, add to list of tokens, and shorten the string again
-                        Token tk = new Token(lineNumber);
+                        Token tk = new Token(lineNumber + 1);
                         tk.tokenType = e.getValue();
 
                         /*
@@ -200,7 +200,7 @@ public class Lexer {
                         System.err.println("error: unrecognized token! -- > " + line);
                         System.out.println("'lexer.Token' at position " +
                             (originalLine.indexOf(line.charAt(0)) + 1) +
-                            " on line " + (lineNumber + 1));
+                            " on line " + (lineNumber - 1));
                         exit(0);
                     }
                 }
