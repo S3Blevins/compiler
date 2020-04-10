@@ -21,6 +21,8 @@ int foo(int p) {
 
 int conditionals(int x, int y) {
 
+    int j = 2;
+
     if(x < 3) {
         return 1;
     } else if(y < 4) {
@@ -31,36 +33,27 @@ int conditionals(int x, int y) {
     } else {
         return 9;
     }
-
-    if(x < 3) {
-       return 1;
-    } else if(y < 4) {
-        (9<5);
-       return 7;
-    }
-
-    if(x < 3) {
-       return 1;
-    }
-
-    if(x < 3) {
-       return 1;
-    } else {
-       return 7;
-    }
-
 }
 
-int main(int a, int b) {
+int main(int a, int b, int y) {
 
-    int test = 8 + (9 - 2 + 6);
+    //int test = 8 + (9 - 2 + 6);
 
-    int zdfjhsaldkfjhsdlkafhj;
+    //int zdfjhsaldkfjhsdlkafhj;
+
+    //function(7, 6);
+
+    int sum;
+
+    sum = foo(8, 9, 8, 89, 7, 0, 5, 5);
 
     a = (b * 3) - 2 + 10;
     a++;
 
     label:
+
+    int x = 1;
+    x = ++x;
 
     x ? 1 : 0;
     !x;
@@ -68,31 +61,31 @@ int main(int a, int b) {
     x++ + y;
     // expression testing
     (1 + 2 - -3 / 6);
-    i = 3;
+    x = 3;
 
-    for(int i; j < u; i++) {
-        h = 9;
-        (k>h);
+    for(int i; i < y; i++) {
+        int h = 9;
+        (a > h);
 
-        for(int p; k<8; e++) {
-            f++;
+        for(int p = 1; p < 8; p++) {
+            p++;
         }
     }
 
-    for(; k <= 7; --i) {
+    for(; a <= 7; a--) {
         y = 8;
     }
 
     for(int r; ; r--) {
-        p = 34;
+        r = 34;
     }
 
-    for(int t = 8; k > 9;) {
-        p = 34;
+    for(int t = 8; t > 9;) {
+        t = 34;
     }
 
-    for(;k > j;) {
-        w = 55;
+    for(;a > b;) {
+        b = 55;
     }
 
     for(;;) {
@@ -140,7 +133,7 @@ int main(int a, int b) {
     return 1;
 }
 
-int foo() {
+int foobar() {
 
 	int p;
 	return 0;

@@ -15,7 +15,7 @@ public class Parser {
     private Token previous;
     private ArrayList<Token> tokens;
     private HashMap<TokenType, ParseRule> rules;
-    private SymbolTable table;
+    private SymbolTable symbolTable = new SymbolTable();
     private Token enumVal = new Token("0", TokenType.TK_NUMBER); // This is used to increment enum variables.
 
     /*
@@ -437,6 +437,8 @@ public class Parser {
     }
 
     Expression.Identifier Identifier() {
+        symbolTable.checkExistence(previous);
+
         return new Expression.Identifier(previous.str);
     }
 
@@ -535,8 +537,7 @@ public class Parser {
         return ParsePrecedence(Precedence.ASSIGNMENT);
     }
 
-    Statement statementGrammar(SymbolTable parentTable) {
-        //System.out.println("Statement()");
+    Statement statementGrammar() {
 
         previous = tokens.get(0);
         Statement statement = null;
@@ -544,17 +545,23 @@ public class Parser {
         if (previous.tokenType == TokenType.TK_LBRACE) {
             // compound/block statement
             statement = new Statement.Block();
+
+            // new block means new scope unless it's a function
+            if (!symbolTable.isParent()) {
+                symbolTable.addSymbolTable();
+            }
+
             tokens.remove(0);
             while (tokens.get(0).tokenType != TokenType.TK_RBRACE) {
 
                 // has to either be a statement or a declaration
                 if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
-                    Declaration dec = declarationGrammar(parentTable);
+                    Declaration dec = declarationGrammar();
                     ((Statement.Block) statement).addDeclaration(dec);
 
                 } else {
                     // add a normal for-loop
-                    ((Statement.Block) statement).addStatement((Statement) statementGrammar(parentTable));
+                    ((Statement.Block) statement).addStatement((Statement) statementGrammar());
 
                 }
             }
@@ -566,12 +573,13 @@ public class Parser {
             // removes right brace
             tokens.remove(0);
 
+            symbolTable.removeSymbolTable();
         } else if (previous.tokenType == TokenType.TK_KEYWORDS) {
             String keywordIndicator = previous.str.toLowerCase();
 
             switch (keywordIndicator) {
                 case "else":
-
+                    // falls through
                 case "if":
                     boolean selectFlag = true;
                     statement = new Statement.Conditional();
@@ -597,8 +605,7 @@ public class Parser {
                         tokens.remove(0);
 
                         // use a block statement for the next section
-                        SymbolTable childTable = new SymbolTable();
-                        Statement.Block body = (Statement.Block) statementGrammar(childTable);
+                        Statement.Block body = (Statement.Block) statementGrammar();
 
                         statement.addChild(condition);
                         statement.addChild(body);
@@ -608,12 +615,10 @@ public class Parser {
                         } else {
                             tokens.remove(0);
                             if (!tokens.get(0).str.equals("if")) {
-                                statement.addChild(statementGrammar(childTable));
+                                statement.addChild(statementGrammar());
                                 selectFlag = false;
                             }
                         }
-
-                        parentTable.addChildTable(childTable);
                     }
 
                     break;
@@ -631,13 +636,15 @@ public class Parser {
                         exit(1);
                     }
 
+                    symbolTable.addSymbolTable(true);
+
                     Declaration dec = null;
                     // if the token is a type on the first loop, it's a declaration
                     if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
-                        dec = declarationGrammar(parentTable);
+                        dec = declarationGrammar();
                     } else if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
                     // expression statement in place of a declaration (in theory)
-                        ((Statement.Block) statement).addStatement(statementGrammar(parentTable));
+                        ((Statement.Block) statement).addStatement(statementGrammar());
                     } else {
                         // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
                         tokens.remove(0);
@@ -653,13 +660,13 @@ public class Parser {
 
                     Statement increment = null;
                     if (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
-                        increment = statementGrammar(parentTable);
+                        increment = statementGrammar();
                     } else {
                         tokens.remove(0);
                     }
 
                     // recursively call to build block of for-loop
-                    Statement forLoopBlock = statementGrammar(parentTable);
+                    Statement forLoopBlock = statementGrammar();
 
                     // add the increment, if it exists (handled internally)
                     forLoopBlock.addChild(increment);
@@ -668,7 +675,6 @@ public class Parser {
                     statement = new Statement.Iteration(dec, expr, (Statement.Block) forLoopBlock, "for");
                     break;
             case "while":
-
                     // remove keyword
                     tokens.remove(0);
 
@@ -684,13 +690,11 @@ public class Parser {
                     // remove remaining parenthesis
                     tokens.remove(0);
 
-                    SymbolTable childTable = new SymbolTable();
                     // use a block statement for the next section
-                    Statement.Block body = (Statement.Block) statementGrammar(childTable);
+                    Statement.Block body = (Statement.Block) statementGrammar();
 
                     statement = new Statement.Iteration(condition, body, keywordIndicator);
 
-                    parentTable.addChildTable(childTable);
                     break;
                 case "return":
                     // return statement
@@ -764,7 +768,7 @@ public class Parser {
      *
      * @return
      */
-    Declaration declarationGrammar(SymbolTable parentTable) {
+    Declaration declarationGrammar() {
         Token typeSpec;
         Token decID;
 
@@ -785,9 +789,8 @@ public class Parser {
         if (previous.tokenType == TokenType.TK_LPAREN) {
 
             // Add function to map of functions (will do internal checking for dup).
-            table.addFun(decID);
-
-            SymbolTable childTable = new SymbolTable();
+            symbolTable.addFun(decID);
+            symbolTable.addSymbolTable(true);
 
             Declaration.funDeclaration funDec = new Declaration.funDeclaration(typeSpec, decID);
 
@@ -809,7 +812,7 @@ public class Parser {
 
                 // create a parameter, and add it to the list
                 Declaration.Parameter parameter = new Declaration.Parameter(type, paramID);
-                childTable.addSymbol(type, paramID);
+                symbolTable.addSymbol(type, paramID);
 
                 funDec.addParameter(parameter);
 
@@ -824,9 +827,7 @@ public class Parser {
             // remove the right parenthesis
             tokens.remove(0);
 
-            funDec.addStatement(statementGrammar(childTable));
-
-            parentTable.addChildTable(childTable);
+            funDec.addStatement(statementGrammar());
 
             return funDec;
         }
@@ -923,7 +924,7 @@ public class Parser {
                 if (previous.tokenType == TokenType.TK_EQUALS) {
                     varDeclaration = varDecInit(varDeclaration, typeSpec, decID); // Init our var with the correct value.
 
-                    parentTable.addSymbol(varDeclaration);
+                    symbolTable.addSymbol(varDeclaration);
 
                     if (tokens.size() > 1 && tokens.get(1).tokenType == TokenType.TK_EQUALS) {
                         previous = tokens.get(1);
@@ -935,7 +936,7 @@ public class Parser {
 
                 } else {
                     varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID, false);
-                    parentTable.addSymbol(typeSpec, decID);
+                    symbolTable.addSymbol(typeSpec, decID);
 
 
                     if (previous.tokenType == TokenType.TK_SEMICOLON) {
@@ -1024,12 +1025,12 @@ public class Parser {
     Node programGrammar(String fileName) {
         // initialize a new list of declarations
         Program headNode = new Program(fileName);
+        symbolTable.addSymbolTable();
         Declaration dec;
-        table = new SymbolTable();
         try {
             // run until tokens list is empty
             while (!tokens.isEmpty()) {
-                dec = declarationGrammar(table);
+                dec = declarationGrammar();
                 headNode.addDeclaration(dec);
             }
         } catch (NullPointerException e) {
@@ -1037,6 +1038,8 @@ public class Parser {
             exit(1);
         }
 
+
+        symbolTable.removeSymbolTable();
         return headNode;
     }
 
@@ -1046,18 +1049,8 @@ public class Parser {
         return programGrammar(fileName);
     }
 
-    public void printTable() {
-        table.printTable(0);
-    }
-
-    public void printTableFile(String fileName) {
-        try {
-            PrintWriter pw = new PrintWriter((fileName));
-            table.printTableFile(0, pw);
-            pw.flush();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public String getTable() {
+        return symbolTable.symbolString.toString();
     }
 }
 
