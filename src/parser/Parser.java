@@ -784,6 +784,9 @@ public class Parser {
         // check to see if a parenthesis exists (means a function declaration)
         if (previous.tokenType == TokenType.TK_LPAREN) {
 
+            // Add function to map of functions (will do internal checking for dup).
+            table.addFun(decID);
+
             SymbolTable childTable = new SymbolTable();
 
             Declaration.funDeclaration funDec = new Declaration.funDeclaration(typeSpec, decID);
