@@ -77,10 +77,14 @@ Currently our compiler allows for the print out (to console) and write out (to f
 
 Some restrictions we place on the `C-code` compiled by our program:
 * Function calls are limited to 8 parameters
-* Function prototypes are **NOT** unsupported
+* Function prototypes are **NOT** supported
 * The only supported type is `int`, and pointers are not supported
 * Braces are required for all blocks (even one line blocks)
 * Imports and macros are **NOT** supported.
-* switch statements, and binary operators are **NOT** supported
+* Switch statements, and binary operators are **NOT** supported
+* Enumeration (specifically typedef defined) are tokenized, parsed, and generated in the IR stage. However we have not implemented a way to reference them yet to be utilized (since user must provide variable name of the new type created). See example above.
+* We do **NOT** support return checking. Meaning if a function of type int returns an integer or if a return statement exists.
+* We do **NOT** support the continue keyword.
+
 
 Although somewhat limited, our compiler should meet most of the required specifications, albeit with the occasional hiccup.
