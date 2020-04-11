@@ -14,7 +14,7 @@ import java.util.Scanner;
 import parser.Node;
 import parser.NodePrinter;
 import parser.Parser;
-import parser.SymbolTable;
+
 
 import static java.lang.System.exit;
 
@@ -65,6 +65,7 @@ public class jxc {
 
         //parse command line options
         CommandLine line = null;
+
         try {
             line = commandParser.parse(commandArgs, args);
         } catch (ParseException exp) {
@@ -113,54 +114,51 @@ public class jxc {
                     curLine = curLine.replace("(", "");
                     curLine = curLine.replace(")", "");
                     curLine = curLine.replace(",", "");
+                    curLine = curLine.replace("\t", "");
 
                     String[] curIR = curLine.split(" ");
+
+                    Instruction instr = null;
+                    for (int i = 0; i < Instruction.values().length; i++) {
+                        if (curIR[0].equals(Instruction.values()[i].toString())) {
+                            instr = Instruction.values()[i];
+                            break;
+                        }
+                    }
 
                     switch (curIR.length) {
                         case 1:
                             irList.IRExprList.add(new IRExpression(curIR[0]));
                             break;
                         case 2:
-                            Instruction instr3 = null;
-                            for (int i = 0; i < Instruction.values().length; i++) {
-                                if (curIR[0].equals(Instruction.values()[i].toString())) {
-                                    instr3 = Instruction.values()[i];
-                                    break;
-                                }
-                            }
-
-                            irList.IRExprList.add(new IRExpression(instr3, new Token(curIR[1])));
+                            irList.IRExprList.add(new IRExpression(instr, new Token(curIR[1])));
                             break;
                         case 3:
-                            Instruction instr = null;
-                            for (int i = 0; i < Instruction.values().length; i++) {
-                                if (curIR[0].equals(Instruction.values()[i].toString())) {
-                                    instr = Instruction.values()[i];
-                                    break;
-                                }
-                            }
-
                             irList.IRExprList.add(new IRExpression(instr, new Token(curIR[1]), new Token(curIR[2])));
                             break;
                         case 4:
-                            Instruction instr2 = null;
-                            for (int i = 0; i < Instruction.values().length; i++) {
-                                if (curIR[0].equals(Instruction.values()[i].toString())) {
-                                    instr2 = Instruction.values()[i];
-                                    break;
-                                }
+                            irList.IRExprList.add(new IRExpression(instr, new Token(curIR[1]), new Token(curIR[2]), new Token(curIR[3])));
+                            break;
+                        default:
+                            ArrayList<Token> list = new ArrayList<>();
+                            for (int i = 1; i < curIR.length - 1; i++) {
+                                list.add(new Token((curIR[i])));
                             }
-                            irList.IRExprList.add(new IRExpression(instr2, new Token(curIR[1]), new Token(curIR[2]), new Token(curIR[3])));
+
+                            irList.IRExprList.add(new IRExpression(instr, new Token(curIR[curIR.length - 1]), list));
                             break;
                     }
                 }
-
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
 
             System.out.println("Input read in\n");
-            irList.printIR();
+
+            System.out.println(irList.printIR());
+
+            // This will change upon implementation of assignment 3 of compiler.
+            exit(0);
         } else if (line.hasOption("f")) {
             try {
                 file = new File(line.getOptionValue("f"));
