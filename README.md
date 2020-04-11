@@ -35,21 +35,21 @@ where **BUILD_DATE** is the lasted build date and **FILE.c** is your C-program..
 
 [See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)  
 
-Our current iteration of the program supports the following arguments in addition to the `.c` file being read in.
+Our current iteration of the program supports the following arguments in addition to the `.c` file being read in. The `-f` flag requires an argument for the `c-file` to be read in and works with all other flags except for the `-r` flag. The `-r` flag also requires an argument to read in IR expressions from a file and the `-r` flag does not work with any other flags at this time. 
 
-*Argument* | *Long Argument* | *Description*
---- | --- | :---
-**-h** | **-help** | provides a helpful description on the usage of the program
-**-t** | **-token** | tokens in the c-program are displayed in the terminal
-**-to** | **-tokenout** | tokens in the c-program are written to a file
-**-p** | **-parse** | parse tree from c-program is displayed in the terminal
-**-po** | **-parseout** | parse tree from c-program is written to a file.
-**-f** | **-file** | input .c file to compile from
-**-s** | **-symbol** | displays symbol table to command line
-**-so** | **-symbolout** | prints Symbol table to output file.
-**-i** | **-irprint** | print out the Intermediate representation
-**-io** | **-irout** | prints IR to output file
-**-r** | **-readir** | read in Intermediate representation
+*Flag* | *Long Flag* | *Description* | *Arguments*
+--- | --- | :--- | ---
+**-h** | **-help** | provides a helpful description on the usage of the program | **NO**
+**-t** | **-token** | tokens in the c-program are displayed in the terminal | **NO**
+**-to** | **-tokenout** | tokens in the c-program are written to a file | **OPTIONAL**
+**-p** | **-parse** | parse tree from c-program is displayed in the terminal | **NO**
+**-po** | **-parseout** | parse tree from c-program is written to a file. | **OPTIONAL**
+**-f** | **-file** | input .c file to compile from | ***REQUIRED***
+**-s** | **-symbol** | displays symbol table to command line | **NO**
+**-so** | **-symbolout** | prints Symbol table to output file. | **OPTIONAL**
+**-i** | **-irprint** | print out the Intermediate representation. | **NO**
+**-io** | **-irout** | prints IR to output file. | **OPTIONAL**
+**-r** | **-readir** | read in Intermediate representation. | ***REQUIRED***
 
 [You can check here for our functionality and limitations of the program.](docs/design_spec.md#functionality-and-limitations)
 
