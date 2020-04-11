@@ -78,6 +78,13 @@ public class jxc {
         File file = null;
 
         if (line.hasOption("r")) {
+
+            if(line.hasOption("t") ||  line.hasOption("to") || line.hasOption("p") || line.hasOption("po")
+                || line.hasOption("i") || line.hasOption("io") || line.hasOption("s") || line.hasOption("so")) {
+                System.err.println("ERROR: flag '-r' cannot be used in conjunction with any other flags");
+                exit(1);
+            }
+
             /* Up to stage 2 of the compile, the command line cannot have the supported
              *  flags since those flags generate the step being read in now. */
             if(line.hasOption("f")) {
@@ -192,8 +199,9 @@ public class jxc {
             }
 
         } else {
-            System.out.println("\033[0;31m" + "error:" + "\033[0m" + "no input files");
+            System.err.println("Neither -r of -f were used.");
             System.out.println("Please use the argument '-h' for help.");
+            exit(1);
         }
 
         //displays helpful information
