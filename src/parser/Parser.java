@@ -1003,7 +1003,6 @@ public class Parser {
                     varDeclaration = varDecNoInit(varDeclaration, typeSpec, decID, false);
                     symbolTable.addSymbol(typeSpec, decID);
 
-
                     if (previous.tokenType == TokenType.TK_SEMICOLON) {
                         return varDeclaration;
                     }
@@ -1018,6 +1017,7 @@ public class Parser {
                         // if in the case the declaration ID happens to be a semicolon, do nothing and return immediately
                         // applicable for the for-loop variable declaration
                         if (decID.tokenType == TokenType.TK_SEMICOLON) {
+                            tokens.remove(0);
                             return varDeclaration;
                         }
                     }
