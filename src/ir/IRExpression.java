@@ -100,6 +100,4 @@ public class IRExpression {
         irString.append(")\n");
         return irString;
     }
-
-
 }
