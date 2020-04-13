@@ -69,8 +69,11 @@ public class IRBuilder implements IVisitor<Token> {
                 Token dest;
 
                 // if no destination, it is placed into right side's expression
-                if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
-                        binOp == TokenType.TK_SLASHEQ || binOp == TokenType.TK_EQUALS) {
+                if(binOp == TokenType.TK_EQUALS) {
+                        dest = null;
+                }
+                else if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
+                        binOp == TokenType.TK_SLASHEQ) {
                         dest = left;
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||
                         binOp == TokenType.TK_GREATEREQ || binOp == TokenType.TK_EQEQUAL || binOp == TokenType.TK_NEQUAL) {

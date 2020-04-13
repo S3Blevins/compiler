@@ -1,3 +1,4 @@
+import asm.AsmGenerator;
 import ir.IRBuilder;
 import ir.IRExpression;
 import ir.IRList;
@@ -62,6 +63,7 @@ public class jxc {
                 .desc("Print IR to output file")
                 .build();
         commandArgs.addOption(optionalArgument);
+        commandArgs.addOption("O0", "noopt", false, "No optimization of assembly code.");
 
         //parse command line options
         CommandLine line = null;
@@ -333,6 +335,10 @@ public class jxc {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        if(line.hasOption("O0")) {
+            // assembly generation call goes here
         }
     }
 }
