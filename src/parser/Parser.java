@@ -183,7 +183,7 @@ public class Parser {
                 Parser parser = Parser.Instance();
                 return parser.Binary(left);
             }
-        }, Precedence.UNARY));
+        }, Precedence.TERM));
 
         /* TODO:
          * 25 February 2020
