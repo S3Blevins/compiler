@@ -8,6 +8,7 @@ public enum Instruction {
 
     ASSIGN,
     LABEL,
+    FUNC,
     JMP,
     RET,
     CALL,

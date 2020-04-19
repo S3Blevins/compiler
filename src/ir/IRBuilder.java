@@ -319,7 +319,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitFunDecl(Declaration.funDeclaration decl) {
                 // create a label for each function, iterate through children
 
-                IRs.addExpr(new IRExpression(Instruction.LABEL, decl.functionID));
+                IRs.addExpr(new IRExpression(Instruction.FUNC, decl.functionID));
 
                 iterator(decl);
 

@@ -71,7 +71,7 @@ public class IRExpression {
 
         StringBuilder irString = new StringBuilder();
 
-        if(inst != Instruction.LABEL) {
+        if(!(inst == Instruction.LABEL || inst == Instruction.FUNC)) {
             irString.append("\t");
         }
 

@@ -57,35 +57,57 @@ public class AsmGenerator {
         // optimize IR
         if(!optFlag) optimize(irList.IRExprList);
 
-        //TODO: populate with assembly prelude
+        //String asmPrelude = ".section .data\n\n.section .bss\n\n.section .text\n\n.globl main\n\n";
+        String asmPrelude = ".globl _main\n\n";
+
+        source.add(asmPrelude);
 
         for(int i = 0; i < exprList.size(); i++) {
             String asmExpr = "";
-            switch(exprList.get(i).inst) {
+            IRExpression expr = exprList.get(i);
+            switch(expr.inst) {
                 // no source
                 case NOP:
-                    break;
                 case BREAK:
+                    break;
+                case RET:
+                    if(expr.dest != null) {
+                        //asmExpr = "\tmovq\t" + expr.dest.str + ", %eax\n";
+                        asmExpr = "\tmovl\t" + "$3" + ", %eax\n";
+                    }
+
+                    asmExpr += "\tpopq\t%rbp\n";
+                    asmExpr += "\t" + expr.inst.toString().toLowerCase() + "\n";
                     break;
                 // one source
                 case ASSIGN:
                 case INC:
                 case DEC:
                 case NOT:
-                case RET:
+                    break;
                 case LABEL:
+                    asmExpr = expr.dest.str + ":\n\n";
+                    break;
+                case FUNC:
+                    asmExpr = "_" + expr.dest.str + ":\n\n";
+                    asmExpr += "\tpushq\t%rbp\n";
+                    asmExpr += "\tmovq\t%rsp, %rbp\n";
                     break;
                 case LOAD:
+                    break;
                 case JMP:
+                    asmExpr = "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
                     break;
                 // two sources
                 case ADD:
+                    //asmExpr = "\taddq\t" +
                 case MUL:
                 case DIV:
                 case AND:
                 case OR:
                     break;
                 case EQUAL:
+                    asmExpr = "\tcmp\t"; // + src1, src2
                 case GREQ:
                 case LSEQ:
                 case GRTR:
@@ -99,6 +121,7 @@ public class AsmGenerator {
                 default:
                     break;
             }
+            source.add(asmExpr);
         }
 
         return source;
