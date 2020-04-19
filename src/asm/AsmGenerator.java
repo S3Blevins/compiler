@@ -12,6 +12,27 @@ import java.util.List;
 public class AsmGenerator {
 
     private static AsmGenerator instance;
+    /*private class IRRef {
+
+        private final IRExpression expr;
+        private final int location;
+
+        public IRRef(IRExpression expr, int location) {
+
+            this.expr = expr;
+            this.location = location;
+        }
+
+        public IRExpression getExpr() {
+            return expr;
+        }
+
+        public int getLocation() {
+            return location;
+        }
+    }
+
+    ArrayList<IRRef constants */
 
     HashMap<Token, Integer> constants;
     List<IRExpression> exprList;
