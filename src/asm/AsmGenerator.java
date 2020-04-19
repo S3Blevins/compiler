@@ -14,6 +14,7 @@ public class AsmGenerator {
     private static AsmGenerator instance;
 
     HashMap<Token, Integer> constants;
+    List<IRExpression> exprList;
 
     private AsmGenerator() {
 
@@ -29,15 +30,55 @@ public class AsmGenerator {
 
     public ArrayList<String> generateAssembly(IRList irList, boolean optFlag) {
 
+        exprList = irList.IRExprList;
         ArrayList<String> source = new ArrayList<>();
-
-        //TODO: populate with assembly prelude
-
-
-
 
         // optimize IR
         if(!optFlag) optimize(irList.IRExprList);
+
+        //TODO: populate with assembly prelude
+
+        for(int i = 0; i < exprList.size(); i++) {
+            String asmExpr = "";
+            switch(exprList.get(i).inst) {
+                // no source
+                case NOP:
+                    break;
+                case BREAK:
+                    break;
+                // one source
+                case ASSIGN:
+                case INC:
+                case DEC:
+                case NOT:
+                case RET:
+                case LABEL:
+                    break;
+                case LOAD:
+                case JMP:
+                    break;
+                // two sources
+                case ADD:
+                case MUL:
+                case DIV:
+                case AND:
+                case OR:
+                    break;
+                case EQUAL:
+                case GREQ:
+                case LSEQ:
+                case GRTR:
+                case LESS:
+                case EVAL:
+                    break;
+                // 'N' sources
+                case SUB:
+                case CALL:
+                    break;
+                default:
+                    break;
+            }
+        }
 
         return source;
     }

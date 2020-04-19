@@ -1,7 +1,5 @@
 package ir;
 
-import lexer.TokenType;
-
 public enum Instruction {
     ADD,
     SUB,
