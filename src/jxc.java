@@ -34,6 +34,7 @@ public class jxc {
         // Adding command line options.
         commandArgs.addOption("t", "token", false, "Display tokens to command line");
         Option optionalArgument = Option.builder("to")
+                .longOpt("tokenout")
                 .optionalArg(true)
                 .numberOfArgs(1)
                 .desc("Tokens in the c-program are written to a file specified by user or to default file")
@@ -43,12 +44,14 @@ public class jxc {
         commandArgs.addOption("p", "parse", false, "Displays parse tree to command line.");
         commandArgs.addOption("s", "symbol", false, "Displays symbol table to command line.");
         optionalArgument = Option.builder("so")
+                .longOpt("symbolout")
                 .optionalArg(true)
                 .numberOfArgs(1)
                 .desc("Print symbol table to output file specified by user or to default file")
                 .build();
         commandArgs.addOption(optionalArgument);
         optionalArgument = Option.builder("po")
+                .longOpt("parseout")
                 .optionalArg(true)
                 .numberOfArgs(1)
                 .desc("Prints parse tree to output file specified by user or to default file.")
@@ -58,12 +61,14 @@ public class jxc {
         commandArgs.addOption("i", "irprint,", false, "Print out the intermediate representation");
         commandArgs.addOption("r", "readir", true, "Read in an intermediate representation");
         optionalArgument = Option.builder("io")
+                .longOpt("irout")
                 .optionalArg(true)
                 .numberOfArgs(1)
                 .desc("Print IR to output file")
                 .build();
         commandArgs.addOption(optionalArgument);
         commandArgs.addOption("O0", "noopt", false, "No optimization of assembly code.");
+        commandArgs.addOption("a", "asmname", true, "Provide a custom name to the assembly file.");
 
         //parse command line options
         CommandLine line = null;
@@ -78,6 +83,8 @@ public class jxc {
         StringBuilder str = new StringBuilder();
         ArrayList<Token> tokens = null;
         File file = null;
+
+        /* FILE READ-IN ARGUMENTS */
 
         if (line.hasOption("r")) {
 
@@ -212,7 +219,7 @@ public class jxc {
             formatter.printHelp("ant", commandArgs);
         }
 
-        /** TOKEN ARGUMENTS **/
+        /* TOKEN ARGUMENTS */
 
         if (line.hasOption("t")) {
             //displays tokens to command line
@@ -246,7 +253,7 @@ public class jxc {
 
         root = Parser.Instance().Parse(tokens, file.getName());
 
-        /** PARSE TREE ARGUMENTS **/
+        /* PARSE TREE ARGUMENTS */
 
         //parse tree options
         if (line.hasOption("p")) {
@@ -282,7 +289,7 @@ public class jxc {
             }
         }
 
-        /** SYMBOL TABLE ARGUMENTS **/
+        /* SYMBOL TABLE ARGUMENTS */
 
         //displays symbol table to the commandline.
         if (line.hasOption("s")) {
@@ -300,7 +307,6 @@ public class jxc {
 
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-
                 writer.write(Parser.Instance().getTable());
                 writer.close();
             } catch (IOException e) {
@@ -308,7 +314,7 @@ public class jxc {
             }
         }
 
-        /** IR BUILDER ARGUMENTS **/
+        /* IR BUILDER ARGUMENTS */
 
         IRBuilder irBuilder = new IRBuilder();
         root.accept(irBuilder);
@@ -328,8 +334,6 @@ public class jxc {
 
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-                NodePrinter printer = new NodePrinter();
-
                 writer.write(irBuilder.IRs.printIR());
                 writer.close();
             } catch (IOException e) {
@@ -337,8 +341,57 @@ public class jxc {
             }
         }
 
+        /* ASM GENERATOR ARGUMENTS */
+
+        String asmName = "jxc_assembly.s";
+        boolean optFlag = false;
+
         if(line.hasOption("O0")) {
-            // assembly generation call goes here
+            // flag change goes here
+            optFlag = true;
         }
+
+        if(line.hasOption("a")) {
+            // change name of assembly file
+            asmName = line.getOptionValue("a");
+        }
+
+        // get the assembly string
+        ArrayList<String> assembly = AsmGenerator.getInstance().generateAssembly(irBuilder.IRs, optFlag);
+
+        // write to the specified assembly file
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(asmName));
+
+            // convert array list of strings to single string
+            StringBuilder asmString = new StringBuilder();
+            for(String asmExpr: assembly) {
+                asmString.append(asmExpr);
+            }
+
+            writer.write(asmString.toString());
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+/*
+        // RUN THE ASSEMBLY IF POSSIBLE
+
+        // example taken from: https://www.baeldung.com/run-shell-command-in-java
+        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
+        try {
+            // either windows or unix based, and if windows based, throw the error
+            if(isWindows) {
+                throw new IOException();
+            } else {
+                Process process = Runtime.getRuntime().exec("gcc " + asmName);
+            }
+        } catch (IOException e) {
+            System.err.println("NOTE: Windows is not supported for automatic running of assembly");
+        }
+*/
+
     }
 }

@@ -12,27 +12,6 @@ import java.util.List;
 public class AsmGenerator {
 
     private static AsmGenerator instance;
-    /*private class IRRef {
-
-        private final IRExpression expr;
-        private final int location;
-
-        public IRRef(IRExpression expr, int location) {
-
-            this.expr = expr;
-            this.location = location;
-        }
-
-        public IRExpression getExpr() {
-            return expr;
-        }
-
-        public int getLocation() {
-            return location;
-        }
-    }
-
-    ArrayList<IRRef> constants;*/
 
     HashMap<Token, Integer> constants;
 
@@ -42,16 +21,23 @@ public class AsmGenerator {
         constants = new HashMap<>();
     }
 
-    static AsmGenerator getInstance() {
+    public static AsmGenerator getInstance() {
 
         instance = (instance == null) ? new AsmGenerator() : instance;
         return instance;
     }
 
-    ArrayList<String> generateAssembly(IRList irList) {
+    public ArrayList<String> generateAssembly(IRList irList, boolean optFlag) {
 
         ArrayList<String> source = new ArrayList<>();
-        optimize(irList.IRExprList);
+
+        //TODO: populate with assembly prelude
+
+
+
+
+        // optimize IR
+        if(!optFlag) optimize(irList.IRExprList);
 
         return source;
     }
@@ -78,7 +64,6 @@ public class AsmGenerator {
         for(int i = 0; i < irExprList.size(); i++) {
 
             switch(irExprList.get(i).inst) {
-
                 case ADD:
                 case SUB:
                 case MUL:
