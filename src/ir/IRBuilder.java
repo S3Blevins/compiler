@@ -343,7 +343,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitParameter(Declaration.Parameter decl) {
                 // load each parameter, no children to iterate through
 
-                IRs.addExpr(new IRExpression(Instruction.LOAD, decl.paramID));
+                IRs.addExpr(new IRExpression(Instruction.LOADP, decl.paramID));
 
                 return null;
         }

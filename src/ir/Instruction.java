@@ -14,6 +14,7 @@ public enum Instruction {
     CALL,
     NOP,
     LOAD,
+    LOADP,
     BREAK,
 
     INC,
