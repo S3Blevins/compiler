@@ -10,7 +10,7 @@ public enum TokenType {
     TK_EQEQUAL(Instruction.EQUAL),
     TK_PPLUS(Instruction.INC),
     TK_MMINUS(Instruction.DEC),
-    TK_NEQUAL(Instruction.EQUAL),
+    TK_NEQUAL(Instruction.NEQUAL),
     TK_RPAREN(null),
     TK_LPAREN(null),
     TK_RBRACE(null),
