@@ -238,42 +238,44 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitConditional(Statement.Conditional conditional) {
                 // conditional adds labels and instructions which jump based on evaluation of expressions
 
-                // stateFlag turned on for very first label
-                IRs.stateFlag = 1;
-                Token endLabel = new Token("_condEnd" + IRs.getEndID(), TokenType.TK_IDENTIFIER);
+                IRs.newCondScope();
+                Token endLabel = new Token("_endCond" + IRs.getStartEndID(), TokenType.TK_IDENTIFIER);
 
-                // iterate through children
-                for (int i = 0; i < conditional.children.size(); i++) {
-                        // turn back on for each loop
+                // iterate through conditionals
+                for(int i = 0; i < conditional.children.size() - 1; i+=2) {
+                        IRs.stateFlag = 1;
+                        conditional.children.get(i).accept(this);
+                }
 
-                        // if the child is a multiple of two, then throw down a label except for if the child is the last element
-                        // this means there is an expression which may need to jump to the next labeled expression if evaluated to false
-                        if(i % 2 == 0 && i != 0) {
-                                // change state required for 'else' clause
-                                IRs.stateFlag = 1;
-                                IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
-                        }
+                // if the children of the conditional statement is odd, then there is an else
+                if(conditional.children.size() % 2 != 0) {
+                        IRs.addExpr(new IRExpression(Instruction.JMP, IRs.getCondJmpToLabel()));
+                } else {
+                        IRs.addExpr(new IRExpression(Instruction.JMP, endLabel));
+                }
 
-                        // check for children, if children exist it may be an expression or block statement which executes normally
-                        // if no children then it is a simple value or boolean expression which uses the EVAL instruction
-                        if(conditional.children.get(i).hasChildren()) {
-                                conditional.children.get(i).accept(this);
-                        } else {
-                                IRs.addExpr(new IRExpression(Instruction.EVAL, conditional.children.get(i).accept(this), IRs.getCondJmpToLabel()));
-                        }
+                // iterate through block-statements
+                for(int i = 1; i < conditional.children.size(); i+=2) {
+                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
+                        conditional.children.get(i).accept(this);
 
-                        // add the jump to the label for the end of the conditional clause chain after block statements
-                        // block statements only occur when the child is of an odd index except in the case of 'else' but
-                        // then the label is just a fall through
-                        if(i % 2 != 0) {
+                        if(i != conditional.children.size() - 1) {
                                 IRs.addExpr(new IRExpression(Instruction.JMP, endLabel));
                         }
 
                 }
 
-                IRs.addExpr(new IRExpression(Instruction.LABEL, endLabel));
+                // catch the else condition, which falls through
+                if(conditional.children.size() % 2 != 0) {
+                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
+                        conditional.children.get(conditional.children.size() - 1).accept(this);
+                }
+
+                // throw in the end label
+                IRs.addExpr(new IRExpression(Instruction.LABEL, new Token("_endCond" + IRs.getEndID(), TokenType.TK_IDENTIFIER)));
 
                 IRs.stateFlag = 0;
+                IRs.endCondScope();
 
                 // no need to return
                 return null;

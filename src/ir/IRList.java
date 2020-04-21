@@ -3,9 +3,7 @@ package ir;
 import lexer.Token;
 import lexer.TokenType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * The wrapper class that will house all of the IR
@@ -30,15 +28,15 @@ public class IRList {
     // 2 - loop
     public int stateFlag = 0;
 
-    public Stack<Integer> condScope;
+    public Stack<Queue<Integer>> condScope;
+    public Stack<Integer> endCondScope;
     public Stack<Integer> itrScope;
 
     public IRList() {
         condScope = new Stack<>();
+        endCondScope = new Stack<>();
         itrScope = new Stack<>();
     }
-
-
 
     public boolean addExpr(IRExpression expr) {
         return IRExprList.add(expr);
@@ -52,20 +50,33 @@ public class IRList {
         return new Token(newLabel, TokenType.TK_IDENTIFIER);
     }
 
+    public int getStartEndID() {
+        endCondScope.push(endID++);
+        return endCondScope.peek();
+    }
+
     public int getEndID() {
-        return endID++;
+        int tmp = endCondScope.pop();
+        return tmp;
+    }
+
+    public void newCondScope() {
+        condScope.push(new LinkedList<>());
+    }
+
+    public void endCondScope() {
+        condScope.pop();
     }
 
     // increment comes first because of scoping (so starts at 1)
     public Token getCondJmpToLabel() {
         // ALWAYS CALLED BEFORE getCondLabel
-        // <this> jump label is for the next conditional
-        stateFlag = 1;
 
-        // increment counter at the top of the stack
-        condScope.push(condID++);
+        // add to queue
+        condScope.peek().add(condID);
 
-        return new Token("_cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
+        // increment after print
+        return new Token("_cond" + condID++, TokenType.TK_IDENTIFIER);
     }
 
     public Token getCondLabel() {
@@ -73,8 +84,8 @@ public class IRList {
         // <this> label is for the section of code to jump to
 
         // print top of the stack and then move back one "scope"
-        Token tmp = new Token("_cond" + condScope.peek(), TokenType.TK_IDENTIFIER);
-        condScope.pop();
+        Token tmp = new Token("_cond" + condScope.peek().peek(), TokenType.TK_IDENTIFIER);
+        condScope.peek().remove();
 
         return tmp;
     }
