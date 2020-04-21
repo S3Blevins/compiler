@@ -704,12 +704,15 @@ public class Parser {
                     symbolTable.addSymbolTable(true);
 
                     Declaration dec = null;
+                    Expression decExpr = null;
                     // if the token is a type on the first loop, it's a declaration
                     if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
                         dec = declarationGrammar();
                     } else if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                    // expression statement in place of a declaration (in theory)
-                        ((Statement.Block) statement).addStatement(statementGrammar());
+                        // expression statement in place of a declaration (in theory)
+                        decExpr = expressionGrammar();
+                        // remove the semicolon
+                        tokens.remove(0);
                     } else {
                         // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
                         tokens.remove(0);
@@ -731,13 +734,13 @@ public class Parser {
                     }
 
                     // recursively call to build block of for-loop
-                    Statement forLoopBlock = statementGrammar();
+                    Statement.Block forLoopBlock = (Statement.Block) statementGrammar();
 
                     // add the increment, if it exists (handled internally)
                     forLoopBlock.addChild(increment);
 
                     // create new statement with declaration, expression, and for-loop block
-                    statement = new Statement.Iteration(dec, expr, (Statement.Block) forLoopBlock, "for");
+                    statement = new Statement.Iteration(dec, decExpr, expr, forLoopBlock, "for");
                     break;
             case "while":
                     // remove keyword

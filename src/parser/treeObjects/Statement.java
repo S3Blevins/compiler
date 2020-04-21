@@ -54,7 +54,7 @@ public abstract class Statement extends Node {
             this.statementType = new Token(type, TokenType.TK_KEYWORDS);
         }
 
-        public Iteration(Declaration dec, Expression condition, Block body, String type) {
+        public Iteration(Declaration dec, Expression decExpr, Expression condition, Block body, String type) {
 
             // if the condition is null, default it to equivalent of true
             if (condition == null) {
@@ -63,6 +63,7 @@ public abstract class Statement extends Node {
             }
 
             this.addChild(dec);
+            this.addChild(decExpr);
             this.addChild(condition);
             this.addChild(body);
             this.statementType = new Token(type, TokenType.TK_KEYWORDS);
