@@ -24,6 +24,7 @@ public enum Instruction {
     AND,
     OR,
 
+    NEQUAL,
     EQUAL,
     GREQ,
     LSEQ,
