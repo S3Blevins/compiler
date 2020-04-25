@@ -137,6 +137,7 @@ public class AsmGenerator {
                     regIndex++;
                     break;
                 case BREAK: // fall through
+                //TODO: FIX THIS
                 case JMP:
                     asmExpr = "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
                     break;
@@ -161,10 +162,10 @@ public class AsmGenerator {
                     String instr = expr.inst.toString().toLowerCase() + "l";
                     // if the location of a is a register or a memory address, then proceed
                     if(src1.tokenType == TokenType.TK_NUMBER) {
-                        asmExpr = "\tmovl\t" + mem.location(src1) + ", %" + mem.getRegName(1) + "\n";
+                        asmExpr = "\tmovl\t" + mem.location(src2) + ", %" + mem.getRegName(1) + "\n";
                         asmExpr += "\t" + instr + "\t$" + src1.str + ", %" + mem.getRegName(1) + "\n";
                     } else if(src2.tokenType == TokenType.TK_NUMBER) {
-                        asmExpr = "\tmovl\t" + mem.location(src2) + ", %" + mem.getRegName(1) + "\n";
+                        asmExpr = "\tmovl\t" + mem.location(src1) + ", %" + mem.getRegName(1) + "\n";
                         asmExpr += "\t" + instr + "\t$" + src2.str + ", %" + mem.getRegName(1) + "\n";
                     } else {
                         asmExpr = "\tmovl\t" + mem.location(src1) + ", %" + mem.getRegName(1) + "\n";
