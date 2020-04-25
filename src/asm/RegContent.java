@@ -1,8 +1,7 @@
 package asm;
 
-public class Register {
+public class RegContent {
 
-    public RegisterName registerName;       // The name of the register
     public String regValAddress;           // The value of the register*
     public int regValInteger;             // The value of the register*
 
@@ -11,12 +10,20 @@ public class Register {
 
     /**
      * Needed upon creation of registers to start output assembly.
-     * @param registerName Differentiates each register by name.
      */
-    public Register(RegisterName registerName) {
-        this.registerName = registerName;
+    public RegContent() {
         this.regValAddress = null;
         this.regValInteger = 0;
+    }
+
+    public RegContent(String address) {
+        this.regValAddress = address;
+        this.regValInteger = 0;
+    }
+
+    public RegContent(int val) {
+        this.regValAddress = null;
+        this.regValInteger = val;
     }
 
     /**

@@ -2,20 +2,22 @@ package asm;
 
 import lexer.Token;
 
-import java.util.HashMap;
-
 public class varTable {
-        HashMap<String, String> scope;
+        // value of the variable
+        int value;
+        // index of where the variable was initialized
+        int index;
 
-        public void newScope() {
-                scope = new HashMap<>();
+        public varTable(Token value, int index) {
+                this.value = Integer.parseInt(value.str);
+                this.index = index;
         }
 
-        public void addVar(Token tok, String asm) {
-                scope.put(tok.str, asm);
+        public int getValue() {
+               return value;
         }
 
-        public String getLocal (Token tok) {
-                return scope.get(tok.str);
+        public int getIndex() {
+                return index;
         }
 }

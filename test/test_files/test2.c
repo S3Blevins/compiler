@@ -3,9 +3,11 @@ int foo(int a, int b) {
 }
 
 int main() {
+    int i = 1;
+    int j = 5;
 
-    int j = 8;
-    int i = j + 9;
+    // Broken
+    int k = i + 2;
 
-    return i + foo(1 + 2);
+    return foo(i, j);
 }

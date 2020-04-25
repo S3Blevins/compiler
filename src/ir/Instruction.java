@@ -1,34 +1,37 @@
 package ir;
 
 public enum Instruction {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
+    ADD("addl"),
+    SUB("subl"),
+    MUL("mull"),
+    DIV("divl"),
 
-    ASSIGN,
-    LABEL,
-    FUNC,
-    JMP,
-    RET,
-    CALL,
-    NOP,
-    LOAD,
-    LOADP,
-    BREAK,
+    ASSIGN("movl"),
+    LABEL(null),
+    FUNC(null),
+    JMP("jmp"),
+    RET("ret"),
+    CALL("call"),
+    NOP("nop"),
+    LOAD("movl"),
+    LOADP("movl"),
+    BREAK("movl"),
 
-    INC,
-    DEC,
+    INC("inc"),
+    DEC("dec"),
 
-    NOT,
-    AND,
-    OR,
+    NOT("not"),
+    AND("and"),
+    OR("or"),
 
-    NEQUAL,
-    EQUAL,
-    GREQ,
-    LSEQ,
-    GRTR,
-    LESS,
-    EVAL
+    NEQUAL("jne"),
+    EQUAL("je"),
+    GREQ("jge"),
+    LSEQ("jle"),
+    GRTR("jg"),
+    LESS("jl"),
+    EVAL("jnz");
+
+    Instruction(String instr) {
+    }
 }
