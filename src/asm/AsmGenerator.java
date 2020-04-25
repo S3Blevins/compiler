@@ -138,7 +138,12 @@ public class AsmGenerator {
                     break;
                 case LOAD:
                     location = "-" + (4*(regIndex+1)) + "(%rbp)";
-                    asmExpr = "\tmovl\t$" + expr.sources.get(0).str + ", " + location + "\n";
+                    Token src = expr.sources.get(0);
+                    if(src.tokenType == TokenType.TK_NUMBER) {
+                        asmExpr = "\tmovl\t$" + expr.sources.get(0).str + ", " + location + "\n";
+                    } else {
+                        asmExpr = "\tmovl\t" + mem.location(src) + ", " + location + "\n";
+                    }
                     mem.addStackVar(expr.dest, location);
                     regIndex++;
                     break;
@@ -168,7 +173,14 @@ public class AsmGenerator {
                     Token src2;
                     if(expr.sources.size() != 2) {
                         src1 = expr.sources.get(0);
-                        asmExpr = "\tneg\t" + mem.location(src1) + "\n";
+                        System.out.println(src1.str);
+                        if(src1.tokenType == TokenType.TK_NUMBER) {
+                            asmExpr = "\tmovl\t$" + src1.str + ", %" + mem.getRegName(regIndex) + "\n";
+                            asmExpr += "\tneg\t\t%" + mem.getRegName(regIndex) + "\n";
+                            mem.addRegVar(mem.getReg(regIndex), expr.dest);
+                        } else {
+                            asmExpr = "\tneg\t\t%" + mem.location(src1) + "\n";
+                        }
                         break;
                     }
 
