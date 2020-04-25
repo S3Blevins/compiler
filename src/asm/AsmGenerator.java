@@ -137,6 +137,11 @@ public class AsmGenerator {
                     }
                     break;
                 case LOAD:
+                    if(expr.sources == null) {
+                        mem.addStackVar(expr.dest, location);
+                        break;
+                    }
+
                     location = "-" + (4*(regIndex+1)) + "(%rbp)";
                     Token src = expr.sources.get(0);
                     if(src.tokenType == TokenType.TK_NUMBER) {
@@ -212,14 +217,19 @@ public class AsmGenerator {
                         asmExpr = "\tmovl\t" + mem.location(src1) + ", " + mem.location(expr.dest);
                     }
                     break;
+                case EVAL:
+                    asmExpr = "\tmovl\t" + "$0, %eax\n";
+                    asmExpr = "\ttest\t\t%eax" + ", " + expr.sources.get(0).str + "\n"; // + src1, src2
+                    // expr holds the current IR line we are dealing with.
+                    asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
 
+                    break;
                 case EQUAL:     // fall through
                 case NEQUAL:    // fall through
                 case GREQ:      // fall through
                 case LSEQ:      // fall through
                 case GRTR:      // fall through
                 case LESS:      // fall through
-                case EVAL:
                     /*
                      * CMP SYNTAX
                      * cmp <reg>,<reg>

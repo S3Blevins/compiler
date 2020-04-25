@@ -2,7 +2,7 @@ package ir;
 
 public enum Instruction {
     ADD("add"),
-    SUB("sub"),
+    SUB("sub\t"),
     MUL("imul"),
     DIV("idivl"),
 

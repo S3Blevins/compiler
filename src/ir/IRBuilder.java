@@ -151,9 +151,16 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitBoolean(Expression.Boolean bool) {
-                // just returns boolean token
+                // converts a boolean to a number
+                Token boolEquivalent;
 
-                return bool.bool;
+                if(bool.bool.str.toLowerCase().equals("true")){
+                        boolEquivalent = new Token("1", TokenType.TK_NUMBER);
+                } else {
+                        boolEquivalent = new Token("0", TokenType.TK_NUMBER);
+                }
+
+                return boolEquivalent;
         }
 
         @Override
@@ -187,7 +194,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitBreak(Statement.Break statement) {
                 // create BREAK expression
 
-                IRs.addExpr(new IRExpression(Instruction.BREAK));
+                IRs.addExpr(new IRExpression(Instruction.BREAK, new Token("_loopExit" + IRs.endID, TokenType.TK_IDENTIFIER)));
 
                 return null;
         }
@@ -244,7 +251,12 @@ public class IRBuilder implements IVisitor<Token> {
                 // iterate through conditionals
                 for(int i = 0; i < conditional.children.size() - 1; i+=2) {
                         IRs.stateFlag = 1;
-                        conditional.children.get(i).accept(this);
+                        if(conditional.children.get(i).hasChildren()) {
+                                conditional.children.get(i).accept(this);
+                        } else {
+                                Token nonExpression = conditional.children.get(i).accept(this);
+                                IRs.addExpr(new IRExpression(Instruction.EVAL, nonExpression, IRs.getCondJmpToLabel()));
+                        }
                 }
 
                 // if the children of the conditional statement is odd, then there is an else
