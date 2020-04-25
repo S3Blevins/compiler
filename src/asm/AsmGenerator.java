@@ -149,6 +149,20 @@ public class AsmGenerator {
                     break;
 
                 /* TWO SOURCES */
+                case DIV:   // Needs to be handled different.
+                    Token div1 = expr.sources.get(0);
+                    Token div2 = expr.sources.get(1);
+                    String instruct = expr.inst.getAsm();
+
+                    asmExpr += "\tmovl\t" + mem.location(div1) + ", %eax\n";   // acknowledge dividend
+                    asmExpr += "\tmovl\t" + mem.location(div2) + ", %ecx\n"; // acknowledge divisor
+                    asmExpr += "\tcdq\n";                          // sign-extended EAX into EDX (EDX = signedbit(EAX))
+                    asmExpr += "\tidivl\t%ecx\n";           // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+
+                    // TODO: Temp fix, move %eax into %esi since next instruction moves %esi into %eax
+                    asmExpr += "\tmovl\t%eax, %esi\n";
+                    mem.addRegVar(mem.getReg(1), expr.dest);
+                    break;
                 case SUB:
                     Token src1;
                     Token src2;
@@ -160,7 +174,6 @@ public class AsmGenerator {
 
                 case ADD:   // fall through
                 case MUL:   // fall through
-                case DIV:   // fall through
                 case AND:   // fall through
                 case OR:
                     src1 = expr.sources.get(0);
