@@ -159,7 +159,7 @@ public class AsmGenerator {
                 case OR:
                     src1 = expr.sources.get(0);
                     src2 = expr.sources.get(1);
-                    String instr = expr.inst.toString().toLowerCase() + "l";
+                    String instr = expr.inst.getAsm();
                     // if the location of a is a register or a memory address, then proceed
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         asmExpr = "\tmovl\t" + mem.location(src2) + ", %" + mem.getRegName(1) + "\n";

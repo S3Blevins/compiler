@@ -1,10 +1,10 @@
 package ir;
 
 public enum Instruction {
-    ADD("addl"),
-    SUB("subl"),
-    MUL("mull"),
-    DIV("divl"),
+    ADD("add"),
+    SUB("sub"),
+    MUL("imul"),
+    DIV("idivl"),
 
     ASSIGN("movl"),
     LABEL(null),
@@ -32,6 +32,13 @@ public enum Instruction {
     LESS("jl"),
     EVAL("jnz");
 
+    private final String instr;
+
     Instruction(String instr) {
+        this.instr = instr;
+    }
+
+    public String getAsm() {
+        return this.instr;
     }
 }
