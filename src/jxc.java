@@ -356,8 +356,10 @@ public class jxc {
             asmName = line.getOptionValue("a");
         }
 
+        boolean ismacos = System.getProperty("os.name").toLowerCase().startsWith("mac");
+
         // get the assembly string
-        ArrayList<String> assembly = AsmGenerator.getInstance().generateAssembly(irBuilder.IRs, optFlag);
+        ArrayList<String> assembly = AsmGenerator.getInstance().generateAssembly(irBuilder.IRs, optFlag, ismacos);
 
         // write to the specified assembly file
         try {
@@ -375,9 +377,8 @@ public class jxc {
             e.printStackTrace();
         }
 
-/*
         // RUN THE ASSEMBLY IF POSSIBLE
-
+/*
         // example taken from: https://www.baeldung.com/run-shell-command-in-java
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
@@ -392,6 +393,5 @@ public class jxc {
             System.err.println("NOTE: Windows is not supported for automatic running of assembly");
         }
 */
-
     }
 }

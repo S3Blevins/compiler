@@ -52,14 +52,20 @@ public class AsmGenerator {
         return instance;
     }
 
-    public ArrayList<String> generateAssembly(IRList irList, boolean optFlag) {
+    public ArrayList<String> generateAssembly(IRList irList, boolean optFlag, boolean underscore) {
         // IR expression list
         exprList = irList.IRExprList;
         // list of assembly expressions
         ArrayList<String> assembly = new ArrayList<>();
 
+        String prefix = "";
+        if(underscore) {
+            prefix = "_";
+        }
+
+
         // String asmPrelude = ".section .data\n\n.section .bss\n\n.section .text\n\n.globl main\n\n";
-        String asmPrelude = ".globl _main\n";
+        String asmPrelude = ".globl " + prefix + "main\n";
         assembly.add(asmPrelude);
 
         // register index
@@ -110,7 +116,7 @@ public class AsmGenerator {
                     mem.newScope();
                     regIndex = 0;
                     // function label
-                    asmExpr = "\n_" + expr.dest.str + ":\n\n";
+                    asmExpr = "\n" + prefix + expr.dest.str + ":\n\n";
 
                     // function prolog
                     asmExpr += "\tpushq\t%rbp\n";
@@ -215,7 +221,7 @@ public class AsmGenerator {
                         }
                     }
 
-                    asmExpr += "\tcall\t_" + expr.sources.get(0).str + "\n";
+                    asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n";
                     asmExpr += "\tmovl\t%eax, %" + mem.getRegName(2) + "\n";
                     mem.addRegVar(mem.getReg(2), expr.dest);
                     break;
