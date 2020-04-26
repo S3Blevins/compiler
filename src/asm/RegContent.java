@@ -47,13 +47,4 @@ public class RegContent {
     }
 
     //TODO: MIGHT NEED TO SUPPORT DE-REFERENCING ADDRESSES TO GET VALUE???
-
-    /*      0x0
-            0x4      -->  j  4(rbp)
-            0x8      -->  i  8(rbp)
-
-
-
-
-     */
 }
