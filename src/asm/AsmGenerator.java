@@ -96,7 +96,9 @@ public class AsmGenerator {
                 case RET:
                     // move whatever value in esi to eax if a return is valid
                     if(expr.dest != null) {
-                        asmExpr = "\tmovl\t" + mem.location(expr.dest) + ", %eax\n";
+                        if(!mem.location(expr.dest).equals("%eax")) {
+                            asmExpr = "\tmovl\t" + mem.location(expr.dest) + ", %eax\n";
+                        }
                     }
 
                     // pop off the basepointer from the stack
@@ -257,8 +259,10 @@ public class AsmGenerator {
                     }
 
                     asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n";
-                    asmExpr += "\tmovl\t%eax, %" + mem.getRegName(2) + "\n";
-                    mem.addRegVar(mem.getReg(2), expr.dest);
+                    //asmExpr += "\tmovl\t%eax, %" + mem.getRegName(2) + "\n";
+
+                    // mem.getReg(6) is %eax
+                    mem.addRegVar(mem.getReg(6), expr.dest);
                     break;
                 default:
                     asmExpr = null;
