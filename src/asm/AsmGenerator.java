@@ -164,15 +164,23 @@ public class AsmGenerator {
                 case DIV:   // Needs to be handled different.
                     Token div1 = expr.sources.get(0);
                     Token div2 = expr.sources.get(1);
-                    String instruct = expr.inst.getAsm();
 
-                    asmExpr += "\tmovl\t" + mem.location(div1) + ", %eax\n";   // acknowledge dividend
-                    asmExpr += "\tmovl\t" + mem.location(div2) + ", %ecx\n"; // acknowledge divisor
-                    asmExpr += "\tcdq\n";                          // sign-extended EAX into EDX (EDX = signedbit(EAX))
-                    asmExpr += "\tidivl\t%ecx\n";           // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                    asmExpr += "\tmovl\t" +"$0, %eax";   // clear dividend
+                    asmExpr += "\t\t\t## clear dividend\n";   // clear dividend
+
+                    asmExpr += "\tmovl\t" + mem.location(div1) + ", %eax";   // acknowledge dividend
+                    asmExpr += "\t\t\t## acknowledge dividend\n";
+
+                    asmExpr += "\tcdq";                    // sign-extended EAX into EDX (EDX = signedbit(EAX))
+                    asmExpr += "\t\t\t\t\t\t\t## sign-extended EAX into EDX (EDX = signedbit(EAX))\n";
+
+                    asmExpr += "\tidivl\t" + mem.location(div2);  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                    asmExpr += "\t\t\t\t\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
 
                     // TODO: Temp fix, move %eax into %esi since next instruction moves %esi into %eax
-                    asmExpr += "\tmovl\t%eax, %esi\n";
+                    asmExpr += "\tmovl\t%eax, %esi";
+                    asmExpr += "\t\t\t## tmp fix to align with outer implementation.\n";
+
                     mem.addRegVar(mem.getReg(1), expr.dest);
                     break;
                 case SUB:
@@ -180,7 +188,6 @@ public class AsmGenerator {
                     Token src2;
                     if(expr.sources.size() != 2) {
                         src1 = expr.sources.get(0);
-                        System.out.println(src1.str);
                         if(src1.tokenType == TokenType.TK_NUMBER) {
                             asmExpr = "\tmovl\t$" + src1.str + ", %" + mem.getRegName(regIndex) + "\n";
                             asmExpr += "\tneg\t\t%" + mem.getRegName(regIndex) + "\n";
