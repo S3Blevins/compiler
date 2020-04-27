@@ -1,16 +1,23 @@
 package asm;
 
 public enum RegName {
-        edi,
-        esi,
-        edx,
-        ecx,
-        r8d,
-        r9d,
-        eax,
-        ebx,
-        rbp,
-        rsp,
-        r10d,
-        r11d
+        edi(false),
+        esi(false),
+        edx(false),
+        ecx(false),
+        r8d(false),
+        r9d(false),
+        eax(false),
+        ebx(false),
+        rbp(false),
+        rsp(false),
+        r10d(false),
+        r11d(false);
+
+        public boolean lock;
+
+        RegName(boolean b) {
+                this.lock = b;
+        }
 }
+
