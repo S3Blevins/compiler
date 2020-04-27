@@ -118,7 +118,10 @@ public class AsmGenerator {
                     break;
                 case FUNC:
                     // new hashmap for each function call - may need to be modified
-                    mem.newScope();
+                    mem.newScope(exprList, i);
+
+                    System.out.println(mem.refCounter.entrySet());
+
                     regIndex = 0;
                     // function label
                     asmExpr += "\n" + prefix + expr.dest.str + ":\n\n";
@@ -154,14 +157,6 @@ public class AsmGenerator {
                         stackSpacing += stackSpacing % 16;
                         asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
                     }
-                    /*
-                    if(stackSpacing % 16 == 0) {
-                        asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
-                    } else {
-                        asmExpr += "\tsubq\t$" + (stackSpacing + 8) + ", %rsp\n";
-                        asmExpr += "\tmovl\t$0, " + "-" + (4*(regIndex+1)) + "(%rbp)\n";
-                        regIndex++;
-                    }*/
 
 
                     // place parameters into memory(if they exist)
