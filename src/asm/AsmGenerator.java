@@ -37,7 +37,9 @@ public class AsmGenerator {
 
     HashMap<String, varTable> constants;
     List<IRExpression> exprList;
+
     SymbolRecord record;
+    int symCounter = 0;
 
     // Get a global instance registers to keep track of what is being used
     // and what is free to be utilized.
@@ -70,6 +72,7 @@ public class AsmGenerator {
 
         // register index
         int regIndex = 6;
+        int stackSpacing = 0;
 
         // optimize IR check based on flag
         if(!optFlag) optimize(irList.IRExprList);
@@ -102,6 +105,8 @@ public class AsmGenerator {
                         }
                     }
 
+                    asmExpr += "\taddq\t$" + (stackSpacing % 16 == 0 ? stackSpacing : stackSpacing + 8) + ", %rsp\n";
+
                     // pop off the basepointer from the stack
                     asmExpr += "\tpopq\t%rbp\n";
                     asmExpr += "\tret\t\t## return the function\n";
@@ -126,20 +131,38 @@ public class AsmGenerator {
                     asmExpr += "\tpushq\t%rbp\n";
                     asmExpr += "\tmovq\t%rsp, %rbp\n";
 
-                    // place parameters into memory(if they exist)
 
-                    asmExpr += "\t## load parameters into stack (if they exist)\n";
+                    // have to calculate the parameters first to avoid stack subtracting
+                    int paramCounter = 0;
                     while(exprList.get(i+1).inst == Instruction.LOADP) {
+                        paramCounter++;
+                        i++;
+                    }
+
+                    stackSpacing = (record.children.get(symCounter).table.size() - paramCounter) * 8;
+
+                    if(stackSpacing % 16 == 0) {
+                        asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
+                    } else {
+                        asmExpr += "\tsubq\t$" + (stackSpacing + 8) + ", %rsp\n";
+                        asmExpr += "\tmovl\t$0, " + "-" + (4*(regIndex+1)) + "(%rbp)\n";
+                        regIndex++;
+                    }
+
+
+                    // place parameters into memory(if they exist)
+                    asmExpr += "\t## load parameters into stack (if they exist)\n";
+
+                    for(int k = 0; k < paramCounter; k++) {
                         // generate location for parameter
                         location = "-" + (4*(regIndex+1)) + "(%rbp)";
                         // place variable reference into a table
-                        mem.addStackVar(exprList.get(i+1).dest, location);
+                        mem.addStackVar(exprList.get(i-k).dest, location);
                         // create an assembly expression
                         asmExpr += "\tmovl\t%" + mem.getRegName(regIndex) + ", " + location + "\n";
 
                         // increment register index and move expression
                         regIndex++;
-                        i++;
                     }
                     asmExpr += "\n";
                     break;
@@ -167,9 +190,11 @@ public class AsmGenerator {
                     break;
 
                 /* TWO SOURCES */
-                case DIV:   // Needs to be handled different.
+                case DIV:   // Needs to be handled differently.
                     Token div1 = expr.sources.get(0);
                     Token div2 = expr.sources.get(1);
+
+                    System.out.println(div1);
 
                     if(!mem.location(div1).equals("%eax")) {
                         asmExpr += "\t## acknowledge dividend in %eax\n";

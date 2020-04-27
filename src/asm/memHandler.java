@@ -4,6 +4,8 @@ import lexer.Token;
 
 import java.util.*;
 
+import static java.lang.System.exit;
+
 public class memHandler {
 
     HashMap<RegName, String> registers;
@@ -111,7 +113,8 @@ public class memHandler {
             try {
                 return "%" + getVarRegister(variable).toString();
             } catch (NullPointerException e) {
-                return null;
+                System.err.println("ERROR: variable " + variable.str + " not found in register");
+                exit(1);
             }
         }
 
