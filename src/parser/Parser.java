@@ -1117,8 +1117,13 @@ public class Parser {
         return programGrammar(fileName);
     }
 
-    public String getTable() {
-        return symbolTable.symbolString.toString();
+    public String printTable() {
+        return symbolTable.symbolRecord.tablePrinter(0);
+
+    }
+
+    public SymbolRecord getRecord() {
+        return symbolTable.symbolRecord;
     }
 }
 

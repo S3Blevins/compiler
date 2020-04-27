@@ -294,7 +294,7 @@ public class jxc {
         //displays symbol table to the commandline.
         if (line.hasOption("s")) {
             System.out.println("\n\nSYMBOL TABLE:");
-            System.out.println(Parser.Instance().getTable());
+            System.out.println(Parser.Instance().printTable());
         }
 
         //prints symbol table to output file
@@ -307,7 +307,7 @@ public class jxc {
 
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-                writer.write(Parser.Instance().getTable());
+                writer.write(Parser.Instance().printTable());
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -5,6 +5,8 @@ import ir.IRList;
 import ir.Instruction;
 import lexer.Token;
 import lexer.TokenType;
+import parser.Parser;
+import parser.SymbolRecord;
 
 import java.util.*;
 
@@ -35,6 +37,7 @@ public class AsmGenerator {
 
     HashMap<String, varTable> constants;
     List<IRExpression> exprList;
+    SymbolRecord record;
 
     // Get a global instance registers to keep track of what is being used
     // and what is free to be utilized.
@@ -43,6 +46,7 @@ public class AsmGenerator {
     private AsmGenerator() {
         constants = new HashMap<>();
         mem = new memHandler();
+        record = Parser.Instance().getRecord();
     }
 
     public static AsmGenerator getInstance() {
@@ -58,11 +62,7 @@ public class AsmGenerator {
         // list of assembly expressions
         ArrayList<String> assembly = new ArrayList<>();
 
-        String prefix = "";
-        if(underscore) {
-            prefix = "_";
-        }
-
+        String prefix = underscore ? "_" : "";
 
         // String asmPrelude = ".section .data\n\n.section .bss\n\n.section .text\n\n.globl main\n\n";
         String asmPrelude = ".globl " + prefix + "main\n";
