@@ -36,19 +36,19 @@ public class IRExpression {
     public IRExpression(Instruction inst, Token dest, ArrayList<Token> sources) {
         this.inst = inst;
         this.dest = dest;
-
         this.sources = sources;
     }
 
     public IRExpression(Instruction inst, Token dest) {
         this.inst = inst;
         this.dest = dest;
-
+        this.sources = null;
     }
 
     public IRExpression(Instruction inst) {
         this.inst = inst;
         this.dest = null;
+        this.sources = null;
     }
 
     public IRExpression(String inst) {
