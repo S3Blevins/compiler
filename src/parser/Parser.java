@@ -181,6 +181,7 @@ public class Parser {
             }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+
                 return parser.Binary(left);
             }
         }, Precedence.TERM));
@@ -266,6 +267,7 @@ public class Parser {
             }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                Token.isIdentifier();
                 return parser.Binary(left);
             }
 
