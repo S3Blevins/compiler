@@ -77,10 +77,10 @@ public class AsmGenerator {
 
         // iterate through expression list
         memContent reg;
+        memContent location;
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
             String asmExpr = "";
-            String location = "";
 
             // shorten expression list reference by index
             IRExpression expr = exprList.get(i);
@@ -98,9 +98,9 @@ public class AsmGenerator {
                     asmExpr += "\n\t## function epilog\n";
                     // move whatever value in esi to eax if a return is valid
                     if (expr.dest != null) {
-                        location = mem.getVarLocation(expr.dest).getName();
-                        if (!location.equals("%eax")) {
-                            asmExpr += "\tmovl\t" + location + ", %eax\n";
+                        String loc = mem.getVarLocation(expr.dest).getName();
+                        if (!loc.equals("%eax")) {
+                            asmExpr += "\tmovl\t" + loc + ", %eax\n";
                         }
                     }
 
@@ -140,7 +140,7 @@ public class AsmGenerator {
                         location = mem.addVarToMem(exprList.get(i+1).dest);
 
                         // create an assembly expression
-                        params += "\tmovl\t" + mem.getRegister(mem.regIndex).getName() + ", " + location + "\n";
+                        params += "\tmovl\t" + mem.getRegister(mem.regIndex).getName() + ", " + location.getName() + "\n";
 
                         // increment register index and move expression
                         mem.regIndex++;
@@ -178,9 +178,9 @@ public class AsmGenerator {
                     // if the source is a number, load it into memory
                     // otherwise load the location into memory
                     if(src.tokenType == TokenType.TK_NUMBER) {
-                        asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location + "\n";
+                        asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
                     } else {
-                        asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location + "\n";
+                        asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location.getName() + "\n";
                     }
 
                     break;

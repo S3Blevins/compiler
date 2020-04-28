@@ -8,6 +8,7 @@ import lexer.TokenType;
 import java.util.*;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
 
 public class memHandler {
 
@@ -112,14 +113,14 @@ public class memHandler {
     /* ------------------------------------------------- */
 
     // add variable and respective place in memory
-    public String addVarToMem(Token var) {
+    public memContent addVarToMem(Token var) {
         this.stack.peek().add(new memContent(memIndex.toString(), var.str));
         this.stack.peek().get(memIndex).setLock(true);
         // false is stack based memory
         removeReference(var, memIndex, false);
         memIndex = this.stack.peek().size();
 
-        return "-" + ((memIndex) * 4) + "(%rbp)";
+        return this.stack.peek().get(this.stack.peek().size() - 1);
     }
 
     // add variable to next available register
@@ -128,20 +129,20 @@ public class memHandler {
         int i = 0;
 
         // Loop until we find a open register to store whatever we need.
+        System.out.println(registers.size());
         for (; i < Register.values().length; i++) {
             if (!registers.get(i).lock) {
-                System.out.println("i = " + i);
                 // once we find a open register, the i-th index
                 // will be the where the var is stored to.
                 break;
             }
+        }
 
-            // if we end up where regIndex = start, then we need to store the variable in a register and move the
-            // current value retained in the register into memory - if the moved value needs to be in a register in the future,
-            // the value will be moved accordingly
-            if (i == Register.values().length - 1) {
-                addVarToMem(var);
-            }
+        // if we end up where regIndex = start, then we need to store the variable in a register and move the
+        // current value retained in the register into memory - if the moved value needs to be in a register in the future,
+        // the value will be moved accordingly
+        if (i == Register.values().length) {
+            return addVarToMem(var);
         }
 
         // if we end up here, we put the variable in a register
