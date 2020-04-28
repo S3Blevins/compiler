@@ -98,9 +98,13 @@ public class AsmGenerator {
                     asmExpr += "\n\t## function epilog\n";
                     // move whatever value in esi to eax if a return is valid
                     if (expr.dest != null) {
-                        String loc = mem.getVarLocation(expr.dest).getName();
-                        if (!loc.equals("%eax")) {
-                            asmExpr += "\tmovl\t" + loc + ", %eax\n";
+                        if (expr.dest.tokenType == TokenType.TK_NUMBER) {
+                            asmExpr += "\tmovl\t$" + expr.dest.str + ", " + mem.addVarToReg(Register.eax, expr.dest).getName() + "\n";
+                        } else {
+                            memContent loc = mem.getVarLocation(expr.dest);
+                            if (!loc.equals("%eax")) {
+                                asmExpr += "\tmovl\t" + loc.getName() + ", " + mem.addVarToReg(Register.eax, new Token(loc.var)).getName() + "\n";
+                            }
                         }
                     }
 
@@ -257,7 +261,9 @@ public class AsmGenerator {
                         asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
                         asmExpr += "\t" + instr + "\t$" + src2.str + ", " + reg.getName() + "\n";
                     } else {
+                        //System.out.println("src1 = " + src1);
                         memContent src1Loc = mem.getVarLocation(src1);
+                        //System.out.println("src1Loc = " + src1Loc);
                         if(src1Loc.getName().startsWith("%")) {
                             asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + src1Loc.getName() + "\n";
                             reg = src1Loc;
