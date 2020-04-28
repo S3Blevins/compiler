@@ -76,6 +76,7 @@ public class AsmGenerator {
         if(!optFlag) optimize(irList.IRExprList);
 
         // iterate through expression list
+        memContent reg;
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
             String asmExpr = "";
@@ -193,7 +194,14 @@ public class AsmGenerator {
                     Token div1 = expr.sources.get(0);
                     Token div2 = expr.sources.get(1);
 
-                    String var = mem.getVarLocation(div1).getName();
+                    String var;
+
+                    if (div1.tokenType == TokenType.TK_NUMBER) {
+                        var = mem.addVarToReg(div1).getName();
+                        asmExpr += "\tmovl\t$" + div1.str + ", " + var + "\n";
+                    } else {
+                        var = mem.getVarLocation(div1).getName();
+                    }
 
                     if(!var.equals("%eax")) {
                         asmExpr += "\t## acknowledge dividend in %eax\n";
@@ -204,7 +212,13 @@ public class AsmGenerator {
                     asmExpr += "\tcdq" + "\n";                    // sign-extended EAX into EDX (EDX = signedbit(EAX))
 
                     asmExpr += "\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
-                    asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                    if (div2.tokenType != TokenType.TK_NUMBER) {
+                        asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                    } else {
+                        reg = mem.addVarToReg(div2);
+                        asmExpr += "\tmovl\t$" + div2.str + ", " + reg.getName() + "\n";
+                        asmExpr += "\tidivl\t" + reg.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                    }
 
                     mem.addVarToReg(Register.eax, expr.dest);
                     break;
@@ -233,7 +247,6 @@ public class AsmGenerator {
                     src2 = expr.sources.get(1);
                     String instr = expr.inst.getAsm();
                     // if the location of a is a register or a memory address, then proceed
-                    memContent reg;
                     asmExpr = "\t## place variable into a register and operation\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         reg = mem.addVarToReg(src2);
@@ -304,10 +317,11 @@ public class AsmGenerator {
                     asmExpr = "\t## load parameters into respective call registers and call function " + prefix + expr.sources.get(0).str + "\n";
                     if(expr.sources != null) {
                         for(int k = 1; k < expr.sources.size(); k++) {
+                            memContent memContent = mem.getMemory(expr.sources.get(k));
                             if(expr.sources.get(k).tokenType == TokenType.TK_NUMBER) {
-                                asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + mem.getRegister(k - 1).getName() + "\n";
+                                asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + mem.addVarToReg(Register.values()[k-1], expr.sources.get(k)).getName() + "\n";
                             } else {
-                                asmExpr += "\tmovl\t" + mem.getMemory(expr.sources.get(k)).getName() + ", " + mem.getRegister(k - 1).getName() + "\n";
+                                asmExpr += "\tmovl\t" + memContent.getName() + ", " + mem.addVarToReg(Register.values()[k-1], new Token(memContent.var, TokenType.TK_IDENTIFIER)).getName() + "\n";
                             }
                         }
                     }
@@ -323,6 +337,7 @@ public class AsmGenerator {
                     break;
             }
             assembly.add(asmExpr);
+            System.out.println(asmExpr);
         }
 
         return assembly;

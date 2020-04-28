@@ -83,6 +83,11 @@ public class memHandler {
     /* ------------------------------------------------- */
 
     private void removeReference(Token var, int location, boolean memType) {
+        if (var.tokenType == TokenType.TK_NUMBER) {
+            return;
+        }
+
+        System.out.println("var.tokenType = " + var.tokenType);
         // take current references and remove one
         int curCount = refCounter.get(var.str) - 1;
         refCounter.put(var.str, curCount);
@@ -99,7 +104,6 @@ public class memHandler {
             } else {
                 stack.peek().get(location).setLock(false);
             }
-
         }
     }
 
@@ -119,39 +123,42 @@ public class memHandler {
     // add variable to next available register
     public memContent addVarToReg(Token var) {
         // we're playing round-robin with the registers until we find one that's open
-        int start = regIndex;
+        int i = 0;
 
-        // loop around until we find a valid register, otherwise put the variable into memory
-        while(registers.get(regIndex).lock) {
-            // go to the next register
-            regIndex++;
-
-            // check if the register count needs to loop around
-            if(regIndex > registers.size()) {
-                regIndex = 0;
+        // Loop until we find a open register to store whatever we need.
+        for (; i < Register.values().length; i++) {
+            if (!registers.get(i).lock) {
+                System.out.println("i = " + i);
+                // once we find a open register, the i-th index
+                // will be the where the var is stored to.
+                break;
             }
 
             // if we end up where regIndex = start, then we need to store the variable in a register and move the
             // current value retained in the register into memory - if the moved value needs to be in a register in the future,
             // the value will be moved accordingly
-            if(regIndex == start) {
+            if (i == Register.values().length - 1) {
                 addVarToMem(var);
             }
         }
 
         // if we end up here, we put the variable in a register
-        registers.get(regIndex).setVar(var.str);
+        registers.get(i).setVar(var.str);
 
-        removeReference(var, regIndex, true);
+        // SET LOCK
+        registers.get(i).setLock(true);
 
-        return registers.get(regIndex);
+        // Decrement variable instances.
+        removeReference(var, i, true);
+
+        return registers.get(i);
     }
 
     // NOTE - some registers are overwritten regardless of lock
     // %rax when returning
     // %rax when after a call (see above)
     // %rax after division
-    public void addVarToReg(Register reg, Token var) {
+    public memContent addVarToReg(Register reg, Token var) {
         int index = reg.ordinal();
         // if the explicitly requested register is locked,
         // relocate the contents.
@@ -162,11 +169,13 @@ public class memHandler {
         // place content into specifically requested register
         registers.get(index).setVar(var.str);
 
-        if(refCounter.get(var.str) != 0) {
+        if(refCounter.get(var.str) != null && refCounter.get(var.str) != 0) {
             registers.get(index).setLock(true);
         }
 
         removeReference(var, index, true);
+
+        return registers.get(index);
     }
 
     /* ------------------------------------------------- */
