@@ -83,8 +83,10 @@ public class memHandler {
     /* ------------------------------------------------- */
 
     private void removeReference(Token var, int location, boolean memType) {
-        if (var.tokenType == TokenType.TK_NUMBER) {
+        try {
+            Integer.parseInt(var.str);
             return;
+        } catch (NumberFormatException e) {
         }
 
         System.out.println("var.tokenType = " + var.tokenType);
