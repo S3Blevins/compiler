@@ -235,13 +235,15 @@ public class AsmGenerator {
                 case SUB:
                     Token src1;
                     Token src2;
+
+
                     if(expr.sources.size() != 2) {
                         src1 = expr.sources.get(0);
                         if(src1.tokenType == TokenType.TK_NUMBER) {
                             //TODO: need to get a method that will produce an empty register for numbers
                             // maybe get a register that can never be permanent?
-                            mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(src1).getName() + "\n";
-                            mem.asmExpr += "\tneg\t\t" + mem.getVarLocation(expr.dest).getName() + "\n";
+                            mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.addVarToReg(src1).getName() + "\n";
+                            mem.asmExpr += "\tneg\t\t" + mem.getVarLocation(src1).getName() + "\n";
                             mem.addVarToReg(expr.dest);
                         } else {
                             mem.asmExpr = "\tneg\t\t%" + mem.getVarLocation(src1) + "\n";
