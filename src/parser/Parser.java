@@ -864,7 +864,7 @@ public class Parser {
 
             while (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
 
-                if (funDec.getParamSize() > 4) {
+                if (funDec.getParamSize() > 3) {
                     System.err.println("ERROR: Unsupported number of parameters in function " + decID.str);
                     exit(1);
                 }
