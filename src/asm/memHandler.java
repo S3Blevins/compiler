@@ -136,10 +136,11 @@ public class memHandler {
     /* ------------------------------------------------- */
 
     public memContent nextMem(Token var) {
-        this.stack.peek().add(new memContent(memIndex.toString(), var.str));
-        this.stack.peek().get(memIndex).setLock(true);
-        System.out.println("The variable " + var.str + " will be stored in memory location " + this.stack.peek().get(memIndex).getName());
-        memIndex = this.stack.peek().size();
+        Integer pos = this.stack.peek().size();
+        this.stack.peek().add(new memContent(pos.toString(), var.str));
+        this.stack.peek().get(pos).setLock(true);
+        System.out.println("The variable " + var.str + " will be stored in memory location " + this.stack.peek().get(pos).getName());
+        //memIndex = this.stack.peek().size();
 
         return this.stack.peek().get(this.stack.peek().size() - 1);
     }
@@ -147,7 +148,7 @@ public class memHandler {
     // add variable and respective place in memory
     public memContent addVarToMem(Token var) {
         memContent tmp = nextMem(var);
-        removeReference(var, memIndex.toString());
+        removeReference(var, tmp.nameRef);
 
         return tmp;
     }
