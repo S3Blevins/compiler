@@ -5,6 +5,8 @@ import lexer.TokenType;
 import common.IVisitor;
 import parser.Node;
 
+import static java.lang.System.exit;
+
 public abstract class Expression extends Node {
 
     public static class Ternary extends Expression {
@@ -143,6 +145,13 @@ public abstract class Expression extends Node {
 
         public <T> T accept(IVisitor visitor) {
             return (T) visitor.visitfunCall(this);
+        }
+    }
+
+    public void isIdentifier() {
+        if(!(this instanceof Expression.Identifier)) {
+            System.err.println("ERROR: Assignment to constant or number is invalid");
+            exit(1);
         }
     }
 }

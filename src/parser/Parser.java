@@ -181,6 +181,7 @@ public class Parser {
             }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+
                 return parser.Binary(left);
             }
         }, Precedence.TERM));
@@ -266,6 +267,7 @@ public class Parser {
             }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                left.isIdentifier();
                 return parser.Binary(left);
             }
 
@@ -279,6 +281,7 @@ public class Parser {
                 }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                left.isIdentifier();
                 return parser.Binary(left);
             }
 
@@ -292,6 +295,7 @@ public class Parser {
                 }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                left.isIdentifier();
                 return parser.Binary(left);
             }
 
@@ -305,6 +309,7 @@ public class Parser {
                 }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                left.isIdentifier();
                 return parser.Binary(left);
             }
 
@@ -318,6 +323,7 @@ public class Parser {
                 }, new ParseRule.Led() {
             Expression exec(Expression left) {
                 Parser parser = Parser.Instance();
+                left.isIdentifier();
                 return parser.Binary(left);
             }
 
@@ -481,7 +487,7 @@ public class Parser {
             new ParseRule.Nud() {
                 Expression exec() {
                     Parser parser = Parser.Instance();
-                        return parser.Identifier();
+                    return parser.Identifier();
                 }
             }, new ParseRule.Led() {
                 Expression exec(Expression left) {
