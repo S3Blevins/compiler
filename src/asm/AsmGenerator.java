@@ -341,6 +341,10 @@ public class AsmGenerator {
                                 mem.asmExpr += "\tmovl\t" + memContent.getName() + ", " + regName + "\n";
                             }
                         }
+                        // we unlock all the parameters after use because when the register round-robbin uses the parameter specific registers,
+                        // the parameter registers end up getting locked and are not able to be unlocked later because the references are not necessarily
+                        // used in the future
+                        mem.unlockParameters(expr.sources.size() - 1);
                     }
 
                     mem.asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";

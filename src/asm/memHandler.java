@@ -92,30 +92,44 @@ public class memHandler {
     /* ------------------------------------------------- */
 
     private void removeReference(Token var, String location) {
+        System.out.println("LOCATION: removeReference(Token, String)");
         try {
             Integer.parseInt(var.str);
-            return;
-        } catch (NumberFormatException e) {
-        }
-
-
-        System.out.print("The reference count for var " + var.str + " is " + refCounter.get(var.str));
-
-        // take current references and remove one
-        int curCount = refCounter.get(var.str) - 1;
-        refCounter.put(var.str, curCount);
-
-        System.out.println(" and will be reduced to " + curCount);
-
-        // if the references hit zero and stored in a register, then unlock it for future use
-        if(curCount == 0) {
-            refCounter.remove(var.str);
-            // unlock register or memory for future use
             try {
+                System.out.println("The memory location " + stack.peek().get(Integer.parseInt(location)).getName() + " holding the number " + var.str + " will be unlocked");
                 stack.peek().get(Integer.parseInt(location)).setLock(false);
             } catch(NumberFormatException e) {
+                System.out.println("The register " + registers.get(Register.valueOf(location).ordinal()).getName() + " holding the number " + var.str + " will be unlocked");
                 registers.get(Register.valueOf(location).ordinal()).setLock(false);
             }
+        } catch (NumberFormatException e) {
+            System.out.print("The reference count for var " + var.str + " is " + refCounter.get(var.str));
+
+            // take current references and remove one
+            int curCount = refCounter.get(var.str) - 1;
+            refCounter.put(var.str, curCount);
+
+            System.out.println(" and will be reduced to " + curCount);
+            // if the references hit zero and stored in a register, then unlock it for future use
+            if(curCount == 0) {
+                refCounter.remove(var.str);
+                // unlock register or memory for future use
+                try {
+                    System.out.println("The memory location " + stack.peek().get(Integer.parseInt(location)).getName() + " holding the variable " + var.str + " will be unlocked");
+                    stack.peek().get(Integer.parseInt(location)).setLock(false);
+                } catch(NumberFormatException e2) {
+                    System.out.println("The register " + registers.get(Register.valueOf(location).ordinal()).getName() + " holding the variable " + var.str + " will be unlocked");
+                    registers.get(Register.valueOf(location).ordinal()).setLock(false);
+                }
+            }
+        }
+    }
+
+    public void unlockParameters(int parameters) {
+        // max of 6
+        for(int i = 0; i < parameters; i++) {
+            System.out.println("The register " + registers.get(i).getName() + " holding the parameter " + registers.get(i).var + " is being unlocked");
+            registers.get(i).setLock(false);
         }
     }
 
@@ -186,6 +200,7 @@ public class memHandler {
     // %rax when after a call (see above)
     // %rax after division
     public memContent addVarToReg(Register reg, Token var) {
+        System.out.println("LOCATION: addVarToReg(Register, Token)");
         Integer index = reg.ordinal();
         System.out.println("Adding the variable " + var.str + " specifically to register " + registers.get(index).getName());
         // if the explicitly requested register is locked,
