@@ -98,7 +98,7 @@ public class AsmGenerator {
                     mem.asmExpr += "\n\t## function epilog\n";
                     // move whatever value in esi to eax if a return is valid
                     if (expr.dest != null) {
-                        // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be using inline
+                        // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be used inline
                         // because the string building will error
                         String regName;
                         if (expr.dest.tokenType == TokenType.TK_NUMBER) {

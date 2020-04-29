@@ -208,6 +208,7 @@ public class memHandler {
 
         // if the register has a lock and the contents are still being used, find a new register to put it in
         if(registers.get(index).lock) {
+            // && refCount.get(registers.get(index).var)) > 0
             System.out.println("The register " + registers.get(index).getName() + " is locked, so the contents (" + registers.get(index).var  + ") will be relocated to the next available register");
             // we need to inject an instruction where we move the contents of the
             // otherwise we return the original register
