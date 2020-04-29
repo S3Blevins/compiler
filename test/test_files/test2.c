@@ -3,10 +3,13 @@ int div(int a, int b, int c, int d) {
 }
 
 int main() {
-    int a = 20;
+    int a = 10;
     int b = 2;
     int c = 5;
-    int result = div(a, b, c, 2);
+    int d = 1;
+    int result = div(a, b, c, d);
 
-    return result + div(20,10,2,2) + div(200,25,4,1);
+    return result + div(a,b,c,d)
+     + div(a,b,c,d)
+     + div(a, b, c, d);
 }
