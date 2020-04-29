@@ -230,7 +230,16 @@ public class AsmGenerator {
                         mem.asmExpr += "\tidivl\t" + reg.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
                     }
 
-                    mem.addVarToReg(Register.eax, expr.dest);
+                    if (div1.str.equals(expr.dest.str)) {
+                        memContent tmp = mem.getMemory(expr.dest);
+                        mem.asmExpr += "\tmovl\t" +  "%eax, " + tmp.getName() + "\n";
+                        // twice since we technically have 2 of the same variable in one instance
+                        mem.removeReference(expr.dest, tmp.getName());
+                        mem.removeReference(expr.dest, tmp.getName());
+                    } else {
+                        //mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
+                        mem.addVarToReg(Register.eax, expr.dest);
+                    }
                     break;
                 case SUB:
                     Token src1;
@@ -286,7 +295,17 @@ public class AsmGenerator {
                             mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
                         }
                     }
-                    mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
+
+                    // first conditional used for +=, -+, etc when the src and dest (FROM IR) are the same.
+                    if (src1.str.equals(expr.dest.str)) {
+                        memContent tmp = mem.getMemory(expr.dest);
+                        mem.asmExpr += "\tmovl\t" + reg.getName() + ", " + tmp.getName() + "\n";
+                        mem.removeReference(expr.dest, tmp.getName());
+                        mem.removeReference(expr.dest, tmp.getName());
+
+                    } else {
+                        mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
+                    }
                     break;
                 case ASSIGN:
                     src1 = expr.sources.get(0);
