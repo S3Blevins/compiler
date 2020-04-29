@@ -1,5 +1,5 @@
-int div(int a, int b, int c, int d) {
-    return (a / b) / c / d;
+int add(int a, int b, int c, int d) {
+    return (a + b) + c + d;
 }
 
 int main() {
@@ -7,9 +7,9 @@ int main() {
     int b = 2;
     int c = 5;
     int d = 1;
-    int result = div(a, b, c, d);
+    int result = add(a, b, c, d); //18
 
-    return result + div(a,b,c,d)
-     + div(a,b,c,d)
-     + div(a, b, c, d);
+    d = 10 + 2; // 12
+
+    return result + add(a,b,c,d); //47
 }

@@ -70,9 +70,10 @@ public class IRBuilder implements IVisitor<Token> {
 
                 // if no destination, it is placed into right side's expression
                 if(binOp == TokenType.TK_EQUALS) {
-                        dest = null;
-                }
-                else if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
+                        dest = left;
+                        IRs.addExpr(new IRExpression(binInstr, right, dest));
+                        return dest;
+                } else if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
                         binOp == TokenType.TK_SLASHEQ) {
                         dest = left;
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||

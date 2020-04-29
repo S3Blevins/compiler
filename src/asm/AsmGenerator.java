@@ -236,7 +236,6 @@ public class AsmGenerator {
                     Token src1;
                     Token src2;
 
-
                     if(expr.sources.size() != 2) {
                         src1 = expr.sources.get(0);
                         if(src1.tokenType == TokenType.TK_NUMBER) {
@@ -285,23 +284,23 @@ public class AsmGenerator {
                     break;
                 case ASSIGN:
                     src1 = expr.sources.get(0);
-                    src2 = expr.sources.get(1);
                     System.out.println("src1 = " + src1);
-                    System.out.println("src2 = " + src2);
+                    System.out.println("expr.dest = " + expr.dest);
                     mem.asmExpr = "\t## assignment\n";
-                    if(src2.tokenType == TokenType.TK_NUMBER) {
+                    if(src1.tokenType == TokenType.TK_NUMBER) {
                         // Move immediate assignment value into variable.
-                        mem.asmExpr += "\tmovl\t$" + src2.str + ", " + mem.getVarLocation(src1).getName();
+                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(src1).getName();
                     } else {
                         // move updated assignment to previously assigned location.
-                        memContent tmp = mem.getVarLocation(src2);
+                        memContent tmp = mem.getVarLocation(src1);
                         if (tmp.getName().startsWith("-")) {
                             // since we cannot mov <mem>, <mem> we need to provide an available register to move to.
                             memContent tmp2 = mem.addVarToReg(new Token(tmp.var));
                             mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + tmp2.getName() + "\n";
-                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + mem.getVarLocation(src1).getName();
+                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + mem.getVarLocation(expr.dest).getName();
                         } else {
-                            mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src2).getName() + ", " + mem.getVarLocation(src1).getName();
+                            System.out.println("CONTENTS OF THE ASSIGNEMNET: " + tmp.var);
+                            mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + mem.getVarLocation(expr.dest).getName();
                         }
                     }
                     break;
