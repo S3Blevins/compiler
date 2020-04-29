@@ -91,7 +91,7 @@ public class memHandler {
 
     /* ------------------------------------------------- */
 
-    private void removeReference(Token var, String location) {
+    public void removeReference(Token var, String location) {
         System.out.println("LOCATION: removeReference(Token, String)");
         try {
             Integer.parseInt(var.str);
