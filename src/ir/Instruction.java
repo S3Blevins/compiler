@@ -17,8 +17,8 @@ public enum Instruction {
     LOADP("movl"),
     BREAK("movl"),
 
-    INC("inc"),
-    DEC("dec"),
+    INC("incl"),
+    DEC("decl"),
 
     NOT("not"),
     AND("and"),

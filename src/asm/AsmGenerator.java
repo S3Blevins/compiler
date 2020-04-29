@@ -121,7 +121,7 @@ public class AsmGenerator {
                 case NOT:   // fall through
                 case INC:   // fall through
                 case DEC:
-                    mem.asmExpr = expr.inst.toString().toLowerCase() + "\t" + mem.getVarLocation(expr.dest) + "\n";
+                    mem.asmExpr = "\t" + expr.inst.getAsm() + "\t" + mem.getVarLocation(expr.dest).getName() + "\n";
                     break;
                 case LABEL:
                     mem.asmExpr = expr.dest.str + ":\n\n";
