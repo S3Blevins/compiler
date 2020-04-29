@@ -150,7 +150,7 @@ public abstract class Expression extends Node {
 
     public void isIdentifier() {
         if(!(this instanceof Expression.Identifier)) {
-            System.out.println("NOT");
+            System.err.println("ERROR: Assignment to constant or number is invalid");
             exit(1);
         }
     }
