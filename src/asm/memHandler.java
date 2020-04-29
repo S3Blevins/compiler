@@ -19,6 +19,10 @@ public class memHandler {
     public Stack<ArrayList<memContent>> stack;
     public Integer memIndex;
 
+    // moved the assembly expression into the memory handler in order to handle
+    // adding intermediary expressions where the register is locked and needs to be moved
+    public String asmExpr;
+
     public memHandler() {
         this.registers = new ArrayList<>();
 
@@ -28,6 +32,10 @@ public class memHandler {
         for(Register reg: Register.values()) {
             this.registers.add(new memContent(reg.name(), ""));
         }
+    }
+
+    public void newExpr() {
+        asmExpr = "";
     }
 
     // index is starting place in IR for the function
@@ -78,6 +86,7 @@ public class memHandler {
             // increment the loop
             index++;
         }
+        System.out.println(refCounter.entrySet());
     }
 
     /* ------------------------------------------------- */
@@ -89,15 +98,18 @@ public class memHandler {
         } catch (NumberFormatException e) {
         }
 
+
+        System.out.print("The reference count for var " + var.str + " is " + refCounter.get(var.str));
+
         // take current references and remove one
         int curCount = refCounter.get(var.str) - 1;
         refCounter.put(var.str, curCount);
 
-        System.out.println("The reference count for var " + var.str + " is " + refCounter.get(var.str) + " and will be reduced to " + curCount);
+        System.out.println(" and will be reduced to " + curCount);
 
         // if the references hit zero and stored in a register, then unlock it for future use
         if(curCount == 0) {
-
+            refCounter.remove(var.str);
             // unlock register or memory for future use
             try {
                 stack.peek().get(Integer.parseInt(location)).setLock(false);
@@ -109,16 +121,21 @@ public class memHandler {
 
     /* ------------------------------------------------- */
 
-    // add variable and respective place in memory
-    public memContent addVarToMem(Token var) {
+    public memContent nextMem(Token var) {
         this.stack.peek().add(new memContent(memIndex.toString(), var.str));
         this.stack.peek().get(memIndex).setLock(true);
         System.out.println("The variable " + var.str + " will be stored in memory location " + this.stack.peek().get(memIndex).getName());
-        // false is stack based memory
-        removeReference(var, memIndex.toString());
         memIndex = this.stack.peek().size();
 
         return this.stack.peek().get(this.stack.peek().size() - 1);
+    }
+
+    // add variable and respective place in memory
+    public memContent addVarToMem(Token var) {
+        memContent tmp = nextMem(var);
+        removeReference(var, memIndex.toString());
+
+        return tmp;
     }
 
     public memContent nextAvailReg(Token var) {
@@ -141,7 +158,7 @@ public class memHandler {
         // the value will be moved accordingly
         if (i == Register.values().length) {
             System.out.println("All registers are full!");
-            return addVarToMem(var);
+            return nextMem(var);
         }
 
         // if we end up here, we put the variable in a register
@@ -173,9 +190,15 @@ public class memHandler {
         System.out.println("Adding the variable " + var.str + " specifically to register " + registers.get(index).getName());
         // if the explicitly requested register is locked,
         // relocate the contents.
+
+        // if the register has a lock and the contents are still being used, find a new register to put it in
         if(registers.get(index).lock) {
             System.out.println("The register " + registers.get(index).getName() + " is locked, so the contents (" + registers.get(index).var  + ") will be relocated to the next available register");
-            nextAvailReg(new Token (registers.get(index).var, TokenType.TK_IDENTIFIER));
+            // we need to inject an instruction where we move the contents of the
+            // otherwise we return the original register
+
+            this.asmExpr += "\tmovl\t" + registers.get(index).getName() + ", " + nextAvailReg(new Token (registers.get(index).var, TokenType.TK_IDENTIFIER)).getName() + "\n";
+            //System.out.println(this.asmExpr);
         }
 
         // place content into specifically requested register
@@ -185,9 +208,8 @@ public class memHandler {
         if(refCounter.get(var.str) != null && refCounter.get(var.str) != 0) {
             System.out.println("The register " + registers.get(index).getName() + " is now locked");
             registers.get(index).setLock(true);
+            removeReference(var, registers.get(index).nameRef);
         }
-
-        removeReference(var, index.toString());
 
         return registers.get(index);
     }
@@ -211,7 +233,7 @@ public class memHandler {
         ArrayList<memContent> tmpMem = this.stack.peek();
         for(Integer i = 0; i < tmpMem.size(); i++) {
             if(tmpMem.get(i).var.equals(var.str)) {
-                removeReference(var, i.toString());
+                //removeReference(var, i.toString());
                 return tmpMem.get(i);
             }
         }
@@ -220,7 +242,6 @@ public class memHandler {
 
     // get register from index
     public memContent getRegister(int index) {
-
         return registers.get(index);
     }
 

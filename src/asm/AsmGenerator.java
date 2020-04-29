@@ -80,7 +80,7 @@ public class AsmGenerator {
         memContent location;
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
-            String asmExpr = "";
+            mem.newExpr();
 
             // shorten expression list reference by index
             IRExpression expr = exprList.get(i);
@@ -90,47 +90,53 @@ public class AsmGenerator {
 
                 /* NO SOURCE */
                 case NOP:
-                    asmExpr = "\tnop\n";
+                    mem.asmExpr = "\tnop\n";
                     break;
 
                 /* ONE SOURCE */
                 case RET:
-                    asmExpr += "\n\t## function epilog\n";
+                    mem.asmExpr += "\n\t## function epilog\n";
                     // move whatever value in esi to eax if a return is valid
                     if (expr.dest != null) {
+                        // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be using inline
+                        // because the string building will error
+                        String regName;
                         if (expr.dest.tokenType == TokenType.TK_NUMBER) {
-                            asmExpr += "\tmovl\t$" + expr.dest.str + ", " + mem.addVarToReg(Register.eax, expr.dest).getName() + "\n";
+                            regName = mem.addVarToReg(Register.eax, expr.dest).getName();
+                            mem.asmExpr += "\tmovl\t$" + expr.dest.str + ", " + regName + "\n";
                         } else {
                             memContent loc = mem.getVarLocation(expr.dest);
-                            if (!loc.equals("%eax")) {
-                                asmExpr += "\tmovl\t" + loc.getName() + ", " + mem.addVarToReg(Register.eax, new Token(loc.var)).getName() + "\n";
+                            if (!loc.getName().equals("%eax")) {
+                                regName = mem.addVarToReg(Register.eax, new Token(loc.var)).getName();
+                                mem.asmExpr += "\tmovl\t" + loc.getName() + ", " + regName + "\n";
                             }
                         }
                     }
 
                     // pop off the basepointer from the stack
-                    asmExpr += "\tleave\n";
-                    asmExpr += "\tret\t\t## return the function\n";
+                    mem.asmExpr += "\tleave\n";
+                    mem.asmExpr += "\t## return the function\n";
+                    mem.asmExpr += "\tret\n";
                     break;
                 case NOT:   // fall through
                 case INC:   // fall through
                 case DEC:
-                    asmExpr = expr.inst.toString().toLowerCase() + "\t" + mem.getVarLocation(expr.dest) + "\n";
+                    mem.asmExpr = expr.inst.toString().toLowerCase() + "\t" + mem.getVarLocation(expr.dest) + "\n";
                     break;
                 case LABEL:
-                    asmExpr = expr.dest.str + ":\n\n";
+                    mem.asmExpr = expr.dest.str + ":\n\n";
                     break;
                 case FUNC:
                     // new hashmap for each function call - may need to be modified
                     mem.newScope(exprList, i);
 
                     // function label
-                    asmExpr += "\n" + prefix + expr.dest.str + ":\n\n";
+                    mem.asmExpr += "\n" + prefix + expr.dest.str + ":\n\n";
 
                     // function prolog
-                    asmExpr += "\t## function prolog\n";
-                    asmExpr += "\tpushq\t%rbp\n";
-                    asmExpr += "\tmovq\t%rsp, %rbp\n";
+                    mem.asmExpr += "\t## function prolog\n";
+                    mem.asmExpr += "\tpushq\t%rbp\n";
+                    mem.asmExpr += "\tmovq\t%rsp, %rbp\n";
 
                     // have to calculate the parameters first to avoid stack subtracting
                     int paramCounter = 0;
@@ -157,14 +163,14 @@ public class AsmGenerator {
                     if (stackSpacing != 0) {
                         // align to 16
                         stackSpacing += stackSpacing % 16;
-                        asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
+                        mem.asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
                     }
 
 
                     // place parameters into memory(if they exist)
-                    asmExpr += "\t## load parameters into stack (if they exist)\n";
-                    asmExpr += params;
-                    asmExpr += "\n";
+                    mem.asmExpr += "\t## load parameters into stack (if they exist)\n";
+                    mem.asmExpr += params;
+                    mem.asmExpr += "\n";
 
                     // increment next scope in table
                     symCounter++;
@@ -177,20 +183,20 @@ public class AsmGenerator {
                     } else {
                         src = expr.sources.get(0);
                     }
-                    asmExpr += "\t## store variable in stack\n";
+                    mem.asmExpr += "\t## store variable in stack\n";
 
                     // if the source is a number, load it into memory
                     // otherwise load the location into memory
                     if(src.tokenType == TokenType.TK_NUMBER) {
-                        asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
+                        mem.asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
                     } else {
-                        asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location.getName() + "\n";
+                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location.getName() + "\n";
                     }
 
                     break;
                 case BREAK: // fall through
                 case JMP:
-                    asmExpr = "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
+                    mem.asmExpr = "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
                     break;
 
                 /* TWO SOURCES */
@@ -202,26 +208,26 @@ public class AsmGenerator {
 
                     if (div1.tokenType == TokenType.TK_NUMBER) {
                         var = mem.addVarToReg(div1).getName();
-                        asmExpr += "\tmovl\t$" + div1.str + ", " + var + "\n";
+                        mem.asmExpr += "\tmovl\t$" + div1.str + ", " + var + "\n";
                     } else {
                         var = mem.getVarLocation(div1).getName();
                     }
 
                     if(!var.equals("%eax")) {
-                        asmExpr += "\t## acknowledge dividend in %eax\n";
-                        asmExpr += "\tmovl\t" + var + ", %eax\n";
+                        mem.asmExpr += "\t## acknowledge dividend in %eax\n";
+                        mem.asmExpr += "\tmovl\t" + var + ", %eax\n";
                     }
 
-                    asmExpr += "\t## sign-extended EAX into EDX (EDX = signedbit(EAX))\n";
-                    asmExpr += "\tcdq" + "\n";                    // sign-extended EAX into EDX (EDX = signedbit(EAX))
+                    mem.asmExpr += "\t## sign-extended EAX into EDX (EDX = signedbit(EAX))\n";
+                    mem.asmExpr += "\tcdq" + "\n";                    // sign-extended EAX into EDX (EDX = signedbit(EAX))
 
-                    asmExpr += "\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
+                    mem.asmExpr += "\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
                     if (div2.tokenType != TokenType.TK_NUMBER) {
-                        asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                        mem.asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
                     } else {
                         reg = mem.addVarToReg(div2);
-                        asmExpr += "\tmovl\t$" + div2.str + ", " + reg.getName() + "\n";
-                        asmExpr += "\tidivl\t" + reg.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                        mem.asmExpr += "\tmovl\t$" + div2.str + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\tidivl\t" + reg.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
                     }
 
                     mem.addVarToReg(Register.eax, expr.dest);
@@ -234,11 +240,11 @@ public class AsmGenerator {
                         if(src1.tokenType == TokenType.TK_NUMBER) {
                             //TODO: need to get a method that will produce an empty register for numbers
                             // maybe get a register that can never be permanent?
-                            asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(src1).getName() + "\n";
-                            asmExpr += "\tneg\t\t" + mem.getVarLocation(expr.dest).getName() + "\n";
+                            mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(src1).getName() + "\n";
+                            mem.asmExpr += "\tneg\t\t" + mem.getVarLocation(expr.dest).getName() + "\n";
                             mem.addVarToReg(expr.dest);
                         } else {
-                            asmExpr = "\tneg\t\t%" + mem.getVarLocation(src1) + "\n";
+                            mem.asmExpr = "\tneg\t\t%" + mem.getVarLocation(src1) + "\n";
                         }
                         break;
                     }
@@ -251,45 +257,45 @@ public class AsmGenerator {
                     src2 = expr.sources.get(1);
                     String instr = expr.inst.getAsm();
                     // if the location of a is a register or a memory address, then proceed
-                    asmExpr = "\t## place variable into a register and operation\n";
+                    mem.asmExpr = "\t## place variable into a register and operation\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         reg = mem.addVarToReg(src2);
-                        asmExpr += "\tmovl\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
-                        asmExpr += "\t" + instr + "\t$" + src1.str + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\t" + instr + "\t$" + src1.str + ", " + reg.getName() + "\n";
                     } else if(src2.tokenType == TokenType.TK_NUMBER) {
                         reg = mem.addVarToReg(src1);
-                        asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
-                        asmExpr += "\t" + instr + "\t$" + src2.str + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\t" + instr + "\t$" + src2.str + ", " + reg.getName() + "\n";
                     } else {
                         //System.out.println("src1 = " + src1);
                         memContent src1Loc = mem.getVarLocation(src1);
                         //System.out.println("src1Loc = " + src1Loc);
                         if(src1Loc.getName().startsWith("%")) {
-                            asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + src1Loc.getName() + "\n";
+                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + src1Loc.getName() + "\n";
                             reg = src1Loc;
                         } else {
                             reg = mem.addVarToReg(src1);
-                            asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
-                            asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
+                            mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
+                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
                         }
                     }
                     mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
                     break;
                 case ASSIGN:
                     src1 = expr.sources.get(0);
-                    asmExpr = "\t## assignment\n";
+                    mem.asmExpr = "\t## assignment\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
-                        asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(expr.dest).getName();
+                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(expr.dest).getName();
                     } else {
-                        asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + mem.getVarLocation(expr.dest).getName();
+                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + mem.getVarLocation(expr.dest).getName();
                     }
                     break;
                 case EVAL:
-                    asmExpr = "\t## evauluate 'boolean' conditions\n";
-                    asmExpr += "\tmovl\t" + "$0, %eax\n";
-                    asmExpr += "\ttest\t\t%eax" + ", " + expr.sources.get(0).str + "\n"; // + src1, src2
+                    mem.asmExpr = "\t## evauluate 'boolean' conditions\n";
+                    mem.asmExpr += "\tmovl\t" + "$0, %eax\n";
+                    mem.asmExpr += "\ttest\t\t%eax" + ", " + expr.sources.get(0).str + "\n"; // + src1, src2
                     // expr holds the current IR line we are dealing with.
-                    asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                    mem.asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
 
                     break;
                 case EQUAL:     // fall through
@@ -308,42 +314,47 @@ public class AsmGenerator {
                     Token var1 = expr.sources.get(0);
                     Token var2 = expr.sources.get(1);
 
-                    asmExpr = "\t## evauluate 'comparison' conditions\n";
+                    mem.asmExpr = "\t## evauluate 'comparison' conditions\n";
 
                     // Put these variables into registers utilizing MOVE
                     // Then call cmp on both registers.
-                    asmExpr += "\tcmp\t\t" + var1.str + ", " + var2.str + "\n"; // + src1, src2
+                    mem.asmExpr += "\tcmp\t\t" + var1.str + ", " + var2.str + "\n"; // + src1, src2
                     // expr holds the current IR line we are dealing with.
-                    asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                    mem.asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
 
                     break;
 
                 /* 'N' sources */
                 case CALL:
-                    asmExpr = "\t## load parameters into respective call registers and call function " + prefix + expr.sources.get(0).str + "\n";
+                    mem.asmExpr = "\t## load parameters into respective call registers and call function " + prefix + expr.sources.get(0).str + "\n";
                     if(expr.sources != null) {
+                        String regName;
                         for(int k = 1; k < expr.sources.size(); k++) {
-                            memContent memContent = mem.getMemory(expr.sources.get(k));
                             if(expr.sources.get(k).tokenType == TokenType.TK_NUMBER) {
-                                asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + mem.addVarToReg(Register.values()[k-1], expr.sources.get(k)).getName() + "\n";
+                                // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be using inline
+                                // because the string building will error
+                                regName = mem.addVarToReg(Register.values()[k-1], expr.sources.get(k)).getName();
+                                mem.asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + regName + "\n";
                             } else {
-                                asmExpr += "\tmovl\t" + memContent.getName() + ", " + mem.addVarToReg(Register.values()[k-1], new Token(memContent.var, TokenType.TK_IDENTIFIER)).getName() + "\n";
+                                memContent memContent = mem.getMemory(expr.sources.get(k));
+                                regName = mem.addVarToReg(Register.values()[k-1], new Token(memContent.var, TokenType.TK_IDENTIFIER)).getName();
+                                mem.asmExpr += "\tmovl\t" + memContent.getName() + ", " + regName + "\n";
                             }
                         }
                     }
 
-                    asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";
+                    mem.asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";
                     //asmExpr += "\tmovl\t%eax, %" + mem.getRegName(2) + "\n";
 
                     // mem.getReg(6) is %eax
                     mem.addVarToReg(Register.eax, expr.dest);
                     break;
                 default:
-                    asmExpr = null;
+                    mem.asmExpr = "";
                     break;
             }
-            assembly.add(asmExpr);
-            System.out.println(asmExpr);
+            assembly.add(mem.asmExpr);
+            System.out.println(mem.asmExpr);
         }
 
         return assembly;
