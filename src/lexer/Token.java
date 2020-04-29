@@ -1,11 +1,5 @@
 package lexer;
 
-import parser.Parser;
-import parser.treeObjects.Expression;
-
-import static java.lang.System.exit;
-import static lexer.TokenType.TK_IDENTIFIER;
-
 public class Token {
 
     public String str;
@@ -60,12 +54,5 @@ public class Token {
 
     public String tokError() {
         return ("on line: " + this.lineNumber + " with token '" + this.str + "'");
-    }
-
-    public static void isIdentifier(Token token){
-        if(token.tokenType != TK_IDENTIFIER){
-            System.err.println("ERROR: assignment to invalid token " + token.str + " on line " + token.lineNumber + ".");
-            exit(1);
-        }
     }
 }
