@@ -1,16 +1,12 @@
-int add(int a, int b) {
-    return a + b;
-}
-
-int div(int a, int b, int c) {
-    return (a / b) / add(c, 3);
+int div(int a, int b, int c, int d) {
+    return (a / b) / c / d;
 }
 
 int main() {
     int a = 20;
     int b = 2;
     int c = 5;
-    int result = div(a, b, c);
+    int result = div(a, b, c, 2);
 
-    return result + div(a,b,c);
+    return result + div(20,10,2,2) + div(200,25,4,1);
 }
