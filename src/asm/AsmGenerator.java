@@ -295,7 +295,7 @@ public class AsmGenerator {
                     mem.asmExpr = "\t## assignment\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         // Move immediate assignment value into variable.
-                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(src1).getName();
+                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(expr.dest).getName();
                     } else {
                         // move updated assignment to previously assigned location.
                         memContent tmp = mem.getVarLocation(src1);
@@ -365,14 +365,12 @@ public class AsmGenerator {
                         // we unlock all the parameters after use because when the register round-robbin uses the parameter specific registers,
                         // the parameter registers end up getting locked and are not able to be unlocked later because the references are not necessarily
                         // used in the future
-                        mem.unlockParameters(expr.sources.size() - 1);
+
                     }
 
-                    mem.asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";
-                    //asmExpr += "\tmovl\t%eax, %" + mem.getRegName(2) + "\n";
-
-                    // mem.getReg(6) is %eax
                     mem.addVarToReg(Register.eax, expr.dest);
+                    mem.unlockParameters(expr.sources.size() - 1);
+                    mem.asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";
                     break;
                 default:
                     mem.asmExpr = "";
