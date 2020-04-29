@@ -214,6 +214,7 @@ public class memHandler {
             // we need to inject an instruction where we move the contents of the
             // otherwise we return the original register
 
+            this.asmExpr += "\t## Register " + registers.get(index).getName() + " is used and is being relocated\n";
             this.asmExpr += "\tmovl\t" + registers.get(index).getName() + ", " + nextAvailReg(new Token (registers.get(index).var, TokenType.TK_IDENTIFIER)).getName() + "\n";
             //System.out.println(this.asmExpr);
         }

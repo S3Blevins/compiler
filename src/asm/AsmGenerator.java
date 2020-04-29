@@ -258,15 +258,21 @@ public class AsmGenerator {
                     src2 = expr.sources.get(1);
                     String instr = expr.inst.getAsm();
                     // if the location of a is a register or a memory address, then proceed
-                    mem.asmExpr = "\t## place variable into a register and operation\n";
+                    mem.asmExpr = "\t## place variable into a register and operation " + instr + "\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
-                        reg = mem.addVarToReg(src2);
-                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
-                        mem.asmExpr += "\t" + instr + "\t$" + src1.str + ", " + reg.getName() + "\n";
+                        if(src2.tokenType == TokenType.TK_NUMBER) {
+                            mem.asmExpr += "\tmovl\t$" + src2.str + ", " + mem.addVarToReg(src2).getName() + "\n";
+                            reg = mem.getVarLocation(src2);
+                            mem.asmExpr += "\t" + instr + "\t$" + src1.str + ", " + reg.getName() + "\n";
+                        } else {
+                            reg = mem.addVarToReg(src1);
+                            mem.asmExpr += "\tmovl\t$" + src1.str + ", " + reg.getName() + "\n";
+                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
+                        }
                     } else if(src2.tokenType == TokenType.TK_NUMBER) {
-                        reg = mem.addVarToReg(src1);
-                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
-                        mem.asmExpr += "\t" + instr + "\t$" + src2.str + ", " + reg.getName() + "\n";
+                        reg = mem.addVarToReg(src2);
+                        mem.asmExpr += "\tmovl\t$" + src2.str + ", " + reg.getName() + "\n";
+                        mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src1).getName() + ", " + reg.getName() + "\n";
                     } else {
                         //System.out.println("src1 = " + src1);
                         memContent src1Loc = mem.getVarLocation(src1);
@@ -342,18 +348,19 @@ public class AsmGenerator {
                 case CALL:
                     mem.asmExpr = "\t## load parameters into respective call registers and call function " + prefix + expr.sources.get(0).str + "\n";
                     if(expr.sources != null) {
-                        String regName;
+                        memContent regName;
                         for(int k = 1; k < expr.sources.size(); k++) {
                             if(expr.sources.get(k).tokenType == TokenType.TK_NUMBER) {
                                 // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be using inline
                                 // because the string building will error
-                                regName = mem.addVarToReg(Register.values()[k-1], expr.sources.get(k)).getName();
-                                mem.asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + regName + "\n";
+                                regName = mem.addVarToReg(Register.values()[k-1], expr.sources.get(k));
+                                mem.asmExpr += "\tmovl\t$" + expr.sources.get(k).str + ", " + regName.getName() + "\n";
                             } else {
                                 memContent memContent = mem.getMemory(expr.sources.get(k));
-                                regName = mem.addVarToReg(Register.values()[k-1], new Token(memContent.var, TokenType.TK_IDENTIFIER)).getName();
-                                mem.asmExpr += "\tmovl\t" + memContent.getName() + ", " + regName + "\n";
+                                regName = mem.addVarToReg(Register.values()[k-1], new Token(memContent.var, TokenType.TK_IDENTIFIER));
+                                mem.asmExpr += "\tmovl\t" + memContent.getName() + ", " + regName.getName() + "\n";
                             }
+                            regName.setLock(true);
                         }
                         // we unlock all the parameters after use because when the register round-robbin uses the parameter specific registers,
                         // the parameter registers end up getting locked and are not able to be unlocked later because the references are not necessarily
