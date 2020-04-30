@@ -399,7 +399,11 @@ public class AsmGenerator {
                         }
                     }
 
-                    mem.asmExpr += "\tcmp\t\t" + var2loc.getName() + ", " + var1loc.getName() + "\n";
+                    if(expr.dest.str.startsWith("_loop")) {
+                        mem.asmExpr += "\tcmp\t\t" + var1loc.getName() + ", " + var2loc.getName() + "\n";
+                    } else {
+                        mem.asmExpr += "\tcmp\t\t" + var2loc.getName() + ", " + var1loc.getName() + "\n";
+                    }
                     // expr holds the current IR line we are dealing with.
                     mem.asmExpr += "\t" + expr.inst.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
 
