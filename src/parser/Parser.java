@@ -116,11 +116,16 @@ public class Parser {
 
                     Expression functionCall = new Expression.funCall(expr.value.str);
 
-                    while(parser.previous.tokenType != TokenType.TK_RPAREN) {
-                        // consume the argument and add it to the functionCall node as children
-                        functionCall.addChild(ParsePrecedence(Precedence.PRIMARY));
-                        // consume either the comma or the right parenthesis
-                        parser.previous = parser.tokens.remove(0);
+                    if(tokens.get(0).tokenType == TokenType.TK_RPAREN) {
+                        tokens.remove(0);
+                        //tokens.remove(0);
+                    } else {
+                        while (parser.previous.tokenType != TokenType.TK_RPAREN) {
+                            // consume the argument and add it to the functionCall node as children
+                            functionCall.addChild(ParsePrecedence(Precedence.PRIMARY));
+                            // consume either the comma or the right parenthesis
+                            parser.previous = parser.tokens.remove(0);
+                        }
                     }
 
                     return functionCall;
