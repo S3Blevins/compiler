@@ -12,12 +12,10 @@ import static java.lang.System.exit;
 public class memHandler {
 
     // reference counter
-    private HashMap<String, Integer> refCounter;
+    public HashMap<String, Integer> refCounter;
 
     public ArrayList<memContent> registers;
-    public Integer regIndex;
     public Stack<ArrayList<memContent>> stack;
-    public Integer memIndex;
 
     // moved the assembly expression into the memory handler in order to handle
     // adding intermediary expressions where the register is locked and needs to be moved
@@ -42,8 +40,6 @@ public class memHandler {
     public void newScope(List<IRExpression> irList, int index) {
         this.stack.push(new ArrayList<>());
         this.refCounter = new HashMap<>();
-        this.regIndex = 0;
-        this.memIndex = 0;
 
         index++; // skip over function instruction
         // run loop for all IR Expressions in the function to populat reference count table
@@ -181,8 +177,11 @@ public class memHandler {
         System.out.println("The variable " + var.str + " is now held in the register " + registers.get(i).getName());
 
         // SET LOCK
-        registers.get(i).setLock(true);
-        System.out.println("The variable register " + registers.get(i).getName() + " is being locked");
+
+        if(refCounter.get(var.str) != null) {
+            registers.get(i).setLock(true);
+            System.out.println("The variable register " + registers.get(i).getName() + " is being locked");
+        }
 
         return registers.get(i);
     }
@@ -267,6 +266,7 @@ public class memHandler {
     public memContent getRegister(Token var) {
         for(int i = 0; i < registers.size(); i++) {
             if(registers.get(i).var.equals(var.str)) {
+                registers.get(i).setLock(false);
                 removeReference(var, registers.get(i).nameRef);
                 return registers.get(i);
             }
