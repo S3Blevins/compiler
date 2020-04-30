@@ -374,11 +374,34 @@ public class AsmGenerator {
 
                     //mem.asmExpr += "\t## evauluate 'comparison' conditions\n";
 
-                    // Put these variables into registers utilizing MOVE
-                    // Then call cmp on both registers.
-                    mem.asmExpr += "\tcmp\t\t" + var1.str + ", " + var2.str + "\n"; // + src1, src2
+                    memContent var1loc;
+                    memContent var2loc;
+                    if(var1.tokenType == TokenType.TK_NUMBER) {
+                        var1loc = mem.addVarToReg(var1);
+                        mem.asmExpr += "\tmovl\t $" + var1.str + ", " + var1loc.getName() + "\n";
+                        if(var2.tokenType == TokenType.TK_NUMBER) {
+                            var2loc = mem.addVarToReg(var2);
+                            mem.asmExpr += "\tmovl\t $" + var2.str + ", " + var2loc.getName() + "\n";
+                        } else {
+                            var2loc = mem.getVarLocation(var2);
+                        }
+                    } else if(var2.tokenType == TokenType.TK_NUMBER) {
+                        var1loc = mem.getVarLocation(var1);
+                        var2loc = mem.addVarToReg(var2);
+                        mem.asmExpr += "\tmovl\t $" + var2.str + ", " + var2loc.getName() + "\n";
+                    } else {
+                        var1loc = mem.getVarLocation(var1);
+                        var2loc = mem.getVarLocation(var2);
+                        if(var2loc.getName().startsWith("-")) {
+                            memContent tmp = mem.addVarToReg(var2);
+                            mem.asmExpr += "\tmovl\t" + var2loc.getName() + ", " + tmp.getName() + "\n";
+                            var2loc = tmp;
+                        }
+                    }
+
+                    mem.asmExpr += "\tcmp\t\t" + var2loc.getName() + ", " + var1loc.getName() + "\n";
                     // expr holds the current IR line we are dealing with.
-                    mem.asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
 
                     break;
 
