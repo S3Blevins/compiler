@@ -7,15 +7,12 @@ public enum Instruction {
     DIV("idivl"),
 
     ASSIGN("movl"),
-    LABEL(null),
     FUNC(null),
-    JMP("jmp"),
     RET("ret"),
     CALL("call"),
     NOP("nop"),
     LOAD("movl"),
     LOADP("movl"),
-    BREAK("movl"),
 
     INC("incl"),
     DEC("decl"),
@@ -24,6 +21,9 @@ public enum Instruction {
     AND("and"),
     OR("or"),
 
+    JMP("jmp"),
+    LABEL(null),
+    BREAK("movl"),
     NEQUAL("jne"),
     EQUAL("je"),
     GREQ("jge"),

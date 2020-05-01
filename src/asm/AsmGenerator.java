@@ -38,7 +38,6 @@ public class AsmGenerator {
     HashMap<String, varTable> constants;
     List<IRExpression> exprList;
 
-    SymbolRecord record;
     int symCounter = 0;
 
     // Get a global instance registers to keep track of what is being used
@@ -48,7 +47,6 @@ public class AsmGenerator {
     private AsmGenerator() {
         constants = new HashMap<>();
         mem = new memHandler();
-        record = Parser.Instance().getRecord();
     }
 
     public static AsmGenerator getInstance() {
@@ -77,6 +75,10 @@ public class AsmGenerator {
         // iterate through expression list
         memContent reg;
         memContent location;
+
+        System.out.println("child = " + mem.child);
+        //System.out.println("depth = " + mem.depth);
+
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
             mem.newExpr();
@@ -120,6 +122,7 @@ public class AsmGenerator {
                     mem.asmExpr += "\tleave\n";
                     //mem.asmExpr += "\t## return the function\n";
                     mem.asmExpr += "\tret\n";
+
                     break;
                 case NOT:   // fall through
                 case INC:   // fall through
@@ -131,9 +134,16 @@ public class AsmGenerator {
                     mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + destTmp.getName() + "\n";
                     break;
                 case LABEL:
+                    if(expr.dest.str.startsWith("_loopExpr")) {
+                        mem.newLoopScope();
+                    } else if(expr.dest.str.startsWith("_loopExit")) {
+                        mem.endLoopScope();
+                    }
+
                     mem.asmExpr += expr.dest.str + ":\n\n";
                     break;
                 case FUNC:
+                    mem.endScope();
                     // new hashmap for each function call - may need to be modified
                     mem.newScope(exprList, i);
 
@@ -165,7 +175,7 @@ public class AsmGenerator {
                     }
 
                     // symbol table contains all declarations, so remove the parameters from the count
-                    stackSpacing = (record.children.get(symCounter).table.size() - paramCounter) * 4;
+                    stackSpacing = (mem.record.children.get(symCounter).table.size() - paramCounter) * 4;
                     if (stackSpacing != 0) {
                         // align to 16
                         stackSpacing += stackSpacing % 16;
@@ -492,6 +502,8 @@ public class AsmGenerator {
             System.out.println(mem.asmExpr);
         }
 
+        System.out.println("child = " + mem.child);
+        //System.out.println("depth = " + mem.depth);
         return assembly;
     }
 
