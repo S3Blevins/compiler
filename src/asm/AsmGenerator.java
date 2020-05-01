@@ -79,6 +79,8 @@ public class AsmGenerator {
         System.out.println("child = " + mem.child);
         //System.out.println("depth = " + mem.depth);
 
+        Stack<Token> condStack = new Stack<>();
+
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
             mem.newExpr();
@@ -137,6 +139,18 @@ public class AsmGenerator {
                     if(expr.dest.str.startsWith("_loopExpr")) {
                         mem.newLoopScope();
                     } else if(expr.dest.str.startsWith("_loopExit")) {
+                        mem.endLoopScope();
+                    }
+
+                    if(expr.dest.str.startsWith("_cond")) {
+                        if(condStack.size() != 0 && condStack.peek().str.equals(expr.dest.str)) {
+                            mem.newLoopScope();
+                            condStack.pop();
+                        } else {
+                            mem.endLoopScope();
+                            mem.newLoopScope();
+                        }
+                    } else if(expr.dest.str.startsWith("_endCond")) {
                         mem.endLoopScope();
                     }
 
@@ -220,6 +234,10 @@ public class AsmGenerator {
                     break;
                 case BREAK: // fall through
                 case JMP:
+                    /*if(expr.dest.str.startsWith("_endCond")) {
+                        mem.endLoopScope();
+                    }*/
+
                     mem.asmExpr += "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
                     break;
 
@@ -414,6 +432,12 @@ public class AsmGenerator {
                      */
                     Token var1 = expr.sources.get(0);
                     Token var2 = expr.sources.get(1);
+
+                    if(expr.dest.str.startsWith("_cond")) {
+                        if(condStack.size() == 0) {
+                            condStack.push(expr.dest);
+                        }
+                    }
 
                     //mem.asmExpr += "\t## evauluate 'comparison' conditions\n";
 

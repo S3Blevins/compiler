@@ -1,30 +1,79 @@
+int add() {
+    return 1;
+}
+
 int main() {
-    int a = 3;
+    int a = 5;
     int b = 0;
 
+// produces 5
+/*
     for(int i = 0; i < a; i++) {
         b++;
     }
+*/
+    if(a > 4) {
+        if(a > 8) {
+            return 34;
+        } else if(4 < 3) {
+            return 89;
+        } else {
+            return 5;
+        }
+    } else if(a > 7) {
+        if(b > 7) {
+            return 99;
+        } else {
+            return 8;
+        }
+        return 9;
+    } else {
+        if(88 > 99) {
+            return 23;
+        }
+        return 77;
+    }
 
-// a < i    | 3 < 0
-//i++       | i = 1
-// a < i    | 3 < 1
-//i++       | i = 2
-// a < i    | 3 < 2
-//i++       | i = 3
-// a < i    | 3 < 3
-//i++       | i = 4
-// a < i    | 3 < 4
+    //for(int i = 0; a < i; i++) {
+    //    b++;
+    //}
 
-//
+// produces 6
+/*
+    for(int i = 0; i <= a; i++) {
+        b++;
+    }
 
+    for(int i = 10; i >= a; i--) {
+        b++;
+    }
 
+    for (int i = 0; i < 100; i++) {
+        b += i;
+    }
+
+    for (int i = 0; i < 10; i++) {
+        b++;
+        b *= i;
+    }
+
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            b++;
+        }
+    }
+
+    for(int i = 0; i != a; i++) {
+        b++;
+    }
+    */
+
+/*
     int c = 0;
 
     while(c < a) {
         c++;
     }
-
+*/
     return b;
-
 }
