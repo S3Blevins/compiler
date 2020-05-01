@@ -124,7 +124,11 @@ public class AsmGenerator {
                 case NOT:   // fall through
                 case INC:   // fall through
                 case DEC:
-                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + mem.getVarLocation(expr.dest).getName() + "\n";
+                    memContent destTmp = mem.getVarLocation(expr.dest);
+                    if(destTmp.getName().startsWith("-")) {
+                        mem.removeReference(expr.dest, destTmp.nameRef);
+                    }
+                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + destTmp.getName() + "\n";
                     break;
                 case LABEL:
                     mem.asmExpr += expr.dest.str + ":\n\n";
@@ -207,18 +211,21 @@ public class AsmGenerator {
                     Token div1 = expr.sources.get(0);
                     Token div2 = expr.sources.get(1);
 
-                    String var;
+                    memContent dvar1;
 
                     if (div1.tokenType == TokenType.TK_NUMBER) {
-                        var = mem.addVarToReg(div1).getName();
-                        mem.asmExpr += "\tmovl\t$" + div1.str + ", " + var + "\n";
+                        dvar1 = mem.addVarToReg(div1);
+                        mem.asmExpr += "\tmovl\t$" + div1.str + ", " + dvar1.getName() + "\n";
                     } else {
-                        var = mem.getVarLocation(div1).getName();
+                        dvar1 = mem.getVarLocation(div1);
+                        if(dvar1.getName().startsWith("-")) {
+                            mem.removeReference(div1, dvar1.nameRef);
+                        }
                     }
 
-                    if(!var.equals("%eax")) {
+                    if(!dvar1.getName().equals("%eax")) {
                         //mem.asmExpr += "\t## acknowledge dividend in %eax\n";
-                        mem.asmExpr += "\tmovl\t" + var + ", %eax\n";
+                        mem.asmExpr += "\tmovl\t" + dvar1.getName() + ", %eax\n";
                     }
 
                     //mem.asmExpr += "\t## sign-extended EAX into EDX (EDX = signedbit(EAX))\n";
@@ -226,7 +233,12 @@ public class AsmGenerator {
 
                     //mem.asmExpr += "\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
                     if (div2.tokenType != TokenType.TK_NUMBER) {
-                        mem.asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                        memContent tmpdiv2 = mem.getVarLocation(div2);
+                        if(tmpdiv2.getName().startsWith("-")) {
+                            mem.removeReference(div2, tmpdiv2.nameRef);
+                            //mem.removeReference(div2, tmpdiv2.nameRef);
+                        }
+                        mem.asmExpr += "\tidivl\t" + tmpdiv2.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
                     } else {
                         reg = mem.addVarToReg(div2);
                         mem.asmExpr += "\tmovl\t$" + div2.str + ", " + reg.getName() + "\n";
@@ -238,7 +250,7 @@ public class AsmGenerator {
                         mem.asmExpr += "\tmovl\t" +  "%eax, " + tmp.getName() + "\n";
                         // twice since we technically have 2 of the same variable in one instance
                         mem.removeReference(expr.dest, tmp.nameRef);
-                        mem.removeReference(expr.dest, tmp.nameRef);
+                        //mem.removeReference(expr.dest, tmp.nameRef);
                     } else {
                         //mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
                         mem.addVarToReg(Register.eax, expr.dest);
@@ -300,12 +312,22 @@ public class AsmGenerator {
                         memContent src1Loc = mem.getVarLocation(src1);
                         //System.out.println("src1Loc = " + src1Loc);
                         if(src1Loc.getName().startsWith("%")) {
-                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + src1Loc.getName() + "\n";
+                            //mem.removeReference(src1, src1Loc.nameRef);
+                            memContent tmpsrc2 = mem.getVarLocation(src2);
+                            if(tmpsrc2.getName().startsWith("-")) {
+                                mem.removeReference(src2, tmpsrc2.nameRef);
+                            }
+                            mem.asmExpr += "\t" + instr + "\t" + tmpsrc2.getName() + ", " + src1Loc.getName() + "\n";
                             reg = src1Loc;
                         } else {
                             reg = mem.addVarToReg(src1);
+                            //mem.removeReference(src1, src1Loc.nameRef);
                             mem.asmExpr += "\tmovl\t" + src1Loc.getName() + ", " + reg.getName() + "\n";
-                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
+                            memContent tmpsrc2 = mem.getVarLocation(src2);
+                            if(tmpsrc2.getName().startsWith("-")) {
+                                mem.removeReference(src2, tmpsrc2.nameRef);
+                            }
+                            mem.asmExpr += "\t" + instr + "\t" + tmpsrc2.getName() + ", " + reg.getName() + "\n";
                         }
                     }
 
@@ -315,13 +337,17 @@ public class AsmGenerator {
                         mem.removeReference(expr.dest, tmp.nameRef);
                         if(!reg.getName().startsWith("-")) {
                             mem.asmExpr += "\tmovl\t" + reg.getName() + ", " + tmp.getName() + "\n";
+                            //mem.removeReference(new Token(reg.var), reg.nameRef);
                             //mem.removeReference(expr.dest, tmp.nameRef);
-                            //mem.removeReference(expr.dest, tmp.nameRef);
+                        } else {
+                            mem.removeReference(new Token(reg.var), reg.nameRef);
+                            //mem.removeReference(new Token(reg.var), reg.nameRef);
                         }
                     } else if(reg.getName().startsWith("-")) {
                         memContent tmp = mem.getMemory(expr.dest);
                         //mem.asmExpr += "\tmovl\t" + reg.getName() + ", " + tmp.getName() + "\n";
-                        mem.removeReference(expr.dest, tmp.nameRef);
+                        mem.removeReference(new Token(reg.var), reg.nameRef);
+                        //mem.removeReference(expr.dest, tmp.nameRef);
                     } else {
                         mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
                     }
