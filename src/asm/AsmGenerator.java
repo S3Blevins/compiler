@@ -197,7 +197,14 @@ public class AsmGenerator {
                     if(src.tokenType == TokenType.TK_NUMBER) {
                         mem.asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
                     } else {
-                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location.getName() + "\n";
+                        memContent tmp = mem.getVarLocation(src);
+                        if (tmp.getName().startsWith("-")) {
+                            memContent tmp2 = mem.nextAvailReg(src);
+                            mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + tmp2.getName() + "\n";
+                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + location.getName() + "\n";
+                        } else {
+                            mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + location.getName() + "\n";
+                        }
                     }
 
                     break;
@@ -425,14 +432,28 @@ public class AsmGenerator {
                         }
                     }
 
+                    // TEMP FIX. THis swaps asm instructions (je --> jne, jge --> jg, etc) to work around our
+                    // structure. GO AHEAD AND CHANGE IF ANOTHER APPROACH IS BETTER.
                     if(expr.dest.str.startsWith("_loop")) {
                         mem.asmExpr += "\tcmp\t\t" + var1loc.getName() + ", " + var2loc.getName() + "\n";
+                        // expr holds the current IR line we are dealing with.
+                        if (expr.inst == Instruction.LSEQ || expr.inst == Instruction.GREQ) {
+                            String delE = expr.inst.getAsm().substring(0, expr.inst.getAsm().length() - 1);
+                            mem.asmExpr += "\t" + delE + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.LESS || expr.inst == Instruction.GRTR) {
+                            String addE = expr.inst.getAsm().concat("e");
+                            mem.asmExpr += "\t" + addE + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.EQUAL) {
+                            mem.asmExpr += "\t" + Instruction.NEQUAL.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.NEQUAL) {
+                            mem.asmExpr += "\t" + Instruction.EQUAL.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else {
+                            System.err.println("Unrecognized Expression");
+                        }
                     } else {
                         mem.asmExpr += "\tcmp\t\t" + var2loc.getName() + ", " + var1loc.getName() + "\n";
+                        mem.asmExpr += "\t" + expr.inst.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
                     }
-                    // expr holds the current IR line we are dealing with.
-                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
-
                     break;
 
                 /* 'N' sources */
