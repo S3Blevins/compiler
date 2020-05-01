@@ -127,8 +127,10 @@ public class memHandler {
             }
 
             Instruction inst = irList.get(index).inst;
-            if(!EnumSet.of(Instruction.JMP, Instruction.EVAL).contains(inst)) {
-                System.out.println(inst.toString());
+            if(!EnumSet.of(Instruction.JMP, Instruction.LABEL, Instruction.BREAK,
+                    Instruction.NEQUAL, Instruction.EQUAL, Instruction.GRTR, Instruction.GREQ, Instruction.LESS,
+                    Instruction.LSEQ, Instruction.EVAL).contains(inst)) {
+
                 Token dest = irList.get(index).dest;
                 if (dest != null) {
                     if (refCounter.containsKey(dest.str)) {
@@ -138,7 +140,6 @@ public class memHandler {
                     }
                 }
             }
-
             // increment the loop
             index++;
         }
