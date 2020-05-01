@@ -1107,7 +1107,15 @@ public class Parser {
                 headNode.addDeclaration(dec);
             }
         } catch (NullPointerException e) {
-            System.err.println("ERROR: Malformed code " + e.getCause());
+
+            if(this.previous != null) {
+                System.err.println("ERROR: Malformed code " + previous.tokError());
+            } else if (tokens.get(0) != null) {
+                System.err.println("ERROR: Malformed code " + tokens.get(0).tokError());
+            } else {
+                System.err.println("ERROR: Malformed code. Please look for errors in your '.c' file");
+            }
+
             exit(1);
         }
 
