@@ -68,9 +68,11 @@ public class AsmGenerator {
         assembly.add(".globl " + prefix + "main\n");
 
         int stackSpacing = 0;
+        int notLabel = 0;
 
         // optimize IR check based on flag
         if(!optFlag) optimize(irList.IRExprList);
+        irList.printIR();
 
         // iterate through expression list
         memContent reg;
@@ -127,6 +129,27 @@ public class AsmGenerator {
 
                     break;
                 case NOT:   // fall through
+                    //true -> not zero
+                    //false -> zero
+
+                    memContent cmpVar = mem.getVarLocation(expr.dest);
+                    memContent cmpTmp = mem.nextAvailReg(new Token("0"));
+                    mem.asmExpr += "\tmovl\t$0, " + cmpTmp.getName() + "\n";
+                    mem.asmExpr += "\tcmp\t" + cmpTmp.getName() + ", " + cmpVar.getName() + "\n";
+                    mem.asmExpr += "\tje\t" + ("_notToOne" + notLabel) + "\n";
+                    // change to zero
+                    mem.asmExpr += ("_notToZero" + notLabel) + ":\n";
+                    mem.asmExpr += "\tmovl $0, " + cmpVar.getName() + "\n";
+                    mem.asmExpr += "\tjmp " + ("_notEnd" + notLabel) + "\n";
+                    // change to one
+                    mem.asmExpr += ("_notToOne" + notLabel) + ":\n";
+                    mem.asmExpr += "\tmovl $1, " + cmpVar.getName() + "\n";
+                    // end label
+                    mem.asmExpr += ("_notEnd" + notLabel) + ":\n";
+
+                    notLabel++;
+
+                    break;
                 case INC:   // fall through
                 case DEC:
                     memContent destTmp = mem.getVarLocation(expr.dest);
@@ -238,7 +261,7 @@ public class AsmGenerator {
                         mem.endLoopScope();
                     }*/
 
-                    mem.asmExpr += "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
+                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + expr.dest.str;
                     break;
 
                 /* TWO SOURCES */
@@ -570,14 +593,14 @@ public class AsmGenerator {
                         int s0_index = constants.get(s0.str).index;
                         Integer s0_value = constants.get(s0.str).value;
                         expr.sources.set(0, new Token(s0_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.remove(s0_index);
+                        irExprList.set(s0_index, null);
                     }
 
                     if(constants.containsKey(s1.str)) {
                         int s1_index = constants.get(s1.str).index;
                         Integer s1_value = constants.get(s1.str).value;
                         expr.sources.set(1, new Token(s1_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.remove(s1_index);
+                        irExprList.set(s1_index, null);
                     }
                 } break;
                 case CALL:
@@ -586,7 +609,7 @@ public class AsmGenerator {
                         if(constants.containsKey(variable)) {
                             Integer varValue = constants.get(variable).value;
                             expr.sources.set(j, new Token(varValue.toString(), TokenType.TK_NUMBER));
-                            irExprList.remove(constants.get(variable).index);
+                            irExprList.set(constants.get(variable).index, null);
                         }
                     }
                 default:

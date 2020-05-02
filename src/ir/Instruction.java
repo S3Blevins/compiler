@@ -17,13 +17,13 @@ public enum Instruction {
     INC("incl"),
     DEC("decl"),
 
-    NOT("not"),
+    NOT("notl"),
     AND("and"),
     OR("or"),
 
     JMP("jmp"),
     LABEL(null),
-    BREAK("movl"),
+    BREAK("jmp"),
     NEQUAL("jne"),
     EQUAL("je"),
     GREQ("jge"),
