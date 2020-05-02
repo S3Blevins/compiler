@@ -4,6 +4,8 @@ import ir.IRExpression;
 import ir.Instruction;
 import lexer.Token;
 import lexer.TokenType;
+import parser.Parser;
+import parser.SymbolRecord;
 
 import java.util.*;
 
@@ -17,6 +19,11 @@ public class memHandler {
     public ArrayList<memContent> registers;
     public Stack<ArrayList<memContent>> stack;
 
+    public SymbolRecord record;
+    public Stack<SymbolRecord> tablePtr;
+    public int depth;
+    public Stack<Integer> child;
+
     // moved the assembly expression into the memory handler in order to handle
     // adding intermediary expressions where the register is locked and needs to be moved
     public String asmExpr;
@@ -27,6 +34,15 @@ public class memHandler {
         this.stack = new Stack<>();
         this.stack.push(new ArrayList<>());
 
+        this.depth = 0;
+        this.child = new Stack<>();
+        this.child.push(0);
+
+        this.record = Parser.Instance().getRecord();
+
+        this.tablePtr = new Stack<>();
+        this.tablePtr.push(record);
+
         for(Register reg: Register.values()) {
             this.registers.add(new memContent(reg.name(), ""));
         }
@@ -36,11 +52,51 @@ public class memHandler {
         asmExpr = "";
     }
 
+    public void newLoopScope() {
+        this.depth++;
+        Integer childCount;
+        if(depth > this.child.size()) {
+            this.child.push(0);
+            childCount = 0;
+        } else {
+            childCount = this.child.pop();
+            this.child.push(++childCount);
+        }
+
+        if(this.tablePtr.peek().hasChildren()) {
+            System.out.println("VARIABLES: " + this.tablePtr.peek().children.get(childCount).table.entrySet());
+            this.tablePtr.push(this.tablePtr.peek().children.get(childCount));
+        } else {
+            this.tablePtr.push(new SymbolRecord());
+        }
+
+        System.out.println("child = " + this.child);
+        System.out.println("depth = " + this.depth);
+    }
+
+    public void endLoopScope() {
+        if(depth < this.child.size()) {
+            this.child.pop();
+        }
+
+        for(Map.Entry<String, String> set: this.tablePtr.peek().table.entrySet()) {
+            getMemory(new Token(set.getKey())).setLock(false);
+        }
+
+        this.tablePtr.pop();
+
+        this.depth--;
+
+        System.out.println("child = " + this.child);
+        System.out.println("depth = " + this.depth);
+    }
+
     // index is starting place in IR for the function
     public void newScope(List<IRExpression> irList, int index) {
         this.stack.push(new ArrayList<>());
         this.refCounter = new HashMap<>();
 
+        this.depth++;
         index++; // skip over function instruction
         // run loop for all IR Expressions in the function to populat reference count table
         while(index < irList.size() && irList.get(index).inst != Instruction.FUNC) {
@@ -70,19 +126,52 @@ public class memHandler {
                 }
             }
 
-            Token dest = irList.get(index).dest;
-            if(dest != null) {
-                if (refCounter.containsKey(dest.str)) {
-                    refCounter.put(dest.str, refCounter.get(dest.str) + 1);
-                } else {
-                    refCounter.put(dest.str, 1);
+            Instruction inst = irList.get(index).inst;
+            if(!EnumSet.of(Instruction.JMP, Instruction.LABEL, Instruction.BREAK,
+                    Instruction.NEQUAL, Instruction.EQUAL, Instruction.GRTR, Instruction.GREQ, Instruction.LESS,
+                    Instruction.LSEQ, Instruction.EVAL).contains(inst)) {
+
+                Token dest = irList.get(index).dest;
+                if (dest != null) {
+                    if (refCounter.containsKey(dest.str)) {
+                        refCounter.put(dest.str, refCounter.get(dest.str) + 1);
+                    } else {
+                        refCounter.put(dest.str, 1);
+                    }
                 }
             }
-
             // increment the loop
             index++;
         }
         System.out.println(refCounter.entrySet());
+
+        Integer childCount = this.child.pop();
+        this.child.push(++childCount);
+
+        if(this.tablePtr.peek().hasChildren()) {
+            this.tablePtr.push(this.tablePtr.peek().children.get(childCount - 1));
+        } else {
+            this.tablePtr.push(new SymbolRecord());
+        }
+
+        System.out.println("child = " + this.child);
+        System.out.println("depth = " + this.depth);
+    }
+
+    public void endScope() {
+        if(depth != 0) {
+            this.stack.pop();
+
+            if(depth < this.child.size()) {
+                this.child.pop();
+            }
+            this.tablePtr.pop();
+
+            this.depth--;
+
+            System.out.println("child = " + this.child);
+            System.out.println("depth = " + this.depth);
+        }
     }
 
     /* ------------------------------------------------- */
@@ -131,7 +220,27 @@ public class memHandler {
 
     /* ------------------------------------------------- */
 
-    public memContent nextMem(Token var) {
+    public void removeMemory(int depth, int child) {
+
+    }
+
+    public memContent nextOpenMem(Token var) {
+
+        for(int i = 0; i < this.stack.peek().size(); i++) {
+            System.out.println(refCounter.get(var.str));
+            if(this.stack.peek().get(i).lock == false) {
+                // this will be an open memory address
+                this.stack.peek().get(i).var = var.str;
+                if(this.refCounter.get(var.str) != null) {
+                    this.stack.peek().get(i).setLock(true);
+                } else {
+                    System.out.println("OOPs, Sterling was wrong");
+                }
+                //TODO possibly create a reference decrement
+                return this.stack.peek().get(i);
+            }
+        }
+
         Integer pos = this.stack.peek().size();
         this.stack.peek().add(new memContent(pos.toString(), var.str));
         this.stack.peek().get(pos).setLock(true);
@@ -143,7 +252,7 @@ public class memHandler {
 
     // add variable and respective place in memory
     public memContent addVarToMem(Token var) {
-        memContent tmp = nextMem(var);
+        memContent tmp = nextOpenMem(var);
         removeReference(var, tmp.nameRef);
 
         return tmp;
@@ -169,7 +278,7 @@ public class memHandler {
         // the value will be moved accordingly
         if (i == Register.values().length) {
             System.out.println("All registers are full!");
-            return nextMem(var);
+            return nextOpenMem(var);
         }
 
         // if we end up here, we put the variable in a register

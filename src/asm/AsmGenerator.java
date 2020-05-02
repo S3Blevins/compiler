@@ -38,7 +38,6 @@ public class AsmGenerator {
     HashMap<String, varTable> constants;
     List<IRExpression> exprList;
 
-    SymbolRecord record;
     int symCounter = 0;
 
     // Get a global instance registers to keep track of what is being used
@@ -48,7 +47,6 @@ public class AsmGenerator {
     private AsmGenerator() {
         constants = new HashMap<>();
         mem = new memHandler();
-        record = Parser.Instance().getRecord();
     }
 
     public static AsmGenerator getInstance() {
@@ -70,13 +68,21 @@ public class AsmGenerator {
         assembly.add(".globl " + prefix + "main\n");
 
         int stackSpacing = 0;
+        int notLabel = 0;
 
         // optimize IR check based on flag
         if(!optFlag) optimize(irList.IRExprList);
+        irList.printIR();
 
         // iterate through expression list
         memContent reg;
         memContent location;
+
+        System.out.println("child = " + mem.child);
+        //System.out.println("depth = " + mem.depth);
+
+        Stack<Token> condStack = new Stack<>();
+
         for(int i = 0; i < exprList.size(); i++) {
             // assembly expression to be added to assembly arrayList
             mem.newExpr();
@@ -120,16 +126,61 @@ public class AsmGenerator {
                     mem.asmExpr += "\tleave\n";
                     //mem.asmExpr += "\t## return the function\n";
                     mem.asmExpr += "\tret\n";
+
                     break;
                 case NOT:   // fall through
+                    //true -> not zero
+                    //false -> zero
+
+                    memContent cmpVar = mem.getVarLocation(expr.dest);
+                    memContent cmpTmp = mem.nextAvailReg(new Token("0"));
+                    mem.asmExpr += "\tmovl\t$0, " + cmpTmp.getName() + "\n";
+                    mem.asmExpr += "\tcmp\t" + cmpTmp.getName() + ", " + cmpVar.getName() + "\n";
+                    mem.asmExpr += "\tje\t" + ("_notToOne" + notLabel) + "\n";
+                    // change to zero
+                    mem.asmExpr += ("_notToZero" + notLabel) + ":\n";
+                    mem.asmExpr += "\tmovl $0, " + cmpVar.getName() + "\n";
+                    mem.asmExpr += "\tjmp " + ("_notEnd" + notLabel) + "\n";
+                    // change to one
+                    mem.asmExpr += ("_notToOne" + notLabel) + ":\n";
+                    mem.asmExpr += "\tmovl $1, " + cmpVar.getName() + "\n";
+                    // end label
+                    mem.asmExpr += ("_notEnd" + notLabel) + ":\n";
+
+                    notLabel++;
+
+                    break;
                 case INC:   // fall through
                 case DEC:
-                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + mem.getVarLocation(expr.dest).getName() + "\n";
+                    memContent destTmp = mem.getVarLocation(expr.dest);
+                    if(destTmp.getName().startsWith("-")) {
+                        mem.removeReference(expr.dest, destTmp.nameRef);
+                    }
+                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + destTmp.getName() + "\n";
                     break;
                 case LABEL:
+                    if(expr.dest.str.startsWith("_loopExpr")) {
+                        mem.newLoopScope();
+                    } else if(expr.dest.str.startsWith("_loopExit")) {
+                        mem.endLoopScope();
+                    }
+
+                    if(expr.dest.str.startsWith("_cond")) {
+                        if(condStack.size() != 0 && condStack.peek().str.equals(expr.dest.str)) {
+                            mem.newLoopScope();
+                            condStack.pop();
+                        } else {
+                            mem.endLoopScope();
+                            mem.newLoopScope();
+                        }
+                    } else if(expr.dest.str.startsWith("_endCond")) {
+                        mem.endLoopScope();
+                    }
+
                     mem.asmExpr += expr.dest.str + ":\n\n";
                     break;
                 case FUNC:
+                    mem.endScope();
                     // new hashmap for each function call - may need to be modified
                     mem.newScope(exprList, i);
 
@@ -161,7 +212,7 @@ public class AsmGenerator {
                     }
 
                     // symbol table contains all declarations, so remove the parameters from the count
-                    stackSpacing = (record.children.get(symCounter).table.size() - paramCounter) * 4;
+                    stackSpacing = (mem.record.children.get(symCounter).table.size() - paramCounter) * 4;
                     if (stackSpacing != 0) {
                         // align to 16
                         stackSpacing += stackSpacing % 16;
@@ -193,13 +244,24 @@ public class AsmGenerator {
                     if(src.tokenType == TokenType.TK_NUMBER) {
                         mem.asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
                     } else {
-                        mem.asmExpr += "\tmovl\t" + mem.getVarLocation(src).getName() + ", " + location.getName() + "\n";
+                        memContent tmp = mem.getVarLocation(src);
+                        if (tmp.getName().startsWith("-")) {
+                            memContent tmp2 = mem.nextAvailReg(src);
+                            mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + tmp2.getName() + "\n";
+                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + location.getName() + "\n";
+                        } else {
+                            mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + location.getName() + "\n";
+                        }
                     }
 
                     break;
                 case BREAK: // fall through
                 case JMP:
-                    mem.asmExpr += "\t" + expr.inst.toString().toLowerCase() + "\t" + expr.dest.str;
+                    /*if(expr.dest.str.startsWith("_endCond")) {
+                        mem.endLoopScope();
+                    }*/
+
+                    mem.asmExpr += "\t" + expr.inst.getAsm() + "\t" + expr.dest.str;
                     break;
 
                 /* TWO SOURCES */
@@ -207,18 +269,21 @@ public class AsmGenerator {
                     Token div1 = expr.sources.get(0);
                     Token div2 = expr.sources.get(1);
 
-                    String var;
+                    memContent dvar1;
 
                     if (div1.tokenType == TokenType.TK_NUMBER) {
-                        var = mem.addVarToReg(div1).getName();
-                        mem.asmExpr += "\tmovl\t$" + div1.str + ", " + var + "\n";
+                        dvar1 = mem.addVarToReg(div1);
+                        mem.asmExpr += "\tmovl\t$" + div1.str + ", " + dvar1.getName() + "\n";
                     } else {
-                        var = mem.getVarLocation(div1).getName();
+                        dvar1 = mem.getVarLocation(div1);
+                        if(dvar1.getName().startsWith("-")) {
+                            mem.removeReference(div1, dvar1.nameRef);
+                        }
                     }
 
-                    if(!var.equals("%eax")) {
+                    if(!dvar1.getName().equals("%eax")) {
                         //mem.asmExpr += "\t## acknowledge dividend in %eax\n";
-                        mem.asmExpr += "\tmovl\t" + var + ", %eax\n";
+                        mem.asmExpr += "\tmovl\t" + dvar1.getName() + ", %eax\n";
                     }
 
                     //mem.asmExpr += "\t## sign-extended EAX into EDX (EDX = signedbit(EAX))\n";
@@ -226,7 +291,12 @@ public class AsmGenerator {
 
                     //mem.asmExpr += "\t## acknowledge divisor; (EAX = (dividend / divisor); EDX = (dividend % divisor))\n";
                     if (div2.tokenType != TokenType.TK_NUMBER) {
-                        mem.asmExpr += "\tidivl\t" + mem.getVarLocation(div2).getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
+                        memContent tmpdiv2 = mem.getVarLocation(div2);
+                        if(tmpdiv2.getName().startsWith("-")) {
+                            mem.removeReference(div2, tmpdiv2.nameRef);
+                            //mem.removeReference(div2, tmpdiv2.nameRef);
+                        }
+                        mem.asmExpr += "\tidivl\t" + tmpdiv2.getName() + "\n";  // (EAX = (dividend / divisor); EDX = (dividend % divisor))
                     } else {
                         reg = mem.addVarToReg(div2);
                         mem.asmExpr += "\tmovl\t$" + div2.str + ", " + reg.getName() + "\n";
@@ -238,7 +308,7 @@ public class AsmGenerator {
                         mem.asmExpr += "\tmovl\t" +  "%eax, " + tmp.getName() + "\n";
                         // twice since we technically have 2 of the same variable in one instance
                         mem.removeReference(expr.dest, tmp.nameRef);
-                        mem.removeReference(expr.dest, tmp.nameRef);
+                        //mem.removeReference(expr.dest, tmp.nameRef);
                     } else {
                         //mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
                         mem.addVarToReg(Register.eax, expr.dest);
@@ -300,12 +370,22 @@ public class AsmGenerator {
                         memContent src1Loc = mem.getVarLocation(src1);
                         //System.out.println("src1Loc = " + src1Loc);
                         if(src1Loc.getName().startsWith("%")) {
-                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + src1Loc.getName() + "\n";
+                            //mem.removeReference(src1, src1Loc.nameRef);
+                            memContent tmpsrc2 = mem.getVarLocation(src2);
+                            if(tmpsrc2.getName().startsWith("-")) {
+                                mem.removeReference(src2, tmpsrc2.nameRef);
+                            }
+                            mem.asmExpr += "\t" + instr + "\t" + tmpsrc2.getName() + ", " + src1Loc.getName() + "\n";
                             reg = src1Loc;
                         } else {
                             reg = mem.addVarToReg(src1);
+                            //mem.removeReference(src1, src1Loc.nameRef);
                             mem.asmExpr += "\tmovl\t" + src1Loc.getName() + ", " + reg.getName() + "\n";
-                            mem.asmExpr += "\t" + instr + "\t" + mem.getVarLocation(src2).getName() + ", " + reg.getName() + "\n";
+                            memContent tmpsrc2 = mem.getVarLocation(src2);
+                            if(tmpsrc2.getName().startsWith("-")) {
+                                mem.removeReference(src2, tmpsrc2.nameRef);
+                            }
+                            mem.asmExpr += "\t" + instr + "\t" + tmpsrc2.getName() + ", " + reg.getName() + "\n";
                         }
                     }
 
@@ -315,13 +395,17 @@ public class AsmGenerator {
                         mem.removeReference(expr.dest, tmp.nameRef);
                         if(!reg.getName().startsWith("-")) {
                             mem.asmExpr += "\tmovl\t" + reg.getName() + ", " + tmp.getName() + "\n";
+                            //mem.removeReference(new Token(reg.var), reg.nameRef);
                             //mem.removeReference(expr.dest, tmp.nameRef);
-                            //mem.removeReference(expr.dest, tmp.nameRef);
+                        } else {
+                            mem.removeReference(new Token(reg.var), reg.nameRef);
+                            //mem.removeReference(new Token(reg.var), reg.nameRef);
                         }
                     } else if(reg.getName().startsWith("-")) {
                         memContent tmp = mem.getMemory(expr.dest);
                         //mem.asmExpr += "\tmovl\t" + reg.getName() + ", " + tmp.getName() + "\n";
-                        mem.removeReference(expr.dest, tmp.nameRef);
+                        mem.removeReference(new Token(reg.var), reg.nameRef);
+                        //mem.removeReference(expr.dest, tmp.nameRef);
                     } else {
                         mem.addVarToReg(Register.valueOf(reg.nameRef), expr.dest);
                     }
@@ -372,14 +456,61 @@ public class AsmGenerator {
                     Token var1 = expr.sources.get(0);
                     Token var2 = expr.sources.get(1);
 
+                    if(expr.dest.str.startsWith("_cond")) {
+                        if(condStack.size() == 0) {
+                            condStack.push(expr.dest);
+                        }
+                    }
+
                     //mem.asmExpr += "\t## evauluate 'comparison' conditions\n";
 
-                    // Put these variables into registers utilizing MOVE
-                    // Then call cmp on both registers.
-                    mem.asmExpr += "\tcmp\t\t" + var1.str + ", " + var2.str + "\n"; // + src1, src2
-                    // expr holds the current IR line we are dealing with.
-                    mem.asmExpr += "\t" + expr.inst + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                    memContent var1loc;
+                    memContent var2loc;
+                    if(var1.tokenType == TokenType.TK_NUMBER) {
+                        var1loc = mem.addVarToReg(var1);
+                        mem.asmExpr += "\tmovl\t $" + var1.str + ", " + var1loc.getName() + "\n";
+                        if(var2.tokenType == TokenType.TK_NUMBER) {
+                            var2loc = mem.addVarToReg(var2);
+                            mem.asmExpr += "\tmovl\t $" + var2.str + ", " + var2loc.getName() + "\n";
+                        } else {
+                            var2loc = mem.getVarLocation(var2);
+                        }
+                    } else if(var2.tokenType == TokenType.TK_NUMBER) {
+                        var1loc = mem.getVarLocation(var1);
+                        var2loc = mem.addVarToReg(var2);
+                        mem.asmExpr += "\tmovl\t $" + var2.str + ", " + var2loc.getName() + "\n";
+                    } else {
+                        var1loc = mem.getVarLocation(var1);
+                        var2loc = mem.getVarLocation(var2);
+                        if(var2loc.getName().startsWith("-")) {
+                            memContent tmp = mem.addVarToReg(var2);
+                            mem.asmExpr += "\tmovl\t" + var2loc.getName() + ", " + tmp.getName() + "\n";
+                            var2loc = tmp;
+                        }
+                    }
 
+                    // TEMP FIX. THis swaps asm instructions (je --> jne, jge --> jg, etc) to work around our
+                    // structure. GO AHEAD AND CHANGE IF ANOTHER APPROACH IS BETTER.
+                    if(expr.dest.str.startsWith("_loop")) {
+                        mem.asmExpr += "\tcmp\t\t" + var1loc.getName() + ", " + var2loc.getName() + "\n";
+                        // expr holds the current IR line we are dealing with.
+                        if (expr.inst == Instruction.LSEQ || expr.inst == Instruction.GREQ) {
+                            String delE = expr.inst.getAsm().substring(0, expr.inst.getAsm().length() - 1);
+                            mem.asmExpr += "\t" + delE + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.LESS || expr.inst == Instruction.GRTR) {
+                            String addE = expr.inst.getAsm().concat("e");
+                            mem.asmExpr += "\t" + addE + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.EQUAL) {
+                            mem.asmExpr += "\t" + Instruction.NEQUAL.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else if (expr.inst == Instruction.NEQUAL) {
+                            mem.asmExpr += "\t" + Instruction.EQUAL.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                        } else {
+                            System.err.println("Unrecognized Expression");
+                        }
+                    } else {
+                        mem.asmExpr += "\tcmp\t\t" + var2loc.getName() + ", " + var1loc.getName() + "\n";
+                        mem.asmExpr += "\t" + expr.inst.getAsm() + "\t\t" + expr.dest.str + "\n"; // + src1, src2
+                    }
                     break;
 
                 /* 'N' sources */
@@ -418,6 +549,8 @@ public class AsmGenerator {
             System.out.println(mem.asmExpr);
         }
 
+        System.out.println("child = " + mem.child);
+        //System.out.println("depth = " + mem.depth);
         return assembly;
     }
 
@@ -460,14 +593,14 @@ public class AsmGenerator {
                         int s0_index = constants.get(s0.str).index;
                         Integer s0_value = constants.get(s0.str).value;
                         expr.sources.set(0, new Token(s0_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.remove(s0_index);
+                        irExprList.set(s0_index, null);
                     }
 
                     if(constants.containsKey(s1.str)) {
                         int s1_index = constants.get(s1.str).index;
                         Integer s1_value = constants.get(s1.str).value;
                         expr.sources.set(1, new Token(s1_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.remove(s1_index);
+                        irExprList.set(s1_index, null);
                     }
                 } break;
                 case CALL:
@@ -476,7 +609,7 @@ public class AsmGenerator {
                         if(constants.containsKey(variable)) {
                             Integer varValue = constants.get(variable).value;
                             expr.sources.set(j, new Token(varValue.toString(), TokenType.TK_NUMBER));
-                            irExprList.remove(constants.get(variable).index);
+                            irExprList.set(constants.get(variable).index, null);
                         }
                     }
                 default:

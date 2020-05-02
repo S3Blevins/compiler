@@ -195,7 +195,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitBreak(Statement.Break statement) {
                 // create BREAK expression
 
-                IRs.addExpr(new IRExpression(Instruction.BREAK, new Token("_loopExit" + IRs.endID, TokenType.TK_IDENTIFIER)));
+                IRs.addExpr(new IRExpression(Instruction.BREAK, new Token("_loopExit" + (IRs.itrID - 1), TokenType.TK_IDENTIFIER)));
 
                 return null;
         }
