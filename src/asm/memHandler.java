@@ -19,6 +19,8 @@ public class memHandler {
     public ArrayList<memContent> registers;
     public Stack<ArrayList<memContent>> stack;
 
+    public int regIndex;
+
     public SymbolRecord record;
     public Stack<SymbolRecord> tablePtr;
     public int depth;
@@ -37,6 +39,7 @@ public class memHandler {
         this.depth = 0;
         this.child = new Stack<>();
         this.child.push(0);
+        this.regIndex = 0;
 
         this.record = Parser.Instance().getRecord();
 
@@ -98,7 +101,7 @@ public class memHandler {
 
         this.depth++;
         index++; // skip over function instruction
-        // run loop for all IR Expressions in the function to populat reference count table
+        // run loop for all IR Expressions in the function to populate reference count table
         while(index < irList.size() && irList.get(index).inst != Instruction.FUNC) {
             if(irList.get(index).sources != null) {
 
@@ -178,6 +181,8 @@ public class memHandler {
 
     public void removeReference(Token var, String location) {
         System.out.println("LOCATION: removeReference(Token, String)");
+
+        // outer try block is for integers which means memory locations
         try {
             Integer.parseInt(var.str);
             try {
@@ -260,7 +265,7 @@ public class memHandler {
 
     public memContent nextAvailReg(Token var) {
         // we're playing round-robin with the registers until we find one that's open
-        int i = 0;
+        int i = this.regIndex;
 
         System.out.println("Adding the variable " + var.str + " in the next available register.");
 
