@@ -116,11 +116,16 @@ public class Parser {
 
                     Expression functionCall = new Expression.funCall(expr.value.str);
 
-                    while(parser.previous.tokenType != TokenType.TK_RPAREN) {
-                        // consume the argument and add it to the functionCall node as children
-                        functionCall.addChild(ParsePrecedence(Precedence.PRIMARY));
-                        // consume either the comma or the right parenthesis
-                        parser.previous = parser.tokens.remove(0);
+                    if(tokens.get(0).tokenType == TokenType.TK_RPAREN) {
+                        tokens.remove(0);
+                        //tokens.remove(0);
+                    } else {
+                        while (parser.previous.tokenType != TokenType.TK_RPAREN) {
+                            // consume the argument and add it to the functionCall node as children
+                            functionCall.addChild(ParsePrecedence(Precedence.PRIMARY));
+                            // consume either the comma or the right parenthesis
+                            parser.previous = parser.tokens.remove(0);
+                        }
                     }
 
                     return functionCall;
@@ -710,12 +715,15 @@ public class Parser {
                     symbolTable.addSymbolTable(true);
 
                     Declaration dec = null;
+                    Expression decExpr = null;
                     // if the token is a type on the first loop, it's a declaration
                     if (tokens.get(0).tokenType == TokenType.TK_TYPE) {
                         dec = declarationGrammar();
                     } else if (tokens.get(0).tokenType != TokenType.TK_SEMICOLON) {
-                    // expression statement in place of a declaration (in theory)
-                        ((Statement.Block) statement).addStatement(statementGrammar());
+                        // expression statement in place of a declaration (in theory)
+                        decExpr = expressionGrammar();
+                        // remove the semicolon
+                        tokens.remove(0);
                     } else {
                         // only possible thing left would be a semicolon (which would normally be consumed in above conditions)
                         tokens.remove(0);
@@ -737,13 +745,13 @@ public class Parser {
                     }
 
                     // recursively call to build block of for-loop
-                    Statement forLoopBlock = statementGrammar();
+                    Statement.Block forLoopBlock = (Statement.Block) statementGrammar();
 
                     // add the increment, if it exists (handled internally)
                     forLoopBlock.addChild(increment);
 
                     // create new statement with declaration, expression, and for-loop block
-                    statement = new Statement.Iteration(dec, expr, (Statement.Block) forLoopBlock, "for");
+                    statement = new Statement.Iteration(dec, decExpr, expr, forLoopBlock, "for");
                     break;
             case "while":
                     // remove keyword
@@ -867,7 +875,7 @@ public class Parser {
 
             while (tokens.get(0).tokenType != TokenType.TK_RPAREN) {
 
-                if (funDec.getParamSize() > 8) {
+                if (funDec.getParamSize() > 3) {
                     System.err.println("ERROR: Unsupported number of parameters in function " + decID.str);
                     exit(1);
                 }
@@ -1105,7 +1113,15 @@ public class Parser {
                 headNode.addDeclaration(dec);
             }
         } catch (NullPointerException e) {
-            System.err.println("ERROR: Malformed code " + tokens.get(0).tokError());
+
+            if(this.previous != null) {
+                System.err.println("ERROR: Malformed code " + previous.tokError());
+            } else if (tokens.get(0) != null) {
+                System.err.println("ERROR: Malformed code " + tokens.get(0).tokError());
+            } else {
+                System.err.println("ERROR: Malformed code. Please look for errors in your '.c' file");
+            }
+
             exit(1);
         }
 
@@ -1120,8 +1136,13 @@ public class Parser {
         return programGrammar(fileName);
     }
 
-    public String getTable() {
-        return symbolTable.symbolString.toString();
+    public String printTable() {
+        return symbolTable.symbolRecord.tablePrinter(0);
+
+    }
+
+    public SymbolRecord getRecord() {
+        return symbolTable.symbolRecord;
     }
 }
 

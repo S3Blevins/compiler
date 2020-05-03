@@ -8,33 +8,41 @@ import java.util.*;
 //TODO add new scope levels for if else and for loops(done in parser.java)
 
 public class SymbolTable {
-    //Create a stack of HashMaps <ID, Type>
+    // Symbol table stack structure used for construction of the symbol table record
     Stack<HashMap<String, String>>symbolStack;
-
-    // symbol table record for printing
-    StringBuilder symbolString;
-    Formatter stringFormat;
+    SymbolRecord symbolRecord;
 
     boolean parentFlag = false;
 
     public SymbolTable() {
         symbolStack = new Stack<>();
-        symbolString = new StringBuilder();
-        stringFormat = new Formatter(symbolString);
+        symbolRecord = new SymbolRecord();
     }
 
     public void addSymbolTable() {
+        // don't add a new record if the stack is empty
+        // so as to use the first record
+        if (!symbolStack.empty()) {
+            symbolRecord.lastTable(symbolStack.size() - 1).addChild();
+        }
+
         symbolStack.push(new HashMap<>());
     }
 
     public void addSymbolTable(boolean flag) {
         parentFlag = flag;
+
+        // don't add a new record if the stack is empty
+        // so as to use the first record
+        if (!symbolStack.empty()) {
+            symbolRecord.lastTable(symbolStack.size() - 1).addChild();
+        }
+
         symbolStack.push(new HashMap<>());
     }
 
     public void removeSymbolTable() {
         if(!symbolStack.empty()) {
-            tablePrinter();
             symbolStack.pop();
         }
     }
@@ -63,7 +71,7 @@ public class SymbolTable {
                 }
             }
         }
-
+        this.symbolRecord.lastTable(symbolStack.size() - 1).addVariable(ID.str, type.str);
         this.symbolStack.peek().put(ID.str, type.str);
     }
 
@@ -75,7 +83,6 @@ public class SymbolTable {
         addSymbol(type, ID);
     }
 
-
     public void addFun(Token function) {
         addSymbol(new Token("function", TokenType.TK_IDENTIFIER), function);
     }
@@ -86,34 +93,5 @@ public class SymbolTable {
             return true;
         }
         return false;
-    }
-
-    // prints symbol table with some printf magic
-    public void tablePrinter() {
-        int scope = symbolStack.size() - 1;
-        String indent = ":   ".repeat(scope);
-
-        // don't build on string if scope is empty
-        if(symbolStack.peek().isEmpty()) {
-            return;
-        }
-
-        // table header line
-        stringFormat.format("%s+------------------------------------+\n", indent);
-
-        // name the scope
-        if (scope == 0) {
-            stringFormat.format("%s| Scope Level: %-3s %20s", indent, scope, "|\n");
-        } else {
-            stringFormat.format("%s%s| Scope Level: %-3s %20s", ":\t".repeat(scope - 1), ": ->", scope, "|\n");
-        }
-
-        // print out the type and associated variable
-        for (Map.Entry<String, String> set : symbolStack.peek().entrySet()) {
-            stringFormat.format("%s| %8s | %-22s %2s\n", indent, set.getValue(), set.getKey(), "|");
-        }
-
-        stringFormat.format("%s+------------------------------------+\n", indent);
-
     }
 }

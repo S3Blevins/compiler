@@ -1,33 +1,44 @@
 package ir;
 
-import lexer.TokenType;
-
 public enum Instruction {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
+    ADD("add\t"),
+    SUB("sub\t"),
+    MUL("imul"),
+    DIV("idivl"),
 
-    ASSIGN,
-    LABEL,
-    JMP,
-    RET,
-    CALL,
-    NOP,
-    LOAD,
-    BREAK,
+    ASSIGN("movl"),
+    FUNC(null),
+    RET("ret"),
+    CALL("call"),
+    NOP("nop"),
+    LOAD("movl"),
+    LOADP("movl"),
 
-    INC,
-    DEC,
+    INC("incl"),
+    DEC("decl"),
 
-    NOT,
-    AND,
-    OR,
+    NOT("notl"),
+    AND("and"),
+    OR("or"),
 
-    EQUAL,
-    GREQ,
-    LSEQ,
-    GRTR,
-    LESS,
-    EVAL
+    JMP("jmp"),
+    LABEL(null),
+    BREAK("jmp"),
+    NEQUAL("jne"),
+    EQUAL("je"),
+    GREQ("jge"),
+    LSEQ("jle"),
+    GRTR("jg"),
+    LESS("jl"),
+    EVAL("jnz");
+
+    private final String instr;
+
+    Instruction(String instr) {
+        this.instr = instr;
+    }
+
+    public String getAsm() {
+        return this.instr;
+    }
 }

@@ -70,9 +70,10 @@ public class IRBuilder implements IVisitor<Token> {
 
                 // if no destination, it is placed into right side's expression
                 if(binOp == TokenType.TK_EQUALS) {
-                        dest = null;
-                }
-                else if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
+                        dest = left;
+                        IRs.addExpr(new IRExpression(binInstr, right, dest));
+                        return dest;
+                } else if(binOp == TokenType.TK_STAREQ || binOp == TokenType.TK_MINUSEQ || binOp == TokenType.TK_PLUSEQ ||
                         binOp == TokenType.TK_SLASHEQ) {
                         dest = left;
                 } else if(binOp == TokenType.TK_LESSEQ || binOp == TokenType.TK_LESS || binOp == TokenType.TK_GREATER ||
@@ -151,9 +152,16 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitBoolean(Expression.Boolean bool) {
-                // just returns boolean token
+                // converts a boolean to a number
+                Token boolEquivalent;
 
-                return bool.bool;
+                if(bool.bool.str.toLowerCase().equals("true")){
+                        boolEquivalent = new Token("1", TokenType.TK_NUMBER);
+                } else {
+                        boolEquivalent = new Token("0", TokenType.TK_NUMBER);
+                }
+
+                return boolEquivalent;
         }
 
         @Override
@@ -187,7 +195,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitBreak(Statement.Break statement) {
                 // create BREAK expression
 
-                IRs.addExpr(new IRExpression(Instruction.BREAK));
+                IRs.addExpr(new IRExpression(Instruction.BREAK, new Token("_loopExit" + (IRs.itrID - 1), TokenType.TK_IDENTIFIER)));
 
                 return null;
         }
@@ -238,42 +246,49 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitConditional(Statement.Conditional conditional) {
                 // conditional adds labels and instructions which jump based on evaluation of expressions
 
-                // stateFlag turned on for very first label
-                IRs.stateFlag = 1;
-                Token endLabel = new Token("_condEnd" + IRs.getEndID(), TokenType.TK_IDENTIFIER);
+                IRs.newCondScope();
+                Token endLabel = new Token("_endCond" + IRs.getStartEndID(), TokenType.TK_IDENTIFIER);
 
-                // iterate through children
-                for (int i = 0; i < conditional.children.size(); i++) {
-                        // turn back on for each loop
-
-                        // if the child is a multiple of two, then throw down a label except for if the child is the last element
-                        // this means there is an expression which may need to jump to the next labeled expression if evaluated to false
-                        if(i % 2 == 0 && i != 0) {
-                                // change state required for 'else' clause
-                                IRs.stateFlag = 1;
-                                IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
-                        }
-
-                        // check for children, if children exist it may be an expression or block statement which executes normally
-                        // if no children then it is a simple value or boolean expression which uses the EVAL instruction
+                // iterate through conditionals
+                for(int i = 0; i < conditional.children.size() - 1; i+=2) {
+                        IRs.stateFlag = 1;
                         if(conditional.children.get(i).hasChildren()) {
                                 conditional.children.get(i).accept(this);
                         } else {
-                                IRs.addExpr(new IRExpression(Instruction.EVAL, conditional.children.get(i).accept(this), IRs.getCondJmpToLabel()));
+                                Token nonExpression = conditional.children.get(i).accept(this);
+                                IRs.addExpr(new IRExpression(Instruction.EVAL, nonExpression, IRs.getCondJmpToLabel()));
                         }
+                }
 
-                        // add the jump to the label for the end of the conditional clause chain after block statements
-                        // block statements only occur when the child is of an odd index except in the case of 'else' but
-                        // then the label is just a fall through
-                        if(i % 2 != 0) {
+                // if the children of the conditional statement is odd, then there is an else
+                if(conditional.children.size() % 2 != 0) {
+                        IRs.addExpr(new IRExpression(Instruction.JMP, IRs.getCondJmpToLabel()));
+                } else {
+                        IRs.addExpr(new IRExpression(Instruction.JMP, endLabel));
+                }
+
+                // iterate through block-statements
+                for(int i = 1; i < conditional.children.size(); i+=2) {
+                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
+                        conditional.children.get(i).accept(this);
+
+                        if(i != conditional.children.size() - 1) {
                                 IRs.addExpr(new IRExpression(Instruction.JMP, endLabel));
                         }
 
                 }
 
-                IRs.addExpr(new IRExpression(Instruction.LABEL, endLabel));
+                // catch the else condition, which falls through
+                if(conditional.children.size() % 2 != 0) {
+                        IRs.addExpr(new IRExpression(Instruction.LABEL, IRs.getCondLabel()));
+                        conditional.children.get(conditional.children.size() - 1).accept(this);
+                }
+
+                // throw in the end label
+                IRs.addExpr(new IRExpression(Instruction.LABEL, new Token("_endCond" + IRs.getEndID(), TokenType.TK_IDENTIFIER)));
 
                 IRs.stateFlag = 0;
+                IRs.endCondScope();
 
                 // no need to return
                 return null;
@@ -319,7 +334,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitFunDecl(Declaration.funDeclaration decl) {
                 // create a label for each function, iterate through children
 
-                IRs.addExpr(new IRExpression(Instruction.LABEL, decl.functionID));
+                IRs.addExpr(new IRExpression(Instruction.FUNC, decl.functionID));
 
                 iterator(decl);
 
@@ -343,7 +358,7 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitParameter(Declaration.Parameter decl) {
                 // load each parameter, no children to iterate through
 
-                IRs.addExpr(new IRExpression(Instruction.LOAD, decl.paramID));
+                IRs.addExpr(new IRExpression(Instruction.LOADP, decl.paramID));
 
                 return null;
         }
