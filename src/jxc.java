@@ -67,7 +67,8 @@ public class jxc {
                 .desc("Print IR to output file")
                 .build();
         commandArgs.addOption(optionalArgument);
-        commandArgs.addOption("O0", "noopt", false, "No optimization of assembly code.");
+        commandArgs.addOption("O1", "noopt", false, "Minor optimization of assembly code.");
+        commandArgs.addOption("O2", "noopt", false, "Major optimization of assembly code (does not work with loops or conditionals).");
         commandArgs.addOption("a", "asmname", true, "Provide a custom name to the assembly file.");
 
         //parse command line options
@@ -323,17 +324,15 @@ public class jxc {
             System.out.println("\nIntermediate Representation");
             System.out.println(irBuilder.IRs.printIR());
         }
-
+        String irName = "jxc_IR_expressions.txt";
         if(line.hasOption("io")) {
 
-            String fileName = "jxc_IR_expressions.txt";
-
             if (line.getOptionValue("io") != null) {
-                fileName = line.getOptionValue("io");
+                irName = line.getOptionValue("io");
             }
 
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(irName));
                 writer.write(irBuilder.IRs.printIR());
                 writer.close();
             } catch (IOException e) {
@@ -344,11 +343,20 @@ public class jxc {
         /* ASM GENERATOR ARGUMENTS */
 
         String asmName = "jxc_assembly.s";
-        boolean optFlag = false;
+        ArrayList<Boolean> optFlag = new ArrayList<>();
 
-        if(line.hasOption("O0")) {
+        if(line.hasOption("O1")) {
             // flag change goes here
-            optFlag = true;
+            optFlag.add(true);
+        } else {
+            optFlag.add(false);
+        }
+
+        if(line.hasOption("O2")) {
+            // flag change goes here
+            optFlag.add(true);
+        } else {
+            optFlag.add(false);
         }
 
         if(line.hasOption("a")) {
@@ -356,10 +364,10 @@ public class jxc {
             asmName = line.getOptionValue("a");
         }
 
-        boolean ismacos = System.getProperty("os.name").toLowerCase().startsWith("mac");
+        optFlag.add(System.getProperty("os.name").toLowerCase().startsWith("mac"));
 
         // get the assembly string
-        ArrayList<String> assembly = AsmGenerator.getInstance().generateAssembly(irBuilder.IRs, optFlag, ismacos);
+        ArrayList<String> assembly = AsmGenerator.getInstance().generateAssembly(irBuilder.IRs, optFlag, irName);
 
         // write to the specified assembly file
         try {
