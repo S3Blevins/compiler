@@ -4,14 +4,17 @@ int add() {
 
 int main() {
     int a = 5;
-    int b = 0;
+    int b = 4;
 
 // produces 5
-/*
+
     for(int i = 0; i < a; i++) {
-        b++;
+        break;
+        if(i < 2) {
+
+        }
     }
-*/
+/*
     if(a > 4) {
         if(a > 8) {
             return 34;
@@ -20,8 +23,8 @@ int main() {
         } else {
             return 5;
         }
-    } else if(a > 7) {
-        if(b > 7) {
+    } else if(b > 7) {
+        if(a > 7) {
             return 99;
         } else {
             return 8;
@@ -33,7 +36,7 @@ int main() {
         }
         return 77;
     }
-
+*/
     //for(int i = 0; a < i; i++) {
     //    b++;
     //}
