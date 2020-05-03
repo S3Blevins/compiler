@@ -56,8 +56,7 @@ public class IRList {
     }
 
     public int getEndID() {
-        int tmp = endCondScope.pop();
-        return tmp;
+        return endCondScope.pop();
     }
 
     public void newCondScope() {
@@ -120,7 +119,11 @@ public class IRList {
     public String printIR() {
         StringBuilder IRString = new StringBuilder();
         for(IRExpression expr: IRExprList) {
-            IRString.append(expr.printInstruction());
+            if(expr == null) {
+                //IRString.append("null\n");
+            } else {
+                IRString.append(expr.printInstruction());
+            }
         }
 
         return IRString.toString();

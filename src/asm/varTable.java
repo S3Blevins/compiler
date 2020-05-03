@@ -7,10 +7,13 @@ public class varTable {
         int value;
         // index of where the variable was initialized
         int index;
+        // an indicator of how many times the variable was referenced and if it can be removed;
+        boolean ref;
 
         public varTable(Token value, int index) {
                 this.value = Integer.parseInt(value.str);
                 this.index = index;
+                this.ref = false;
         }
 
         public int getValue() {
@@ -19,5 +22,11 @@ public class varTable {
 
         public int getIndex() {
                 return index;
+        }
+
+        public void printVar() {
+                System.out.println("\tvalue = " + this.value);
+                System.out.println("\tindex = " + this.index);
+                System.out.println("\treferences = " + this.ref);
         }
 }

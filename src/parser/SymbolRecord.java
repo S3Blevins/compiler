@@ -43,6 +43,20 @@ public class SymbolRecord {
                 }
         }
 
+        public int allChildrenScopeCount() {
+                int count = this.table.size();
+                if(this.hasChildren()) {
+                        for(int i = 0; i < this.children.size(); i++) {
+                                 count += this.children.get(i).allChildrenScopeCount();
+                        }
+                        return count;
+                } else {
+                        return count;
+                }
+        }
+
+
+
         // prints symbol table with some printf magic
         public String tablePrinter(int scope) {
                 StringBuilder symbolString = new StringBuilder();

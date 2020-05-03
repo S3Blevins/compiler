@@ -8,6 +8,9 @@ import lexer.TokenType;
 import parser.Parser;
 import parser.SymbolRecord;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class AsmGenerator {
@@ -35,7 +38,6 @@ public class AsmGenerator {
 
     ArrayList<IRRef constants */
 
-    HashMap<String, varTable> constants;
     List<IRExpression> exprList;
 
     int symCounter = 0;
@@ -45,7 +47,7 @@ public class AsmGenerator {
     memHandler mem;
 
     private AsmGenerator() {
-        constants = new HashMap<>();
+
         mem = new memHandler();
     }
 
@@ -56,13 +58,13 @@ public class AsmGenerator {
         return instance;
     }
 
-    public ArrayList<String> generateAssembly(IRList irList, boolean optFlag, boolean underscore) {
+    public ArrayList<String> generateAssembly(IRList irList, ArrayList<Boolean> optFlag, String irName) {
         // IR expression list
         exprList = irList.IRExprList;
         // list of assembly expressions
         ArrayList<String> assembly = new ArrayList<>();
 
-        String prefix = underscore ? "_" : "";
+        String prefix = optFlag.get(2) ? "_" : "";
 
         // String asmPrelude = ".section .data\n\n.section .bss\n\n.section .text\n\n.globl main\n\n";
         assembly.add(".globl " + prefix + "main\n");
@@ -71,8 +73,18 @@ public class AsmGenerator {
         int notLabel = 0;
 
         // optimize IR check based on flag
-        if(!optFlag) optimize(irList.IRExprList);
-        irList.printIR();
+        if(optFlag.get(1)) {
+            Optimizer opt = new Optimizer(irList);
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(irName));
+                writer.write(irList.printIR());
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        //System.out.println(irList.printIR());
 
         // iterate through expression list
         memContent reg;
@@ -115,6 +127,7 @@ public class AsmGenerator {
                             memContent loc = mem.getVarLocation(expr.dest);
                             if (!loc.getName().equals("%eax")) {
                                 regName = mem.addVarToReg(Register.eax, new Token(loc.var)).getName();
+                                mem.registers.get(6).setLock(false);
                                 mem.asmExpr += "\tmovl\t" + loc.getName() + ", " + regName + "\n";
                             }
                         }
@@ -125,7 +138,7 @@ public class AsmGenerator {
                     // pop off the basepointer from the stack
                     mem.asmExpr += "\tleave\n";
                     //mem.asmExpr += "\t## return the function\n";
-                    mem.asmExpr += "\tret\n";
+                    mem.asmExpr += "\tret\n\n";
 
                     break;
                 case NOT:   // fall through
@@ -212,10 +225,10 @@ public class AsmGenerator {
                     }
 
                     // symbol table contains all declarations, so remove the parameters from the count
-                    stackSpacing = (mem.record.children.get(symCounter).table.size() - paramCounter) * 4;
+                    stackSpacing = (mem.record.children.get(symCounter).allChildrenScopeCount() - paramCounter) * 4;
                     if (stackSpacing != 0) {
                         // align to 16
-                        stackSpacing += stackSpacing % 16;
+                        stackSpacing += (stackSpacing % 16);
                         mem.asmExpr += "\t## make room for stack\n";
                         mem.asmExpr += "\tsubq\t$" + stackSpacing + ", %rsp\n";
                     }
@@ -242,7 +255,7 @@ public class AsmGenerator {
                     // if the source is a number, load it into memory
                     // otherwise load the location into memory
                     if(src.tokenType == TokenType.TK_NUMBER) {
-                        mem.asmExpr += "\tmovl\t$" + expr.sources.get(0).str + ", " + location.getName() + "\n";
+                        mem.asmExpr += "\tmovl\t$" + src.str + ", " + location.getName() + "\n";
                     } else {
                         memContent tmp = mem.getVarLocation(src);
                         if (tmp.getName().startsWith("-")) {
@@ -417,7 +430,7 @@ public class AsmGenerator {
                     //mem.asmExpr += "\t## assignment\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         // Move immediate assignment value into variable.
-                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(expr.dest).getName();
+                        mem.asmExpr += "\tmovl\t$" + src1.str + ", " + mem.getVarLocation(expr.dest).getName() + "\n";
                     } else {
                         // move updated assignment to previously assigned location.
                         memContent tmp = mem.getVarLocation(src1);
@@ -425,7 +438,7 @@ public class AsmGenerator {
                             // since we cannot mov <mem>, <mem> we need to provide an available register to move to.
                             memContent tmp2 = mem.addVarToReg(new Token(tmp.var));
                             mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + tmp2.getName() + "\n";
-                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + mem.getVarLocation(expr.dest).getName();
+                            mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + mem.getVarLocation(expr.dest).getName() + "\n";
                         } else {
                             System.out.println("CONTENTS OF THE ASSIGNEMNET: " + tmp.var);
                             mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + mem.getVarLocation(expr.dest).getName();
@@ -518,6 +531,11 @@ public class AsmGenerator {
                     //mem.asmExpr += "\t## load parameters into respective call registers and call function " + prefix + expr.sources.get(0).str + "\n";
                     if(expr.sources != null) {
                         memContent regName;
+                        if(optFlag.get(0)) {
+                            mem.regIndex = expr.sources.size() - 1;
+                        } else {
+                            mem.regIndex = 0;
+                        }
                         for(int k = 1; k < expr.sources.size(); k++) {
                             if(expr.sources.get(k).tokenType == TokenType.TK_NUMBER) {
                                 // NOTE: any time addVarToReg() is called with a specific register and it's used to build a string, it cannot be using inline
@@ -538,6 +556,7 @@ public class AsmGenerator {
 
                     }
 
+                    mem.regIndex = 0;
                     mem.addVarToReg(Register.eax, expr.dest);
                     mem.unlockParameters(expr.sources.size() - 1);
                     mem.asmExpr += "\tcall\t" + prefix + expr.sources.get(0).str + "\n\n";
@@ -552,69 +571,5 @@ public class AsmGenerator {
         System.out.println("child = " + mem.child);
         //System.out.println("depth = " + mem.depth);
         return assembly;
-    }
-
-    private void optimize(List<IRExpression> irExprList) {
-
-        // just DO IT.
-        //          ..
-        //        .;:;.
-        // ..    .;:;.
-        // .;:;..;:;.
-        //  .;::::;.
-        //   .;::;.
-        //     ..
-
-        IRExpression expr;
-        for(int i = 0; i < irExprList.size(); i++) {
-            // temp variable to shorten
-            expr = irExprList.get(i);
-            if(irExprList.get(i).inst == Instruction.LOAD) {
-                // place constant in a hashmap, indexed by the location with a corresponding initialization and value
-                if(expr.sources.get(0).tokenType == TokenType.TK_NUMBER) {
-                    constants.putIfAbsent(expr.dest.str, new varTable(expr.sources.get(0), i));
-                }
-            }
-        }
-
-        for(int i = 0; i < irExprList.size(); i++) {
-            expr = irExprList.get(i);
-            switch(expr.inst) {
-                case ADD:
-                case SUB:
-                case MUL:
-                case DIV:
-                case NOT: {
-
-                    Token s0 = expr.sources.get(0);
-                    Token s1 = expr.sources.get(1);
-
-                    if(constants.containsKey(s0.str)) {
-                        int s0_index = constants.get(s0.str).index;
-                        Integer s0_value = constants.get(s0.str).value;
-                        expr.sources.set(0, new Token(s0_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.set(s0_index, null);
-                    }
-
-                    if(constants.containsKey(s1.str)) {
-                        int s1_index = constants.get(s1.str).index;
-                        Integer s1_value = constants.get(s1.str).value;
-                        expr.sources.set(1, new Token(s1_value.toString(), TokenType.TK_NUMBER));
-                        irExprList.set(s1_index, null);
-                    }
-                } break;
-                case CALL:
-                    for(int j = 1; j < expr.sources.size(); j++) {
-                        String variable = expr.sources.get(j).str;
-                        if(constants.containsKey(variable)) {
-                            Integer varValue = constants.get(variable).value;
-                            expr.sources.set(j, new Token(varValue.toString(), TokenType.TK_NUMBER));
-                            irExprList.set(constants.get(variable).index, null);
-                        }
-                    }
-                default:
-                    break;
-            }
-        }
     }
 }

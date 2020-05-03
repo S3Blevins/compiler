@@ -19,6 +19,8 @@ public class memHandler {
     public ArrayList<memContent> registers;
     public Stack<ArrayList<memContent>> stack;
 
+    public int regIndex;
+
     public SymbolRecord record;
     public Stack<SymbolRecord> tablePtr;
     public int depth;
@@ -37,6 +39,7 @@ public class memHandler {
         this.depth = 0;
         this.child = new Stack<>();
         this.child.push(0);
+        this.regIndex = 0;
 
         this.record = Parser.Instance().getRecord();
 
@@ -83,6 +86,8 @@ public class memHandler {
             getMemory(new Token(set.getKey())).setLock(false);
         }
 
+        //this.registers.get(6).setLock(false);
+
         this.tablePtr.pop();
 
         this.depth--;
@@ -98,7 +103,7 @@ public class memHandler {
 
         this.depth++;
         index++; // skip over function instruction
-        // run loop for all IR Expressions in the function to populat reference count table
+        // run loop for all IR Expressions in the function to populate reference count table
         while(index < irList.size() && irList.get(index).inst != Instruction.FUNC) {
             if(irList.get(index).sources != null) {
 
@@ -178,6 +183,8 @@ public class memHandler {
 
     public void removeReference(Token var, String location) {
         System.out.println("LOCATION: removeReference(Token, String)");
+
+        // outer try block is for integers which means memory locations
         try {
             Integer.parseInt(var.str);
             try {
@@ -204,7 +211,7 @@ public class memHandler {
                     stack.peek().get(Integer.parseInt(location)).setLock(false);
                 } catch(NumberFormatException e2) {
                     System.out.println("The register " + registers.get(Register.valueOf(location).ordinal()).getName() + " holding the variable " + var.str + " will be unlocked");
-                    registers.get(Register.valueOf(location).ordinal()).setLock(false);
+                    //registers.get(Register.valueOf(location).ordinal()).setLock(false);
                 }
             }
         }
@@ -260,7 +267,7 @@ public class memHandler {
 
     public memContent nextAvailReg(Token var) {
         // we're playing round-robin with the registers until we find one that's open
-        int i = 0;
+        int i = this.regIndex;
 
         System.out.println("Adding the variable " + var.str + " in the next available register.");
 
@@ -316,7 +323,7 @@ public class memHandler {
         // relocate the contents.
 
         // if the register has a lock and the contents are still being used, find a new register to put it in
-        if(registers.get(index).lock) {
+        if(registers.get(index).lock && refCounter.get(registers.get(index).var) != null) {
             // && refCount.get(registers.get(index).var)) > 0
             System.out.println("The register " + registers.get(index).getName() + " is locked, so the contents (" + registers.get(index).var  + ") will be relocated to the next available register");
             // we need to inject an instruction where we move the contents of the
