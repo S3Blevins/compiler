@@ -127,6 +127,7 @@ public class AsmGenerator {
                             memContent loc = mem.getVarLocation(expr.dest);
                             if (!loc.getName().equals("%eax")) {
                                 regName = mem.addVarToReg(Register.eax, new Token(loc.var)).getName();
+                                mem.registers.get(6).setLock(false);
                                 mem.asmExpr += "\tmovl\t" + loc.getName() + ", " + regName + "\n";
                             }
                         }

@@ -86,6 +86,8 @@ public class memHandler {
             getMemory(new Token(set.getKey())).setLock(false);
         }
 
+        //this.registers.get(6).setLock(false);
+
         this.tablePtr.pop();
 
         this.depth--;
@@ -209,7 +211,7 @@ public class memHandler {
                     stack.peek().get(Integer.parseInt(location)).setLock(false);
                 } catch(NumberFormatException e2) {
                     System.out.println("The register " + registers.get(Register.valueOf(location).ordinal()).getName() + " holding the variable " + var.str + " will be unlocked");
-                    registers.get(Register.valueOf(location).ordinal()).setLock(false);
+                    //registers.get(Register.valueOf(location).ordinal()).setLock(false);
                 }
             }
         }
@@ -321,7 +323,7 @@ public class memHandler {
         // relocate the contents.
 
         // if the register has a lock and the contents are still being used, find a new register to put it in
-        if(registers.get(index).lock) {
+        if(registers.get(index).lock && refCounter.get(registers.get(index).var) != null) {
             // && refCount.get(registers.get(index).var)) > 0
             System.out.println("The register " + registers.get(index).getName() + " is locked, so the contents (" + registers.get(index).var  + ") will be relocated to the next available register");
             // we need to inject an instruction where we move the contents of the
