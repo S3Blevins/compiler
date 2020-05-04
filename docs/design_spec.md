@@ -94,6 +94,8 @@ The assembly was generated based on the intermediate representation instruction 
 
 Each code scope has it's own corresponding reference count, so when a new code scope is being converted to assembly, a reference counter is placed on a stack. This allows us to reuse function declarations in memory, and keep track of memory usage relative to the scope.
 
+![](doc_images/assembly_code.png)
+
 # Supported Features
 
 While we do support the following features, we have only done so much testing and may not have come across every edge case instances or scenarios.
@@ -116,7 +118,7 @@ Therefore, the following is supported by our compiler with *possible* limitation
 * While loops
 * For loops
 
-**Please refer back to the programs guaranteed to work.**
+**Please refer back to the programs guaranteed to work located inside our test files folder.**
 
 # Limitations
 The compiler is built read in a `c` file, and an IR file containing a series of IR expressions ready to be converted to assembly in the next assignment.
@@ -155,6 +157,7 @@ The following is are requirements of limitations of compiler as it stands:
 * The flag -O2 flag optimization is limited in functionality (works with minimal programs), and may causes errors, especially if used with loops and conditionals in the .c code.
 * Function call parameter counts are not checked.
 * Comparisons between constants are **NOT** supported (ie. (3 < 4)).
+* There are a few cases where conditions fail if the sequence has if-else, if-else-if. In addition, returning expressions such as variables and constants may break. To help prevent this our compiler seems to like returning or assigning constants/variables but nothing more.
 
 **IF NOT MENTIONED IN 'SUPPORTED FEATURES' SECTION IT IS NOT SUPPORTED.**
 
