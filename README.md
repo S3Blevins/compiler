@@ -9,16 +9,11 @@ Our Compiler is called *JxC* which stands for (**J**)ava (**x** is undefined) (*
 * Damon Estrada (damon-estrada)
 * Jacob Santillanes (Ulteelectrom)
 
-##### Working Progress: [`Stage 2 (Parser) of Assignment 1`](docs/design_spec.md)
-
-We are currently working on implementing a fully featured parser with a "pretty-printed" syntax tree based on the [C- grammar](http://marvin.cs.uidaho.edu/Teaching/CS445/c-Grammar.pdf).
-
 ### Documentation Navigation:
 * [Compilation and Usage](#compilation-and-usage)
 * [Program Overview](#program-overview)
 * [Design Discussion, Limitations, and Tradeoffs (design_spec.md)](docs/design_spec.md)
 * [Language Specifications (language_spec.md)](docs/language_spec.md)
-
 ---
 # Compilation and Usage
 ##### Compatible with [Java JDK 11+](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
@@ -35,7 +30,7 @@ where **BUILD_DATE** is the lasted build date and **FILE.c** is your C-program..
 
 [See here for a list of dependencies **included** in our build.](#dependencies-and-attributions)  
 
-Our current iteration of the program supports the following arguments in addition to the `.c` file being read in. The `-f` flag requires an argument for the `c-file` to be read in and works with all other flags except for the `-r` flag. The `-r` flag also requires an argument to read in IR expressions from a file and the `-r` flag does not work with any other flags at this time. 
+Our current iteration of the program supports the following arguments in addition to the `.c` file being read in. The `-f` flag requires an argument for the `c-file` to be read in and works with all other flags except for the `-r` flag. The `-r` flag also requires an argument to read in IR expressions from a file and the `-r` flag does not work with any other flags at this time.
 
 *Flag* | *Long Flag* | *Description* | *Arguments*
 --- | --- | :--- | ---
@@ -50,11 +45,44 @@ Our current iteration of the program supports the following arguments in additio
 **-i** | **-irprint** | print out the Intermediate representation. | **NO**
 **-io** | **-irout** | prints IR to output file. | **OPTIONAL**
 **-r** | **-readir** | read in Intermediate representation. | ***REQUIRED***
+**-O0**| **-noopt** | no optimization of assembly | **NO**
+**-O1**| **-maxopt** | major optimization of assembly (**DOES NOT WORK WITH LOOPS OR CONDITIONALS**) | **NO**
 
 [You can check here for our functionality and limitations of the program.](docs/design_spec.md#functionality-and-limitations)
 
+### Checking and Verifying Output
+When utilizing the above line to run our compiler, it will not display the result or return value from main. We need to run it through gcc's assembler to read our generated assembly code as well.
+
+Run this command to display the output of main from JxC:
+
+**Usage:**
+
+`gcc [PATH_TO_ASSEMBLY_FILE] && [PATH_TO_EXECUTABLE]; echo $?`
+
+**Example:**
+
+`gcc jxc_assembly.s && ./a.out; echo $?`
+
+
+Verify our compilers output to gcc using:
+
+**Usage:**
+
+`gcc [FILE_PATH] && [PATH_TO_EXECUTABLE]; echo $?`
+
+**Example:**
+
+`gcc test/test4.c && ./a.out; echo $?`   
+
 # Program Overview
 The compiler is broken up into three parts (Front End, Intermediate/Optimizer, and Back End), each with their own set of stages. Below is a brief explanation of the current implementation.
+
+#### C-Program Calling Convention:
+Our compiler utilizes the default x86-64 calling convention by placing our parameters (functions are limited to **4** parameters) into registers **%edi, %rsi, %rdx**, and **%rcx** and storing the return result into register **%eax**.
+
+The registers utilized are **%rdi, %rsi, %rdx, %rcx, %r8d, %r9d, %eax, %ebx, %rsp, %rbp, %r10d, %r11d, %r12d, %13d, %r14d**, and **%r15d**
+
+**NOTE** Although we use **%rbp** and **%rsp**, for stack management all other registers are 32-bit.
 
 ## [Assignment 1 *(Front End)*](docs/design_spec.md)
 The compiler, JxC is capable of reading in a file and tokenizing much of the alphabet supported by the *C- language*, in addition to using a modified *C-* grammar to parse the C-program into a custom parse-tree.
@@ -70,7 +98,7 @@ The compiler, JxC is capable of reading in a file and tokenizing much of the alp
 
 
 ## [Assignment 2 *(Intermediate Representation (IR) Generation)*](docs/design_spec.md)
-The compiler in it's current standing is capable of storing variables in a symbol table (with respective scoping) in addition to generating an intermediate representation of the *C-code* by traversing the custom parse tree generated in the previous stage.
+The compiler is capable of storing variables in a symbol table (with respective scoping) in addition to generating an intermediate representation of the *C-code* by traversing the custom parse tree generated in the previous stage.
 
 >### Stage 2.B: Building the Symbol Table
 The symbol table contains a record of all declared variables within the *C-program* code. Acting as a variable reference table, the symbol table is used for error checking on compilation time and in assembly generation (see Assignment 3 to be completed).
@@ -79,11 +107,12 @@ The symbol table contains a record of all declared variables within the *C-progr
 >JxC constructs IR based on the output of the parse tree constructed in Assignment 1. As the compiler traverses the parse tree, it recognizes each node's "object type" and has a corresponding method to construct the IR accordingly. Each new IR expression is constructed and sent to a master list that the compiler sends to the next stage (Assignment 3) of the compiler to generate x86 compliant assembly.
 
 ## [Assignment 3 *(x86 Assembly Generation)*](docs/design_spec.md)
->To be implemented before May 1st, 2020
-
+The backend of the compiler attempts to allow for optimization of the intermediate representation and translation to x86-64 assembly with caveats, [see here for limitations](docs/design_spec.md#limitations).
+>### Stage 4: Optimizing the IR
+> In order to make substantial optimizations to cut down on our assembly generated, we attempted to apply constant propagation and constant folding techniques in order to reduce our intermediate representation. In our attempt, we are able to reduce simple programs, though there are problems with loops, conditionals, and large scale programs (YMMV).
+>### Stage 5: Generation of x86 Assembly
+> The objective behind generating x86 assembly was to translate our Intermediate Representation (IR) to x86-64 compliant assembly. Iterating through our IR, we used our list of IR instructions and utilized a switch-case control flow (with some fall through cases) to generate assembly with handling of scoping, register allocation, and memory handling.
 
 # Dependencies and Attributions
 No need to install these libraries, they are already included in our build:
 * [*Appache Commons CLI Library*](http://commons.apache.org/proper/commons-cli/) - Used in cli-interface branch (not fully implemented)
-
-* [*JUnit4*](https://junit.org/junit4/) - Used to write repeatable unit test for methods to ensure code base changes do not introduce new bugs.
