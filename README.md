@@ -48,7 +48,7 @@ Our current iteration of the program supports the following arguments in additio
 **-O0**| **-noopt** | no optimization of assembly | **NO**
 **-O1**| **-maxopt** | major optimization of assembly (**DOES NOT WORK WITH LOOPS OR CONDITIONALS**) | **NO**
 
-[You can check here for our functionality and limitations of the program.](docs/design_spec.md#functionality-and-limitations)
+[You can check here for our functionality and limitations of the program.](docs/design_spec.md#supported-features)
 
 ### Checking and Verifying Output
 When utilizing the above line to run our compiler, it will not display the result or return value from main. We need to run it through gcc's assembler to read our generated assembly code as well.
