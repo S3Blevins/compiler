@@ -7,6 +7,21 @@ import parser.treeObjects.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+/**
+ * <h1>Nodal Printer</h1>
+ * The NodePrinter class prints the children that make up the Node class.
+ * The flow of this implements the 'Visitor Pattern' (more information can
+ * be found here: https://sourcemaking.com/design_patterns/visitor or in our
+ * GitHub documentation.
+ *
+ * Every @Override method consists of a counter part that is referenced in
+ * each respected method which helps aid which things the parser encountered
+ * and what valuable information to construct/print.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-03-23
+ */
 public class NodePrinter implements IVisitor {
 
     private ArrayList<Boolean> depth;
@@ -218,6 +233,10 @@ public class NodePrinter implements IVisitor {
         return null;
     }
 
+    /**
+     * The deliminator on indenting to show depth of nodal
+     * objects mentioned in iterator().
+     */
     private void printDepth() {
         for (Boolean printLine : this.depth) {
             if (printLine) {
@@ -228,6 +247,14 @@ public class NodePrinter implements IVisitor {
         }
     }
 
+    /**
+     * iterator will loop through all off a nodes children printing
+     * them in a readable fashion for the end user. This is done
+     * by appending to a StringBuilder and based on what is
+     * present in each nodal object will indicate how to indent
+     * appropriately to distinguish between depths or scopes.
+     * @param node What nodal object currently being analyzed.
+     */
     public void iterator(Node node) {
 
         printDepth();

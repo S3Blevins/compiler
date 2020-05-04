@@ -1,5 +1,15 @@
 package lexer;
 
+/**
+ * <h1>Token</h1>
+ * This class keeps track of the contents of what we encounter. This goes for
+ * the contents of the .c file we encounter. We address what each things means
+ * , give it a correspond TokenType identifier and the contents of the token.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-02-05
+ */
 public class Token {
 
     public String str;

@@ -14,6 +14,10 @@ import java.util.ArrayList;
  * 2) Populating that object.
  * 3) Returning all of the objects to update IRList object (IRList.java)
  *    with all of the crafted IRs.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-03-23
  */
 public class IRBuilder implements IVisitor<Token> {
         // DONE: visitUnary
@@ -115,8 +119,6 @@ public class IRBuilder implements IVisitor<Token> {
         public Token visitTernary(Expression.Ternary ternary) {
                 // ternary is a container for other expression
 
-                //TODO: fix scope of ternary
-
                 if(ternary.children.get(0).hasChildren()) {
                         ternary.children.get(0).accept(this);
                 } else {
@@ -202,9 +204,6 @@ public class IRBuilder implements IVisitor<Token> {
 
         @Override
         public Token visitIteration(Statement.Iteration statement) {
-                // insert a label and iterate through children
-
-                //TODO: switch between 'for' and 'while labels'
 
                 int index = 0;
 

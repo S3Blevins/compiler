@@ -2,6 +2,16 @@ package lexer;
 
 import ir.Instruction;
 
+/**
+ * <h1>TokenType</h1>
+ * This enum is a list of valid TokenTypes we support for our compiler.
+ * Anything not listed will not be recognized. Each TokenType corresponds
+ * to an asm instruction that we utilize when generating assembly.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-02-05
+ */
 public enum TokenType {
     TK_PLUSEQ(Instruction.ADD),
     TK_MINUSEQ(Instruction.SUB),

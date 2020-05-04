@@ -9,7 +9,12 @@ import java.util.List;
 
 /**
  * This class servers as the object that will make up the IR format.
- * Format design our group chose is (pending): (ASSEMBLY_INST, FIRST_PARAM, SEC_PARAM, IR_VAR)
+ * Format design our group chose is : (ASSEMBLY_INST, FIRST_PARAM, SEC_PARAM, IR_VAR)
+ * A more extensive look into other populated syntax can be found in our GitHub documentation.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-03-23
  */
 public class IRExpression {
     public Instruction inst;

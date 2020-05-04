@@ -45,6 +45,11 @@ public class Parser {
         return Parser.instance;
     }
 
+    /**
+     * Numbered precedences that aid in Pratt parsing.
+     * These values are used to determine which should
+     *take priority to enforce PEMDAS, assignments, etc.
+     */
     enum Precedence {
         NONE,
         ASSIGNMENT,
@@ -95,6 +100,11 @@ public class Parser {
         public Precedence precedence;
     }
 
+    /**
+     * The rules of precedence.
+     * Each token encountered has a certain amount of precedence
+     * defined in the precedence enum.
+     */
     private Parser() {
 
         // initialize rule table
@@ -613,6 +623,15 @@ public class Parser {
         return ParsePrecedence(Precedence.ASSIGNMENT);
     }
 
+    /**
+     * The construction of the statement grammar. There are two subsections
+     * in this section that consists of routines to identify if our encountered
+     * tokens are trying to construct:
+     * 1) Compound/block statement (based on a TK_LBRACE)
+     * 2) Conditional statement (based on LBRACE but previous TokenType
+     * being certain keyword rather than identifier)
+     * @return The statement constructed.
+     */
     Statement statementGrammar() {
 
         previous = tokens.get(0);
@@ -843,9 +862,12 @@ public class Parser {
     }
 
     /**
-     * Check for either a variable declaration or a function declaration
-     *
-     * @return
+     * Check for either a variable declaration or a function declaration.
+     * There are three subsections to this method:
+     * 1) If we have a function declaration (based on if we see a LPAREN Token).
+     * 2) If we have a Enumeration (Based on if we see a LBRACE)
+     * 3) If we have a variable (Based on if (1) and (2) dont succeed.
+     * @return The constructed declaration
      */
     Declaration declarationGrammar() {
         Token typeSpec;
@@ -1053,6 +1075,13 @@ public class Parser {
         }
     }
 
+    /**
+     * Check to see if a variable is being initialized with a value.
+     * @param varDeclaration Object that holds all details on variable.
+     * @param typeSpec The type tied to the variable.
+     * @param decID The variable name.
+     * @return A new instance of a variable initialized with the value.
+     */
     public Declaration.varDeclaration varDecInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID) {
 
         // Used for regular var init
@@ -1074,6 +1103,15 @@ public class Parser {
 
         return varDeclaration;
     }
+
+    /**
+     * Add a variable with no value, just declared but not defined.
+     * @param varDeclaration Object that holds all details on variable.
+     * @param typeSpec The type tied to the variable.
+     * @param decID The variable name.
+     * @param inEnum Will signal if we are dealing with an enum variable or not. Aids in enum indexing.
+     * @return A new instance of a variable;
+     */
     public Declaration.varDeclaration varDecNoInit(Declaration.varDeclaration varDeclaration, Token typeSpec, Token decID, boolean inEnum) {
 
         // We set decID outside after first pass so we need to get rid of the redundant token.

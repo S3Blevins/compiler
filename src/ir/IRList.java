@@ -7,7 +7,11 @@ import java.util.*;
 
 /**
  * The wrapper class that will house all of the IR
- * in an arraylist.
+ * in an ArrayList.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-03-23
  */
 public class IRList {
 

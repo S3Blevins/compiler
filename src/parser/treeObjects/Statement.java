@@ -5,6 +5,16 @@ import lexer.TokenType;
 import common.IVisitor;
 import parser.Node;
 
+/**
+ * <h1>Statement</h1>
+ * This class represents the statements that can be constructed.
+ * This also adds them to the nodal class to be added as children to other
+ * nodes and eventually construct the parse tree/IR.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-03-28
+ */
 public abstract class Statement extends Node {
 
     public static class Block extends Statement {

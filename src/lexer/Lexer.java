@@ -8,6 +8,17 @@ import java.util.LinkedHashMap;
 import static java.lang.System.exit;
 import static java.lang.System.setErr;
 
+/**
+ * <h1>Lexar</h1>
+ * This class is the starting point of our front end of the 3 stage compiler.
+ * The lexar will tokenize the .c file specified. We utilize a linkedHashMap
+ * to store regular expression that match a pattern when scanning the contents
+ * of the file.
+ *
+ * @author Sterling Blevins, Damon Estrada, Garrett Bates, Jacob Santillanes
+ * @version 1.0
+ * @since 2020-02-05
+ */
 public class Lexer {
 
     private static LinkedHashMap<Pattern, TokenType> patterns = new LinkedHashMap<>();
