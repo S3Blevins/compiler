@@ -75,11 +75,11 @@ A more in-depth description of our assembly generation and optimization mechanic
 
 ### Stage 4: Optimization
 
-> When compiling with -01
+> When compiling with -00
 
 Our minor compilation optimization is reducing register shuffling. Our compiler uses a round-robin allocation method and mutex style locking mechanism to handle register assignment. Our IR is iterated through and all references of a variable is added to a hash-map with a reference counter. If the reference is not zero, there is probably a lock on the register meaning it is used in the next instruction or later on and the register should not be made available to the next variable we need to populate. This can cause issues when we add a variable to a specific register for function calls (x86-64 calling convention). When a specific register is requested but contains a lock, the variable is moved to the next available register. It is possible that the next available register in the list is the next one to be used for a function call parameter. If this is the case, the register keeps shuffling through all the parameter call registers till it sits in the next free register, causing unnecessary `mov` instructions. We can adjust the index for which the round-robin begins at, to mitigate the unnecessary movements between registers.
 
-> When compiling with -02
+> When compiling with -01
 
 The optimization of our IR is handled using constant folding and constant propagation methods. Each time the intermediate representation is iterated through during constant propagation, the IR expression is determined whether or not the variable is modified in the expression. If the variable is modified, a lock is placed on the reference to prevent changing the variable when it should not be, and the constant propagation continues to replace all variables that do not have a lock with their corresponding constant.
 
