@@ -47,10 +47,10 @@ public class AsmGenerator {
     memHandler mem;
 
     private AsmGenerator() {
-
         mem = new memHandler();
     }
 
+    // ASM generator is a singleton
     public static AsmGenerator getInstance() {
 
         instance = (instance == null) ? new AsmGenerator() : instance;
@@ -58,6 +58,8 @@ public class AsmGenerator {
         return instance;
     }
 
+    // generate assembly we need the IR list and the name of the IR in case it needs to be overwritten
+    // NOTE: will always output the IR if it is optimized
     public ArrayList<String> generateAssembly(IRList irList, ArrayList<Boolean> optFlag, String irName) {
         // IR expression list
         exprList = irList.IRExprList;
@@ -90,7 +92,7 @@ public class AsmGenerator {
         memContent reg;
         memContent location;
 
-        System.out.println("child = " + mem.child);
+        //System.out.println("child = " + mem.child);
         //System.out.println("depth = " + mem.depth);
 
         Stack<Token> condStack = new Stack<>();
@@ -133,7 +135,7 @@ public class AsmGenerator {
                         }
                     }
 
-                    System.out.println(mem.refCounter.entrySet());
+                    //System.out.println(mem.refCounter.entrySet());
 
                     // pop off the basepointer from the stack
                     mem.asmExpr += "\tleave\n";
@@ -425,8 +427,8 @@ public class AsmGenerator {
                     break;
                 case ASSIGN:
                     src1 = expr.sources.get(0);
-                    System.out.println("src1 = " + src1);
-                    System.out.println("expr.dest = " + expr.dest);
+                    //System.out.println("src1 = " + src1);
+                    //System.out.println("expr.dest = " + expr.dest);
                     //mem.asmExpr += "\t## assignment\n";
                     if(src1.tokenType == TokenType.TK_NUMBER) {
                         // Move immediate assignment value into variable.
@@ -440,7 +442,7 @@ public class AsmGenerator {
                             mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + tmp2.getName() + "\n";
                             mem.asmExpr += "\tmovl\t" + tmp2.getName() + ", " + mem.getVarLocation(expr.dest).getName() + "\n";
                         } else {
-                            System.out.println("CONTENTS OF THE ASSIGNEMNET: " + tmp.var);
+                            //System.out.println("CONTENTS OF THE ASSIGNEMNET: " + tmp.var);
                             mem.asmExpr += "\tmovl\t" + tmp.getName() + ", " + mem.getVarLocation(expr.dest).getName();
                         }
                     }
@@ -565,10 +567,8 @@ public class AsmGenerator {
                     break;
             }
             assembly.add(mem.asmExpr);
-            System.out.println(mem.asmExpr);
         }
 
-        System.out.println("child = " + mem.child);
         //System.out.println("depth = " + mem.depth);
         return assembly;
     }

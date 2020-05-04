@@ -19,16 +19,19 @@ public class Optimizer {
 
         int functionSize = 0;
 
+        // outer loop handles entire functions
         do {
             //IROuterPtr = new ArrayList<>(irList.IRExprList);
             int start = functionSize;
             this.constants.push(new HashMap<>());
 
+            // inner loop optimizes entire function until nothing in the IR expression list
+            // associated with the function changes.
             do {
                 IRPtr = irList.IRExprList.subList(start, functionSize);
-                System.out.println("PROPAGATION");
+                //System.out.println("PROPAGATION");
                 functionSize = Propagation(irList.IRExprList, start);
-                System.out.println("FOLDING:");
+                //System.out.println("FOLDING:");
                 Folding(irList.IRExprList, start, functionSize);
 
             } while (!IRPtr.equals(irList.IRExprList.subList(start, functionSize)));
@@ -38,14 +41,19 @@ public class Optimizer {
             }
 
             this.constants.pop();
-            if(functionSize < irList.IRExprList.size())
-                System.out.println(irList.IRExprList.get(functionSize).inst.toString() + " " + irList.IRExprList.get(functionSize).dest.str);
+
         } while(functionSize != irList.IRExprList.size());
 
         irList.IRExprList.removeAll(Collections.singleton(null));
         this.finalIR = irList.IRExprList;
     }
 
+    /**
+     * Iterate through IR propagating constants and locking those that are used and cannot propogate further
+     * @param irExprList original IR List
+     * @param start starting point from last function
+     * @return
+     */
     private int Propagation(List<IRExpression> irExprList, int start) {
 
         int functionSize = 0;
@@ -126,6 +134,11 @@ public class Optimizer {
         return start + functionSize;
     }
 
+    /**
+     * Replace the variable with it's corresponding number if it's unlocked
+     * @param tok
+     * @return
+     */
     private Token replaceVar(Token tok) {
         if (constants.peek().containsKey(tok.str) && constants.peek().get(tok.str).ref == false) {
             Integer dest_value = constants.peek().get(tok.str).value;
@@ -136,18 +149,38 @@ public class Optimizer {
         return tok;
     }
 
+    /**
+     * Replace the initialization if fully propagated
+     * @param var
+     * @param exprList
+     */
     private void removeInit(String var, List<IRExpression> exprList) {
         if(constants.peek().containsKey(var) && constants.peek().get(var).ref == false) {
             exprList.set(constants.peek().get(var).index, null);
         }
     }
 
+    /**
+     * Remove the expression entirely based on the reference count
+     * @param i
+     * @param var
+     * @param exprList
+     */
     private void removeExpr(int i, String var, List<IRExpression> exprList) {
         if(constants.peek().containsKey(var) && constants.peek().get(var).ref == false) {
             exprList.set(i, null);
         }
     }
 
+    /**
+     * Simplify math expression for use in constant folding below
+     * @param inst instruction
+     * @param s0 source 0 token
+     * @param s1 source 1 token
+     * @param isS0 determines if source 0 is a number
+     * @param isS1 determines if source 1 is a number
+     * @return the expression value calculated from folding
+     */
     private int mathExpression(Instruction inst, Token s0, Token s1, boolean isS0, boolean isS1) {
         int s0num;
         int s1num;
@@ -178,6 +211,13 @@ public class Optimizer {
         return exprVal;
     }
 
+    /**
+     * Constant folding takes values that can be folded and then removes the expression and removes the lock if there is
+     * one associated with the variable
+     * @param irExprList ir expression list
+     * @param start starting point for function
+     * @param functionSize function size to be added to the starting point in IR
+     */
     public void Folding(List<IRExpression> irExprList, int start, int functionSize) {
         IRExpression expr;
         for (int i = start; i < functionSize; i++) {

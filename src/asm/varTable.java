@@ -2,6 +2,7 @@ package asm;
 
 import lexer.Token;
 
+// used in the references of the variable in the optimizer
 public class varTable {
         // value of the variable
         int value;
