@@ -67,8 +67,8 @@ public class jxc {
                 .desc("Print IR to output file")
                 .build();
         commandArgs.addOption(optionalArgument);
-        commandArgs.addOption("O1", "noopt", false, "Minor optimization of assembly code.");
-        commandArgs.addOption("O2", "noopt", false, "Major optimization of assembly code (does not work with loops or conditionals).");
+        commandArgs.addOption("O0", "noopt", false, "Minor optimization of assembly code.");
+        commandArgs.addOption("O1", "maxopt", false, "Major optimization of assembly code (does not work with loops or conditionals).");
         commandArgs.addOption("a", "asmname", true, "Provide a custom name to the assembly file.");
 
         //parse command line options
@@ -345,14 +345,14 @@ public class jxc {
         String asmName = "jxc_assembly.s";
         ArrayList<Boolean> optFlag = new ArrayList<>();
 
-        if(line.hasOption("O1")) {
+        if(line.hasOption("O0")) {
             // flag change goes here
-            optFlag.add(true);
-        } else {
             optFlag.add(false);
+        } else {
+            optFlag.add(true);
         }
 
-        if(line.hasOption("O2")) {
+        if(line.hasOption("O1")) {
             // flag change goes here
             optFlag.add(true);
         } else {
@@ -384,22 +384,5 @@ public class jxc {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // RUN THE ASSEMBLY IF POSSIBLE
-/*
-        // example taken from: https://www.baeldung.com/run-shell-command-in-java
-        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
-
-        try {
-            // either windows or unix based, and if windows based, throw the error
-            if(isWindows) {
-                throw new IOException();
-            } else {
-                Process process = Runtime.getRuntime().exec("gcc " + asmName);
-            }
-        } catch (IOException e) {
-            System.err.println("NOTE: Windows is not supported for automatic running of assembly");
-        }
-*/
     }
 }
