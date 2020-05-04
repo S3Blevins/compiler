@@ -1,84 +1,94 @@
 int forloops(int b) {
-    int j = 2;
+     int j = 0;
 
-    for(int i = 0; i < b; i++) {
-        j++;
-    }
+     j = 2;
 
-    return j;
-}
+     for(int i = 0; i < b; ++i) {
+         ++j;
+     }
 
-int conditionals(int j, int k) {
-    if(j < k) {
-        return k - j;
-    } else if (j < 2) {
-        return j + 4;
-    } else {
-        return 3;
-    }
-}
+     return j;
+ }
 
-int dec(int a) {
-    return ++a;
-}
+ int conditionals(int j, int k) {
 
-int inc(int a) {
-    return --a;
-}
+     if(j < k) {
+         return k;
+     } else if (j == 4) {
+        return j;
+     } else {
+         return j;
+     }
+ }
 
-int div(int a, int b, int c, int d) {
-    return (a / b) / c / d;
-}
+ int dec(int a) {
+     return ++a;
+ }
 
-int mul(int a, int b, int c, int d) {
-    return (a * b) * c * d;
-}
+ int inc(int a) {
+     return --a;
+ }
 
-int sub(int a, int b, int c, int d) {
-    return (a - b) - c - d;
-}
+ int div(int a, int b, int c, int d) {
+     return (a / b) / c / d;
+ }
 
-int add(int a, int b, int c, int d) {
-    return (a + b) + c + d;
-}
+ int mul(int a, int b, int c, int d) {
+     return (a * b) * c * d;
+ }
 
-int main() {
-    int a = 10;
-    int b = 2;
-    int c = 5;
-    int d = 1;
-    int add1 = add(a, b, c, d);
+ int sub(int a, int b, int c, int d) {
+     return (a - b) - c - d;
+ }
 
-    a += 1;
+ int add(int a, int b, int c, int d) {
+     return (a + b) + c + d;
+ }
 
-    int sub1 = sub(a, b, c, d);
-    b *= a;
+ int main() {
+     int a = 10;
+     int b = 2;
+     int c = 5;
+     int d = 1;
+     int add1 = add(a, b, c, d);
 
-    int mul1 = mul(a, b, c, d);
-    c -= b;
-    int div1 = div(a, b, c, d);
+     a += 1;
 
-    int result = add1 + sub1 + mul1 + div1;
+     int sub1 = sub(a, b, c, d);
+     b *= a;
 
-    d += 11;
+     int mul1 = mul(a, b, c, d);
+     c -= b;
+     int div1 = div(a, b, c, d);
 
-    int add2 = add(6, 5, 4, 3);
+     int result = add1 + sub1 + mul1 + div1;
 
-    b += b + 4;
+     d += 11;
 
-    int sub2 = sub(10, 5, 1, d);
+     int add2 = add(6, 5, 4, 3);
 
-    c *= 2;
+     b += b + 4;
 
-    int j = inc(c);
+     int sub2 = sub(10, 5, 1, d);
 
-    int mul2 = mul(2, 5, b, 3);
+     c *= 2;
 
-    a -= 6;
+     int j = inc(c);
 
-    int div2 = div(80, c, 4, 1);
+     int mul2 = mul(2, 5, b, 3);
 
-    d /= 2;
+     a -= 6;
 
-    return result / d + add2 - sub2 * div2 + mul2 + j + conditionals(3, b) + forloops(17);
+     int div2 = div(80, c, 4, 1);
+
+     d /= 2;
+
+     b = d * 2;
+
+     return (result / d)
+      + add2 - sub2 * div2
+      + mul2
+      + j
+      + conditionals(a, b)
+      + forloops(b);
 }

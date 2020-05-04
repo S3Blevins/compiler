@@ -1,7 +1,0 @@
-(LABEL main)
-(LOAD a)
-(LOAD b)
-(ADD 9, 2, L0)
-(ADD L0, 6, L1)
-(ADD 8, L1, L2)
-(LOAD L2, test)
