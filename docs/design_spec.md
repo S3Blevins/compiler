@@ -154,6 +154,7 @@ The following is are requirements of limitations of compiler as it stands:
 * Variable type checking is not handled
 * The flag -O2 flag optimization is limited in functionality (works with minimal programs), and may causes errors, especially if used with loops and conditionals in the .c code.
 * Function call parameter counts are not checked.
+* Comparisons between constants are **NOT** supported (ie. (3 < 4)).
 
 **IF NOT MENTIONED IN 'SUPPORTED FEATURES' SECTION IT IS NOT SUPPORTED.**
 
